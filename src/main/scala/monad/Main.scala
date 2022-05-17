@@ -11,11 +11,12 @@ object Main {
 
   }
 }
+
 /*
+*  Extract -> Transform -> Wrap
 *  Monad(x).flatMap(f) == f(x)
 *  Monad(x).flatMap(x => Monad(x)) == Monad(x)
 *  Monad(x).flatMap(f).flatMap(g) == Monad(x).flatMap(x => f(x).flatMap(g))
-*
 *
 * */
 case class CustomMonad[+T](private val value: T ) {
