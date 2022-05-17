@@ -2,22 +2,21 @@ package start
 
 import ops.StringOps._
 import CheckOne._
+import scala.util.Try
 object Main {
 
   @main def run(): Unit = {
 
     // https://doc.akka.io/docs/akka/current/typed/actors.html
-    println(s"asdasd")
-
-
-
-
-
-
 
   }
-
 }
+
+
+
+
+
+
 
 object CheckOne {
   type One = String
