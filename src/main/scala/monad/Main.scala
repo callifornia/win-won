@@ -3,6 +3,7 @@ package monad
 object Main {
   @main def run(): Unit = {
     // https://doc.akka.io/docs/akka/current/typed/actors.html
+    // https://docs.scala-lang.org/scala3/reference/contextual/extension-methods.html
     CustomMonad("foo")
       .flatMap(v => CustomMonad(v.toUpperCase))
       .flatMap(v => CustomMonad(v.toLowerCase)) :: Nil foreach println
