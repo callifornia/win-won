@@ -22,7 +22,7 @@ object Main {
     def findPhone(name:String): Future[Int] = Future(db(name))
   }
 
-  // PipeTo example
+  // PipeTo example as an actor
   def someActor(counter: Int = 0, failure: Int = 0): Behavior[SomeMessage] =
     Behaviors.receive {
       (context, message) =>
@@ -42,12 +42,38 @@ object Main {
         }
     }
 
+  // PipeTo example as a function
+    val someActor2: (Int, Int) => Behavior[SomeMessage] =
+      (counter, failure) =>
+        Behaviors.receive[SomeMessage] {
+          (context, message) =>
+            message match {
+              case FindPhone(name) =>
+                context.pipeToSelf(ExternalService.findPhone(name)) {
+                  case Success(phone) => PersonPhone(phone)
+                  case Failure(exception) => PhoneNotFound(name, exception)
+                }
+                Behaviors.same
+              case PersonPhone(number) =>
+                println(s"Founded persons number: [$number]")
+                someActor2(counter + 1, failure)
+              case PhoneNotFound(name, reason) =>
+                println(s"Persons [$name] number was not found. Reason: [$reason]")
+                someActor2(counter, failure + 1)
+            }
+        }
+
   @main def run(): Unit = {
-    val blahActor = ActorSystem(someActor(), "asd")
-    blahActor ! FindPhone("a")
-    blahActor ! FindPhone("b")
-    blahActor ! FindPhone("c")
-    Thread.sleep(3000)
+    val blahActor = ActorSystem(someActor2(0, 0), "asd")
+
+    1 to 10 foreach { counter =>
+      blahActor ! FindPhone("a")
+      blahActor ! FindPhone("b")
+      blahActor ! FindPhone("c")
+      println(s"Messages: [${counter * 3}] were sent")
+    }
+
+    Thread.sleep(30000)
     blahActor.terminate()
   }
 }
