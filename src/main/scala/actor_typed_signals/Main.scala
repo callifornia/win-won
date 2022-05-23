@@ -9,32 +9,73 @@ import Worker._
 import WorkerService._
 
 
+///*
+//* Supervise strategy inside the worker itself
+//* */
+//object Worker {
+//  def apply(): Behavior[WorkerCommands] =
+//    Behaviors.supervise {
+//      Behaviors.receive[WorkerCommands] {
+//        (context, message) => message match
+//          case WashDish =>
+//            context.log.info("Worker ... WashDish")
+//            Behaviors.same
+//          case ThrowAnException =>
+//            context.log.info(s"Worker ... ThrowAnException")
+//            throw Exception("Custom Exception was thrown...")
+//          case Restart =>
+//            context.log.info(s"Worker ... Restart")
+//            Behaviors.unhandled
+//          case Stop =>
+//            context.log.info(s"Worker ... Stop")
+//            Behaviors.stopped
+//          case CleanKitchen =>
+//            context.log.info(s"Worker ... CleanKitchen")
+//            Behaviors.same
+//      }.receiveSignal {
+//        case (ctx, signal) =>
+//          ctx.log.info("Worker SIGNAL HANDLER. Signal: {} ", signal)
+//          Behaviors.same
+//      }
+//    }.onFailure[Exception](SupervisorStrategy.restart)
+//
+//
+//  sealed trait WorkerCommands
+//  case object WashDish extends WorkerCommands
+//  case object CleanKitchen extends WorkerCommands
+//
+//  case object ThrowAnException extends WorkerCommands
+//  case object Restart extends WorkerCommands
+//  case object Stop extends WorkerCommands
+//}
+
+/*
+* Supervise strategy outside of worker actor
+* */
 object Worker {
   def apply(): Behavior[WorkerCommands] =
-    Behaviors.supervise {
-      Behaviors.receive[WorkerCommands] {
-        (context, message) => message match
-          case WashDish =>
-            context.log.info("Worker ... WashDish")
-            Behaviors.same
-          case ThrowAnException =>
-            context.log.info(s"Worker ... ThrowAnException")
-            throw Exception("Custom Exception was thrown...")
-          case Restart =>
-            context.log.info(s"Worker ... Restart")
-            Behaviors.unhandled
-          case Stop =>
-            context.log.info(s"Worker ... Stop")
-            Behaviors.stopped
-          case CleanKitchen =>
-            context.log.info(s"Worker ... CleanKitchen")
-            Behaviors.same
-      }.receiveSignal {
-        case (ctx, signal) =>
-          ctx.log.info("Worker SIGNAL HANDLER. Signal: {} ", signal)
+    Behaviors.receive[WorkerCommands] {
+      (context, message) => message match
+        case WashDish =>
+          context.log.info("Worker ... WashDish")
           Behaviors.same
-      }
-    }.onFailure[Exception](SupervisorStrategy.restart)
+        case ThrowAnException =>
+          context.log.info(s"Worker ... ThrowAnException")
+          throw Exception("Custom Exception was thrown...")
+        case Restart =>
+          context.log.info(s"Worker ... Restart")
+          Behaviors.unhandled
+        case Stop =>
+          context.log.info(s"Worker ... Stop")
+          Behaviors.stopped
+        case CleanKitchen =>
+          context.log.info(s"Worker ... CleanKitchen")
+          Behaviors.same
+    }.receiveSignal {
+      case (ctx, signal) =>
+        ctx.log.info("Worker SIGNAL HANDLER. Signal: {} ", signal)
+        Behaviors.same
+    }
 
 
   sealed trait WorkerCommands
@@ -48,14 +89,26 @@ object Worker {
 
 
 object WorkerService {
+  // Supervisor strategy on WorkerService level, not inside worker
   def apply(): Behavior[WorkerServiceCommand] = {
     Behaviors.setup[WorkerServiceCommand] {
       context =>
-        val worker = context.spawn(Worker(), "worker-actor")
-        context.watch(worker)
+        val supervisedWorkerBehavior = Behaviors
+          .supervise[WorkerCommands](Worker.apply())
+          .onFailure[Exception](SupervisorStrategy.restart)
+        val worker = context.spawn(supervisedWorkerBehavior, "worker-actor")
         handle(worker)
     }
   }
+
+//  def apply(): Behavior[WorkerServiceCommand] = {
+//    Behaviors.setup[WorkerServiceCommand] {
+//      context =>
+//        val worker = context.spawn(Worker(), "worker-actor")
+//        context.watch(worker)
+//        handle(worker)
+//    }
+//  }
 
 
   def handle(worker: ActorRef[WorkerCommands]): Behavior[WorkerServiceCommand] = {
