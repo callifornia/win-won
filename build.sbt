@@ -5,6 +5,8 @@ libraryDependencies ++= List(
   "org.scalameta" %% "munit" % "0.7.29" % Test,
   "com.typesafe.akka" %% "akka-actor-typed" % AkkaVersion,
   "com.typesafe.akka" %% "akka-actor-testkit-typed" % AkkaVersion % Test,
+  "com.typesafe.akka" %% "akka-stream" % AkkaVersion,
+  "com.typesafe.akka" %% "akka-stream-testkit" % AkkaVersion % Test,
   "ch.qos.logback" % "logback-classic" % "1.2.3"
 )
 
