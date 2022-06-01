@@ -1,120 +1,82 @@
 package typeClasses
-import EncoderSyntax._
-import EncoderImpl._
-import scala.util.Try
-import DecoderSyntax._
-import DecoderImpl._
 
 object Main {
-  @main def run(): Unit = {
-//    "Foo".encode :: 123.encode :: Nil foreach println
-//    Foo(123).encode
-//    Foo(123).encode.decode[Foo] :: Nil foreach println
+  case class ScoredPoint(amount: Amount)
+  case class Amount(value: Int)
+  case class Description(value: String)
 
-    A(B(C(true))).encode :: Nil foreach println
-    A(B(C(true))).encode.decode[A] :: Nil foreach println
-  }
-}
-case class A(b: B)
-case class B(c: C)
-case class C(d: Boolean)
 
-case class Foo(a: Int)
-
-trait Decoder[T] {
-  def decode(str: String): Option[T]
-}
-
-object DecoderSyntax {
-  def decode[T](value: String)(implicit decoder: Decoder[T]): Option[T] = decoder.decode(value)
-
-  implicit class DecoderOps(value: String) {
-    def decode[T](implicit decoder: Decoder[T]): Option[T] = decoder.decode(value)
-  }
-}
-
-object DecoderImpl {
-
-  implicit object CDecoder extends Decoder[C] {
-    def decode(str: String): Option[C] =
-      Try(str.stripPrefix(EncoderImpl.str + "C(").stripSuffix(")"))
-        .toOption
-        .map(v => C(v.toBoolean))
+  trait Json[T] {
+    def toJson(value: T): JsonValue
   }
 
-  implicit object BDecoder extends Decoder[B] {
-    def decode(str: String): Option[B] =
-      Try(str.stripPrefix(EncoderImpl.str + "B(").stripSuffix(")"))
-        .toOption
-        .flatMap(_.decode[C].map(B))
+  implicit class JsonSyntax[T](value: T) {
+    def toJson(implicit converter: Json[T]): JsonValue = converter.toJson(value)
   }
 
-  implicit object ADecoder extends Decoder[A] {
-    def decode(str: String): Option[A] =
-      Try(str.stripPrefix(EncoderImpl.str + "A(").stripSuffix(")"))
-        .toOption
-        .flatMap(_.decode[B].map(A))
+  implicit object IntJson extends Json[Int] {
+    def toJson(value: Int): JsonValue = IntJsonValue(value)
+  }
+  implicit object StringJson extends Json[String] {
+    def toJson(value: String): JsonValue = StringJsonValue(value)
   }
 
-  implicit object FooDecoder extends Decoder[Foo] {
-    def decode(str: String): Option[Foo] =
-      Try(str.stripPrefix(EncoderImpl.str + "Foo(").stripSuffix(")").toIntOption)
-        .toOption
-        .flatten
-        .map(Foo)
+  implicit object DescriptionJson extends Json[Description] {
+    def toJson(value: Description): JsonValue =
+      JsonObjectValue(Map("description" -> StringJsonValue(value.value)))
+  }
+  implicit object AmountJson extends Json[Amount] {
+    def toJson(value: Amount): JsonValue = JsonObjectValue(
+      Map(
+        "amount" -> JsonObjectValue(Map(
+          "value" -> value.value.toJson))
+      )
+    )
   }
 
-  implicit object IntDecoder extends Decoder[Int] {
-    def decode(str: String): Option[Int] = str.stripPrefix(EncoderImpl.str).toIntOption
+  implicit object ScoredPoint extends Json[ScoredPoint] {
+    def toJson(value: ScoredPoint): JsonValue =
+      JsonObjectValue(Map(
+        "scoredPoint" -> value.amount.toJson)
+      )
   }
 
-  implicit object StringDecoder extends Decoder[String] {
-    def decode(str: String): Option[String] = Some(str.stripPrefix(EncoderImpl.str))
-  }
-}
-
-
-
-
-trait Encoder[T] {
-  def encode(v: T): String
-}
-
-object EncoderSyntax {
-  def encode[T](v: T)(implicit encoder: Encoder[T]): String = encoder.encode(v)
-
-  implicit class EncoderOps[T](value: T) {
-    def encode(implicit encoder: Encoder[T]): String = encoder.encode(value)
-  }
-}
-
-object EncoderImpl {
-  val str = "Encoded: "
-
-  implicit object CEncoder extends Encoder[C] {
-    def encode(v: C): String = str + v.getClass.getSimpleName + "(" + v.d + ")"
+  trait JsonValue {
+    def stringify: String
   }
 
-  implicit object BEncoder extends Encoder[B] {
-    def encode(v: B): String = str + v.getClass.getSimpleName + "(" + v.c.encode + ")"
+  case class IntJsonValue(value: Int) extends JsonValue {
+    def stringify: String = value.toString
   }
 
-  implicit object AEncoder extends Encoder[A] {
-    def encode(v: A): String = str + v.getClass.getSimpleName + "(" + v.b.encode + ")"
+  case class StringJsonValue(value: String) extends JsonValue {
+    def stringify: String = "\"" + value + "\""
   }
 
-  implicit object FooEncoder extends Encoder[Foo] {
-    def encode(v: Foo): String = str + v.getClass.getSimpleName
+  case class JsonObjectValue(value: Map[String, JsonValue]) extends JsonValue {
+    def stringify: String =
+      value.map {
+        case (key, value) => "\"" + key + "\":" + "" + value.stringify + ""
+      }.mkString("{", ",", "}")
   }
 
-  implicit object IntEncoder extends Encoder[Int] {
-    def encode(v: Int): String = str + v
-  }
+  def main(args: Array[String]): Unit = {
 
-  implicit object StringEncoder extends Encoder[String] {
-    def encode(v: String): String = str + v
+    println(Description("some descrids").toJson.stringify)
+    println(Amount(123).toJson.stringify)
+    println(ScoredPoint(Amount(345)).toJson.stringify)
   }
 
 }
+
+
+
+
+
+//implicit object ScoredPointJson extends Json[ScoredPoint] {
+//  def toJson(value: ScoredPoint): JsonValue =
+//    JsonObjectValue(("scoredPoints" -> Json(value))
+//    )
+//}
 
 
