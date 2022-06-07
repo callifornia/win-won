@@ -7,7 +7,13 @@ object Main {
   * A Functor for a type provides the ability for its values to be "mapped over",
   * i.e. apply a function that transforms inside a value while remembering its shape.
   * For example, to modify every element of a collection without dropping or adding elements.
-  * 
+  *
+  *
+  * Laws:
+  *   fa:Functor[F[_]]
+  *   identity: fa.map(x => x) == fa
+  *   compsotion: fa.map(f).map(g) == fa.map(x => f(x) andThen g(x))
+  *
   * */
 
   trait CustomFunctor[C[_]] {

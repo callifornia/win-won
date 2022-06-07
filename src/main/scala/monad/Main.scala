@@ -23,7 +23,7 @@ object Main {
 
   Monad(x).flatMap(f) == f(x)                                                    left identity
   Monad(x).flatMap(x => Monad(x)) == Monad(x)                                    right identity (USELESS)
-  Monad(x).flatMap(f).flatMap(g) == Monad(x).flatMap(x => f(x).flatMap(g))       associativity (ETW->ETW -> ETW)
+  Monad(x).flatMap(f).flatMap(g) == Monad(x).flatMap(x => f(x).flatMap(g))       composition, associativity (ETW -> ETW -> ETW)
  */
 case class CustomMonad[+T](private val value: T ) {
   def get(): T = value

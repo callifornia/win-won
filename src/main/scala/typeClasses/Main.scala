@@ -61,16 +61,11 @@ object Main {
   }
 
   def main(args: Array[String]): Unit = {
-
     println(Description("some descrids").toJson.stringify)
     println(Amount(123).toJson.stringify)
     println(ScoredPoint(Amount(345)).toJson.stringify)
   }
-
 }
-
-
-
 
 
 //implicit object ScoredPointJson extends Json[ScoredPoint] {
@@ -78,5 +73,3 @@ object Main {
 //    JsonObjectValue(("scoredPoints" -> Json(value))
 //    )
 //}
-
-
