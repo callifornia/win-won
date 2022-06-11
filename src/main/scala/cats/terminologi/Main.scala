@@ -15,10 +15,13 @@ object Main {
 
       Ми можемо дізнатися про те, ЯК МИ МОЖЕМО ВИВЧАТИ, і це те, що говорить нам теорія категорій
 
-*
-*
-*
-*
+      https://docs.google.com/document/d/1XfCIydoWIiL49AeExZ3DF4vJtlmI7TPilAva6eLo0WQ/edit
+
+
+
+
+
+
      */
   }
 }
