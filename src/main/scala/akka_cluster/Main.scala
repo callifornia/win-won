@@ -12,12 +12,14 @@ object Main {
   *   (in practice multiple ActorSystems)
   *
   *
-  *  - node -> Defined by a hostname:port:uid tuple
+  *  - node -> Defined by a "hostname:port:uid tuple"
   *  - When a new node is started it sends a message to all configured seed-nodes
   *  - then sends a join command to the one that answers first.
   *     If none of the seed nodes replies (might not be started yet)
   *      it retries this procedure until successful or shutdown.
   *
+  *
+  * LEADER
   * - There is no leader election process,
   * - the leader can always be recognised deterministically by any node whenever there is gossip convergence.
   * - The leader is only a role, any node can be the leader and it can change between convergence rounds.
@@ -28,6 +30,17 @@ object Main {
       - changing joining members to the up state or exiting members to the removed state.
   * - Currently leader actions are only triggered by receiving a new cluster state with gossip convergence.
   *
+  *
+  * SEAD NODES:
+  * - The seed nodes are contact points for new nodes joining the cluster.
+  * - When a new node is started it sends a message to all seed nodes and then sends a join command to the seed node that answers first.
+  * - The seed nodes configuration value does not have any influence on the running cluster itself,
+  *   it helps them to find contact points to send the join command to;
+  *   a new member can send this command to any current member of the cluster, not only to the seed nodes.
+  *
+  *   The actor system on a node that exited or was downed cannot join the cluster again.
+  *   In particular, a node that was downed while being unreachable and then regains connectivity cannot rejoin the cluster.
+  *   Instead, the process has to be restarted on the node, creating a new actor system that can go through the joining process again.
   *
   *  - The seed nodes can be started in any order.
   *  - node configured as the first element in the seed-nodes list must be started when initially starting a cluster.
@@ -48,6 +61,34 @@ object Main {
   *    so that one Cluster can span multiple data centers and still be tolerant to network partitions.
   *
   *
+  * Singleton manager:
+  *  - singleton actor instance among all cluster nodes or a group of nodes tagged with a specific role.
+  *  - started on the oldest node by creating a child actor from supplied Behavior.
+  *  - it makes sure that at most one singleton instance is running at any point in time.
+  *  - always running on the oldest member with specified role.
+  *  - when the oldest node is Leaving the cluster there is an exchange from the oldest and the new oldest before a new singleton is started up.
+  *  - the cluster failure detector will notice when oldest node becomes unreachable due to things like JVM crash, hard shut down, or network failure.
+  *    After Downing and removing that node the a new oldest node will take over and a new singleton actor is created.
+  *
+  * - To communicate with a given named singleton in the cluster you can access it though a proxy ActorRef.
+  * - ClusterSingleton.init for a given singletonName  ActorRef is returned.
+  * - if there already is a singleton manager running - is returned.
+
+  * - The proxy will route all messages to the current instance of the singleton, and keep track of the oldest node in
+  *   the cluster and discover the singleton’s ActorRef.
+  * - singleton is unavailable:
+  *   - the proxy will buffer the messages sent to the singleton
+  *   - deliver them when the singleton is finally available
+  *   - if the buffer is full the proxy will drop old messages when new messages are sent via the proxy.
+  *   - the size of the buffer is configurable and it can be disabled by using a buffer size of 0.
+  *
+  * Example: https://doc.akka.io/docs/akka/current/typed/cluster-singleton.html#example
+  *
+  * Lease
+  *   - a lease can be used as an additional safety measure to ensure that two singletons don’t run at the same time.
+  *   - reasons for how this can happen:
+  *   - mistakes in the deployment process leading to two separate Akka Clusters
+  *   - timing issues between removing members from the Cluster on one side of a network partition and shutting them down on the other side
   * */
 
 
