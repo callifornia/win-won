@@ -13,6 +13,7 @@ object Main {
   *
   * */
   case class Kleisli[F[_], In, Out](run: In => F[Out]) {
+                                                                      // Kleisli[F[_], In, Out] current
     def andThen[Out2](k: Kleisli[F, Out, Out2])(implicit f: FlatMap[F]): Kleisli[F, In, Out2] =
       Kleisli[F, In, Out2](in => run.apply(in).flatMap(out => k.run(out)))
 
