@@ -6,6 +6,7 @@ object Main {
   case class Description(value: String)
 
 
+
   trait Json[T] {
     def toJson(value: T): JsonValue
   }
@@ -64,12 +65,9 @@ object Main {
     println(Description("some descrids").toJson.stringify)
     println(Amount(123).toJson.stringify)
     println(ScoredPoint(Amount(345)).toJson.stringify)
+    /*
+    * Type class is the thing which provide sme interface for some kind of defined types
+    * */
   }
 }
 
-
-//implicit object ScoredPointJson extends Json[ScoredPoint] {
-//  def toJson(value: ScoredPoint): JsonValue =
-//    JsonObjectValue(("scoredPoints" -> Json(value))
-//    )
-//}

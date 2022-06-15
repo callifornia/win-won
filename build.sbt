@@ -10,8 +10,12 @@ libraryDependencies ++= List(
   "dev.zio" %% "zio" % ZioVersion,
   "ch.qos.logback" % "logback-classic" % "1.2.3",
   "org.typelevel" %% "cats-effect" % CatsEffectVersion,
+  "com.typesafe.akka" %% "akka-actor-typed" % AkkaVersion,
   "com.typesafe.akka" %% "akka-cluster-typed" % AkkaVersion,
-  "com.typesafe.akka" %% "akka-actor-typed" % AkkaVersion
+  "com.typesafe.akka" %% "akka-cluster-sharding-typed" % AkkaVersion,
+  "com.typesafe.akka" %% "akka-serialization-jackson" % AkkaVersion
+
+
 
   // not compiled with a scala 2.13.8 as they have dependency issue
   //  "org.apache.kafka" %% "kafka" % KafkaVersion,

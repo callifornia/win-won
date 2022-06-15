@@ -1,5 +1,12 @@
 package akka_cluster
 
+import akka.actor.typed.scaladsl.Behaviors
+import akka.actor.typed.Behavior
+import akka.actor.typed.{ActorRef, ActorSystem, scaladsl}
+import akka.cluster.sharding.typed.scaladsl.Entity
+import akka_cluster.Counter.Increment
+import com.typesafe.config.ConfigFactory
+
 object Main {
 
 
@@ -89,11 +96,74 @@ object Main {
   *   - reasons for how this can happen:
   *   - mistakes in the deployment process leading to two separate Akka Clusters
   *   - timing issues between removing members from the Cluster on one side of a network partition and shutting them down on the other side
+  *
+  *
+  * Cluster sharding 
+  *  - useful when you need to distribute actors across several nodes in the cluster and want to be able to interact with them using their logical identifier, but without having to care about their physical location in the cluster, which might also change over time.
+  *
+  *  - example be actors representing Aggregate Roots in Domain-Driven Design terminology “entities”.
+  *    These actors typically have persistent (durable) state, but this feature is not limited to actors with persistent state.
+  *
+  *  - Cluster sharding is typically used when you have many stateful actors that together consume more resources (e.g. memory) than fit on one machine. 
+  *
+  *  https://blog.knoldus.com/introduction-to-akka-cluster-sharding/
   * */
 
 
+  import akka.cluster.sharding.typed.ShardingEnvelope
+  import akka.cluster.sharding.typed.scaladsl.ClusterSharding
+  import akka.cluster.sharding.typed.scaladsl.EntityTypeKey
+  import akka.cluster.sharding.typed.scaladsl.EntityRef
 
   def main(args: Array[String]): Unit = {
+    //    val actorSystem = ActorSystem(scaladsl.Behaviors.empty, "Fooo")
+    //    val counterType = EntityTypeKey.apply[Counter.CounterMessages]("counter")
+    //    val sharding = ClusterSharding(actorSystem)
+    //    sharding.init(Entity.apply(counterType)(context => Counter.apply(context.entityId)))
+    //
+    //    val counterRef = sharding.entityRefFor(counterType, "foo-counter")
+    //    counterRef ! Increment(1000)
+    //    initCluster(25251 :: 25252 :: 0 :: Nil)
 
+//    initCluster(25251)
+//    initCluster(25252)
+//    initCluster(0)
+
+        ActorSystem(Counter.apply("asd"), "ClusterSystemFoo")
+  }
+
+
+  def initCluster(port: Int): Unit = {
+    val config = ConfigFactory.parseString(s"""akka.remote.artery.canonical.port=$port""").withFallback(ConfigFactory.load())
+    ActorSystem(Counter.apply(port.toString), "ClusterSystemFoo", config)
+    //        if (port == 25251) {
+    //          val counterType = EntityTypeKey.apply[Counter.CounterMessages]("counter")
+    //          val sharding = ClusterSharding(actorSystem)
+    //          sharding.init(Entity.apply(counterType)(context => Counter.apply(context.entityId)))
+    //        }
+  }
+}
+
+object Counter {
+  trait CounterMessages extends CborSerializable
+
+  case class Increment(amount: Int) extends CounterMessages
+
+  case class GetValue(replyTo: ActorRef[Int]) extends CounterMessages
+
+  def apply(entityId: String): Behavior[CounterMessages] = {
+    def update(currentAmount: Int): Behavior[CounterMessages] =
+      Behaviors.receive(
+        (context, msg) => msg match {
+          case Increment(amount) =>
+            context.log.info("Received Increment({}) msg. entityId: {}", amount/*, entityId*/)
+            update(currentAmount + amount)
+          case GetValue(replyTo) =>
+            context.log.info("Received GetValue({}) msg, entityId: {}", replyTo/*, entityId*/)
+            replyTo ! currentAmount
+            update(currentAmount)
+        })
+
+    update(0)
   }
 }
