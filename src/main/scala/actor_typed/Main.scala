@@ -2,6 +2,9 @@ package actor_typed
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.ActorSystem
 import akka.actor.typed.Behavior
+import akka.util.Timeout
+
+import scala.concurrent.duration.DurationInt
 
 object Main {
 
@@ -46,13 +49,48 @@ object Main {
     }
 
 
-  @main def run(): Unit = {
-    val mutableStateActor = ActorSystem(immutableStateActor(), "sad")
-    mutableStateActor ! MessageA
-    mutableStateActor ! MessageB
-    mutableStateActor ! MessageC
-    mutableStateActor ! MessageA
-    mutableStateActor ! MessageA
+  /*
+  * Actor is a function:
+  *   Message => Behavior[Message]
+  *
+  *   Behavior[Message]
+  *     - can do side effect
+  *     - can hold a state
+  *     - can change the way of reacting on some messages
+  *     -
+  *
+  * */
+
+  import akka.actor.typed.ActorSystem
+  import akka.actor.typed.ActorRef
+  import akka.actor.typed.scaladsl.AskPattern._
+
+  // example 2
+  case class Hello(value: String)
+  case class SayHello(name: String, replyTo: ActorRef[Hello])
+
+  object FirstActor {
+    def process(): Behavior[SayHello] =
+      Behaviors.receiveMessage {
+        case SayHello(name, replyTo) =>
+          println("SayHello is going to reply ...")
+          replyTo ! Hello(name + " hello from FirstActor")
+          Behaviors.same
+      }
+  }
+
+
+  def main(args: Array[String]): Unit = {
+    implicit val timeout = Timeout(3.seconds)
+    implicit val mutableStateActor = ActorSystem(immutableStateActor(), "sad")
+    implicit val ec = mutableStateActor.executionContext
+
+    val sys: ActorSystem[SayHello] = ActorSystem(FirstActor.process(), "SomeActorSystem")
+
+    sys
+      .ask(replyTo => SayHello("Jeremmy", replyTo))
+      .foreach(result => println("Result is: " + result))
+
     Thread.sleep(2000)
     mutableStateActor.terminate()
   }

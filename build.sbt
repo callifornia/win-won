@@ -13,7 +13,13 @@ libraryDependencies ++= List(
   "com.typesafe.akka" %% "akka-actor-typed" % AkkaVersion,
   "com.typesafe.akka" %% "akka-cluster-typed" % AkkaVersion,
   "com.typesafe.akka" %% "akka-cluster-sharding-typed" % AkkaVersion,
-  "com.typesafe.akka" %% "akka-serialization-jackson" % AkkaVersion
+  "com.typesafe.akka" %% "akka-serialization-jackson" % AkkaVersion,
+  "com.typesafe.akka" %% "akka-persistence-typed" % AkkaVersion,
+
+  // journal dependencies
+  "org.fusesource.leveldbjni" % "leveldbjni-all" % "1.8",
+  "org.iq80.leveldb" % "leveldb" % "0.7"
+
 
 
 
