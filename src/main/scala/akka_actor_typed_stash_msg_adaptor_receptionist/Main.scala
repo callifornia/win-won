@@ -9,10 +9,8 @@ import akka.actor.typed.scaladsl.Behaviors
 object Main {
 
   def main(args: Array[String]): Unit = {
-
+//    https://www.coursera.org/learn/scala-akka-reactive/lecture/CSQ9e/lecture-5-4-akka-typed-facilities
   }
-
-
 
   /*
   * Receptionist -> ability to find any actor in cluster, but first you need to register it.
