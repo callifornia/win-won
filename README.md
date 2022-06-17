@@ -1,1 +1,4 @@
-# win-won
+- saga pattern
+- continue coursera
+- SQL
+- Kafka

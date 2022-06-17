@@ -29,6 +29,7 @@ object Main {
         command match {
           case Deposit(amount) => Effect.persist(Deposited(amount))
           case Withdraw(amount) => Effect.persist(Withrawed(amount))
+          case GetBalance(replyTo) => Effect.reply(replyTo)(CurrentBalance(account.amount))
         }
 
     val eventHandler: (Account, Event) => Account =
@@ -54,8 +55,13 @@ object Main {
   def main(args: Array[String]): Unit = {
     implicit val system = ActorSystem(EventHandler.apply(1), "CustomActorSystem")
     implicit val timer = Timeout(3.seconds)
+    implicit val ec = system.executionContext
 
-    system ! GetBalance
-
+    system ! Deposit(777)
+    system ! Withdraw(100)
+    system
+      .ask(replyTo => GetBalance(replyTo))
+      .foreach(currentBalance => println("Current balance is: " + currentBalance))
+    Thread.sleep(2000)
   }
 }
