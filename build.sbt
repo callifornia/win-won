@@ -15,12 +15,18 @@ libraryDependencies ++= List(
   "com.typesafe.akka" %% "akka-cluster-typed" % AkkaVersion,
   "com.typesafe.akka" %% "akka-cluster-sharding-typed" % AkkaVersion,
   "com.typesafe.akka" %% "akka-serialization-jackson" % AkkaVersion,
+
   "com.typesafe.akka" %% "akka-persistence-typed" % AkkaVersion,
   "com.typesafe.akka" %% "akka-persistence-query" % AkkaVersion,
+  "com.lightbend.akka" %% "akka-projection-core" % "1.2.4",
+  "com.lightbend.akka" %% "akka-projection-eventsourced" % "1.2.4",
+  "com.lightbend.akka" %% "akka-projection-cassandra" % "1.2.4",
+  "com.typesafe.akka" %% "akka-persistence-cassandra" % "1.0.5"
+
 
   // journal dependencies
-  "org.fusesource.leveldbjni" % "leveldbjni-all" % "1.8",
-  "org.iq80.leveldb" % "leveldb" % "0.7"
+//  "org.fusesource.leveldbjni" % "leveldbjni-all" % "1.8",
+//  "org.iq80.leveldb" % "leveldb" % "0.7"
 
 
 
