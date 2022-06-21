@@ -492,3 +492,6 @@ from employee e1
 where emp1.salary > (select avg(salary)
                      from employee e2
                      where e1.dep_name = e2.dep_name)
+
+
+
