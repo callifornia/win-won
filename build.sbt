@@ -21,6 +21,7 @@ libraryDependencies ++= List(
   "com.lightbend.akka" %% "akka-projection-core" % "1.2.4",
   "com.lightbend.akka" %% "akka-projection-eventsourced" % "1.2.4",
   "com.lightbend.akka" %% "akka-projection-cassandra" % "1.2.4",
+  "com.typesafe.akka" %% "akka-stream" % AkkaVersion,
   "com.typesafe.akka" %% "akka-persistence-cassandra" % "1.0.5"
 
 
@@ -35,7 +36,7 @@ libraryDependencies ++= List(
   //  "org.apache.kafka" %% "kafka" % KafkaVersion,
   //  "org.apache.kafka" % "kafka-clients" % KafkaVersion,
   //  "com.typesafe.akka" %% "akka-actor-testkit-typed" % AkkaVersion % Test,
-  //  "com.typesafe.akka" %% "akka-stream" % AkkaVersion,
+
   //  "com.typesafe.akka" %% "akka-stream-testkit" % AkkaVersion % Test,
 )
 
