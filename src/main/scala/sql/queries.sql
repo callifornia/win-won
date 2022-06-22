@@ -537,3 +537,31 @@ select store_name, sum(quantity)
 from sales
 group by store_name
 having sum(quantity) > (select avg(quantity) from sales);
+
+
+
+/*
+  INSERT
+*/
+-- Question: Insert employees into the history table and make sure there are no duplicates
+insert into employee_history
+select *
+from eployee
+join department
+on employee.dep_name=deparrtment.dep_name
+where not exists (select 1 from employee_history where employee.id=employee_history.id)
+
+
+/*
+  UPDATE
+*/
+-- Question: Give 10% increment to all employee in Bangalor location based on the maximum salary earned by
+-- an employee in each departament. Only consider  employees in employee_history table
+
+update employeee e
+set salary = (select max(salary) + (max(salary * 0.1))
+              from employee_history eh
+              where eh.dep_name = e.dep_name)
+where e.dep_name in (select dep_name from department where location = 'Bangalor') and
+      e.id in (select id from employee_history);
+
