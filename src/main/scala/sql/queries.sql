@@ -494,4 +494,46 @@ where emp1.salary > (select avg(salary)
                      where e1.dep_name = e2.dep_name)
 
 
+-- Question: Find departments who has no employees
+select *
+from department d1
+where not exists (select 1 from employee emp where d1.dep_name != emp.dep_name)
 
+
+
+/*
+  Subquery inside subquery
+*/
+
+-- Find stores who's sales better than the average sales across stores
+
+with sales as
+  (select store_name, sum(price) as total_sales
+    from sales
+     group by store_name)
+select *
+from sales
+join (select avg(total_sales) as sales from sales x) avg_sales
+on sales.total.price > avg_sales.sales
+
+
+-- WITH CLOUSE
+     -- name -----     -- query itself ------
+with students_with as (select * from students)
+select * from students_with -- using that query here
+
+
+/*
+  Subquery can be used in:
+    -   SELECT - which is not reccomended
+    -   FROM
+    -   WHERE
+    -   HAVING
+*/
+-- subquery in  Having example:
+-- Question: Find the store who sold more units than the average units sold by all stores
+
+select store_name, sum(quantity)
+from sales
+group by store_name
+having sum(quantity) > (select avg(quantity) from sales);
