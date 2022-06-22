@@ -53,7 +53,9 @@ where salary <= 10000; -- All records where salary is less than or equal to 1000
 
 
 
--- Logical Operators
+                                                    -- Logical Operators
+
+
 select *
 from staff_salary
 where salary between 5000 and 10000; -- Fetch all records where salary is between 5000 and 10000.
@@ -97,7 +99,10 @@ where
 
 
 
--- Arithmetic Operators
+
+                                                        -- Arithmetic Operators
+
+
 
 select (5 + 2) as addition; -- Sum of two numbers. PostgreSQL does not need FROM clause to execute such queries.
 select (5-2) as subtract; -- Oracle & MySQL equivalent query would be -->  select (5+2) as Addition FROM DUAL; --> Where dual is a dummy table.
@@ -112,7 +117,13 @@ select staff_type from staff limit 5; -- Fetches only the first 5 records from t
 
 select * from staff_view;
 
--- CASE statement:  (IF 1 then print True ; IF 0 then print FALSE ; ELSE print -1)
+
+
+                                                    -- CASE statement
+
+
+
+(IF 1 then print True ; IF 0 then print FALSE ; ELSE print -1)
 
 -- multiply case is allowed in select statement but each case for each column
 select age, gender, staff_id,
@@ -136,7 +147,8 @@ order by 2 desc;
 
 
 
--- TO_CHAR / TO_DATE:
+                                                      -- TO_CHAR / TO_DATE:
+
 
 select *
 from students
@@ -152,7 +164,10 @@ where dob = to_date('13-JAN-2014', 'DD-MON-YYYY');
 
 
 
--- JOINS (Two ways to write SQL queries):
+                                                      -- JOINS
+
+
+--(Two ways to write SQL queries):
 -- #1. Using JOIN keyword between tables in FROM clause.
 
 select t1.column1 as c1,
@@ -239,9 +254,10 @@ having count(1) > 1;
 
 
 
-/*
-  SUBQUERY: Query written inside a query is called subquery.
-*/
+
+                            -- SUBQUERY: Query written inside a query is called subquery
+
+
 
 -- Fetch the details of parents having more than 1 kids going to this school. Also display student details.
 select (p.first_name || ' ' || p.last_name)                                    as parent_name,
@@ -270,11 +286,11 @@ where staff_id IN
 
 
 
-/*
-  Aggregate Functions (AVG, MIN, MAX, SUM, COUNT):
-  Aggregate functions are used to perform calculations on a set of values.
 
-*/
+                               --  Aggregate Functions (AVG, MIN, MAX, SUM, COUNT):
+
+
+
 -- AVG: Calculates the average of the given values.
 select avg(ss.salary)::numeric(10, 2) as avg_salary
 from staff_salary ss
@@ -381,8 +397,13 @@ full outer join staff_salary ss on ss.staff_id = stf.staff_id
 order by 1,2;
 
 
+
 /*
-  VIEWS
+                                                       VIEWS
+
+
+
+
   cases:
     1. create view
     2. alter table by adding new column
@@ -402,7 +423,7 @@ select avg(salary) from staff_salary;
 
 
 /*
-SUB-QUERY
+                                                    SUB-QUERY
 
 SUB-QUERY types:
   1. Scalar subquery
@@ -502,7 +523,7 @@ where not exists (select 1 from employee emp where d1.dep_name != emp.dep_name)
 
 
 /*
-  Subquery inside subquery
+                                                  Subquery inside subquery
 */
 
 -- Find stores who's sales better than the average sales across stores
@@ -541,8 +562,10 @@ having sum(quantity) > (select avg(quantity) from sales);
 
 
 /*
-  INSERT
+                                                            INSERT
 */
+
+
 -- Question: Insert employees into the history table and make sure there are no duplicates
 insert into employee_history
 select *
@@ -553,7 +576,7 @@ where not exists (select 1 from employee_history where employee.id=employee_hist
 
 
 /*
-  UPDATE
+                                                          UPDATE
 */
 -- Question: Give 10% increment to all employee in Bangalor location based on the maximum salary earned by
 -- an employee in each departament. Only consider  employees in employee_history table
@@ -564,4 +587,12 @@ set salary = (select max(salary) + (max(salary * 0.1))
               where eh.dep_name = e.dep_name)
 where e.dep_name in (select dep_name from department where location = 'Bangalor') and
       e.id in (select id from employee_history);
+
+
+
+/*
+                                            WINDOW FUNCTION
+
+
+*/
 
