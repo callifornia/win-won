@@ -596,3 +596,63 @@ where e.dep_name in (select dep_name from department where location = 'Bangalor'
 
 */
 
+
+select * from employee;
+
+select *, max(salary) over(partition by dept_name) as max_salary
+from employee e;
+
+/*  Row_number()  */
+select *,
+row_number() over(partition by dept_name) as rm
+from employee
+
+
+-- Find the first 2 employee who has joined the company for each department
+select *
+from (
+  select *,
+  row_number() over(partition by dept_name order by e.emp_id) as rm
+  from employee e
+) x
+where x.rm < 3;
+
+/*  rank()  */
+
+-- Find the top 3 employees in each department earning the max salary
+select *
+from (
+  select *,
+  rank() over(partition by dept_name order by salary desc) as asd
+  from employee e) x
+where x.asd < 4 and ;
+
+/*  dense_rank()
+
+  The deference between rank() and dense_rank() is that in case of similar values heppest `dense_rank` does not skip
+  the number. Just run to see what it means
+*/
+select *
+from (
+    select *,
+      rank()       over(partition by dept_name order by salary desc) as rank,
+      dense_rank() over(partition by dept_name order by salary desc) as dense_rank,
+      row_number() over(partition by dept_name order by salary desc) as row_number
+    from employee e) x
+where x.row_number < 4;
+
+
+/*  lag()   - looks at the previous record
+    lead()  - looks at the next record
+    Question: If salary of an employee is higher or lower or equal to the previous employee
+*/
+select *,
+lag(salary, 1 /*row number to look at*/, 0 /*default number in case of first or last record*/) over(partition by dept_name order by salary desc) as foo
+lag(salary, 1 /*row number to look at*/, 0 /*default number in case of first or last record*/) over(partition by dept_name order by salary desc) as foo
+from employee;
+
+
+
+
+
+
