@@ -148,13 +148,10 @@ object Main {
   def check(): Behavior[Message] = {
     Behaviors.receivePartial {
       case (ctx, Something(ref: ActorRef[AnotherMessageProtocol])) =>
-        println("check() actor ...")
         val adapter = ctx.messageAdapter(WrappedResponse)
         ref ! RequestSomething("foo", adapter)
         Behaviors.same
-      case (ctx, WrappedResponse(response)) =>
-        println("WrappedResponse actor ... " + response)
-        Behaviors.same
+      case (ctx, WrappedResponse(response)) => Behaviors.same
     }
   }
 

@@ -6,6 +6,9 @@ import scala.concurrent.duration.DurationInt
 import akka.actor.typed.ActorSystem
 import akka.actor.typed.ActorRef
 import akka.actor.typed.scaladsl.AskPattern._
+import akka.actor.typed.receptionist.Receptionist.{Find, Listing, Register}
+import akka.actor.typed.receptionist.ServiceKey
+
 
 object Main {
   def main(args: Array[String]): Unit = {
@@ -150,6 +153,40 @@ object toJsonWrapper {
   }
 
 
+                                  /* Custom for-comprehension */
+
+  trait CMonad[+A] {
+    def apply[A](value: A): CMonad[A] = CMonadImpl(value)
+    def flatMap[B](function: A => CMonad[B]): CMonad[B]
+    def map[B](function: A => B): CMonad[B]
+    def withFilter(condition: A => Boolean): CMonad[A]
+  }
+
+  object CMonad {
+    def apply[A](value: A): CMonad[A] = CMonadImpl(value)
+  }
+
+  case class CMonadImpl[A](value: A) extends CMonad[A] { self =>
+    def flatMap[B](function: A => CMonad[B]): CMonad[B] = function(value)
+    def map[B](function: A => B): CMonad[B] = CMonadImpl(function(value))
+    def withFilter(condition: A => Boolean): CMonad[A] = if (condition(value)) self else CMonadEmpty
+  }
+
+  case object CMonadEmpty extends CMonad[Nothing] {
+    def flatMap[B](function: Nothing => CMonad[B]): CMonad[B] = CMonadEmpty
+    def map[B](function: Nothing => B): CMonad[B] = CMonadEmpty
+    def withFilter(condition: Nothing => Boolean): CMonad[Nothing] = CMonadEmpty
+  }
+
+  // usage:
+
+  for {
+    aa <- CMonad(123)
+    bb <- CMonad(456) if bb == 6 // for if we should implement `def withFilter`
+  } yield aa + bb
+
+
+
 
 /*
 *                               Functor
@@ -245,15 +282,15 @@ object toJsonWrapper {
 * We do have:
 *   f: Int => String
 *   g: String => Double
-* So we can compose both functions in a way: f andThen g
+* So we can compose both functions in a way: "f andThen g"
 *
 *   h: String => Option[Int]
 *   p: Int => Option[Double]
-* We can not write: h andThen p, here is where Kleisli comes to play
+* We can not write: "h andThen p", here is where Kleisli comes to play
 *
 *
 *
-* flatMap is not a hard requirement
+* "flatMap" is not a hard requirement
 * so basically we can implement with a map: but in this case Functor is required
 *
 * */
@@ -282,6 +319,8 @@ object toJsonWrapper {
 *     - can do side effect
 *     - can hold a state
 *     - can change the way of reacting on some messages
+*     - sender() was removed from actor typed version and instead of this we should include replyTo into the msg itself
+*     - has defined message protocol to talk about
 * */
 
   case class Hello(value: String)
@@ -291,7 +330,6 @@ object toJsonWrapper {
     def process(): Behavior[SayHello] =
       Behaviors.receiveMessage {
         case SayHello(name, replyTo) =>
-          println("SayHello is going to reply ...")
           replyTo ! Hello(name + " hello from FirstActor")
           Behaviors.same
       }
@@ -307,19 +345,18 @@ object toJsonWrapper {
       .foreach(result => println("Result is: " + result))
   }
 
-  /*                                  Stash                       */
+
+                                            /*  Stash */
 
   def stash(): Behavior[StashMessage] =
     Behaviors.setup { ctx =>
-      Behaviors.withStash(30) { buffer =>                     /*  <-- create way */
+      Behaviors.withStash(30) { buffer =>                     //  <-- create way
         Behaviors.receiveMessagePartial {
           case First =>
-            println("First ...")
-            buffer.unstashAll(unstashBehavior())              /*  <-- UN-STASH MSGs */
+            buffer.unstashAll(unstashBehavior())              //  <-- UN-STASH MSGs
             Behaviors.same
           case s: StashMessage =>
-            println("Stash: " + s)
-            buffer.stash(s)                                   /*  <-- STASH MSGs */
+            buffer.stash(s)                                   //  <-- STASH MSGs
             Behaviors.same
         }
       }
@@ -339,17 +376,20 @@ object toJsonWrapper {
 
 
 
+
   /*
-                                    pipeTo
+                                          pipeTo
 
-     handle Future from some service and trunsform it into the message which are going to be send to itself
+    Handle Future from some service and transform them into the message which are going to be send to itself
 
-     context.pipeToSelf(ExternalService.findPhone(name)) {
-        case Success(phone) => PersonPhone(phone)
-        case Failure(exception) => PhoneNotFound(name, exception)
+    Example:
+    context.pipeToSelf(ExternalService.findPhone(name)) {
+      case Success(phone) => PersonPhone(phone)
+      case Failure(exception) => PhoneNotFound(name, exception)
     }
 
-                                  SupervisorStrategy
+
+                                     SupervisorStrategy
 
       def apply(): Behavior[WorkerServiceCommand] = {
         Behaviors.setup[WorkerServiceCommand] {
@@ -365,100 +405,177 @@ object toJsonWrapper {
 
 
 
-                                  Cluster
+                                            Cluster
 
-   - Akka Cluster provides a fault-tolerant decentralized peer-to-peer based Cluster Membership Service
+
+   -  Akka Cluster provides a fault-tolerant decentralized peer-to-peer based Cluster Membership Service
      with no single point of failure or single point of bottleneck.
-     It does this using gossip protocols and an automatic failure detector.
+      It does this using gossip protocols and an automatic failure detector.
      Akka Cluster allows for building distributed applications, where one application or service spans multiple nodes
      (in practice multiple ActorSystems)
 
 
     - node -> Defined by a "hostname:port:uid tuple"
     - When a new node is started it sends a message to all configured seed-nodes
-    - then sends a join command to the one that answers first.
-       If none of the seed nodes replies (might not be started yet)
-        it retries this procedure until successful or shutdown.
+    - then sends a join command to the one that answers first. If none of the seed nodes replies (might not be started yet)
+      it retries this procedure until successful or shutdown.
 
 
-                                    LEADER
+                                            LEADER
 
-   - There is no leader election process,
-   - the leader can always be recognised deterministically by any node whenever there is gossip convergence.
+   - There is no leader election process
+   - The leader can always be recognised deterministically by any node whenever there is gossip convergence.
    - The leader is only a role, any node can be the leader and it can change between convergence rounds.
    - The leader is the first node in sorted order that is able to take the leadership role
-
    - The role of the leader:
-      - is to shift members in and out of the cluster
-      - changing joining members to the up state or exiting members to the removed state.
+      - is to "shift" members "in" and "out" of the cluster
+      - changing joining members to the "up" state or exiting members to the "removed" state.
    - Currently leader actions are only triggered by receiving a new cluster state with gossip convergence.
 
 
-                                SEAD NODES
+                                           SEAD NODES
 
    - The seed nodes are contact points for new nodes joining the cluster.
-   - When a new node is started it sends a message to all seed nodes and then sends a join command to the seed node that answers first.
-   - The seed nodes configuration value does not have any influence on the running cluster itself,
-     it helps them to find contact points to send the join command to;
-     a new member can send this command to any current member of the cluster, not only to the seed nodes.
+   - When a new node is started it sends a message to all seed nodes and then sends a join command to the seed node that
+     answers first.
+   - The seed nodes configuration value does not have any influence on the running cluster itself, it helps them to
+     find contact points to send the join command to; a new member can send this command to any current member of the
+     cluster, not only to the seed nodes.
 
-     The actor system on a node that exited or was downed cannot join the cluster again.
+   - The actor system on a node that exited or was downed cannot join the cluster again.
      In particular, a node that was downed while being unreachable and then regains connectivity cannot rejoin the cluster.
      Instead, the process has to be restarted on the node, creating a new actor system that can go through the joining process again.
 
-    - The seed nodes can be started in any order.
-    - node configured as the first element in the seed-nodes list must be started when initially starting a cluster.
-      If it is not, the other seed-nodes will not become initialized, and no other node can join the cluster.
-      The reason for the special first seed node is to avoid forming separated islands when starting from an empty cluster.
-    - As soon as more than two seed nodes have been started, it is no problem to shut down the first seed node.
-    - If the first seed node is restarted, it will first try to join the other seed nodes in the existing cluster.
-    - Note that if you stop all seed nodes at the same time and restart them with the same seed-nodes configuration they will join themselves and form a new cluster, instead of joining remaining nodes of the existing cluster.
-    - That is likely not desired and can be avoided by listing several nodes as seed nodes for redundancy, and don’t stop all of them at the same time.
+   - The seed nodes can be started in any order.
+   - Node configured as the first element in the seed-nodes list must be started when initially starting a cluster.
+     If it is not, the other seed-nodes will not become initialized, and no other node can join the cluster.
+     The reason for the special first seed node is to avoid forming separated islands when starting from an empty cluster.
+   - As soon as more than two seed nodes have been started, it is no problem to shut down the first seed node.
+   - If the first seed node is restarted, it will first try to join the other seed nodes in the existing cluster.
+   - Note that if you stop all seed nodes at the same time and restart them with the same seed-nodes configuration they
+     will join themselves and form a new cluster, instead of joining remaining nodes of the existing cluster.
+   - That is likely not desired and can be avoided by listing several nodes as seed nodes for redundancy, and don’t stop
+     all of them at the same time.
 
-    - The Configuration Compatibility Check feature ensures that all nodes in a cluster have a compatible configuration.
-    - Whenever a new node is joining an existing cluster, a subset of its configuration settings (only needed) is sent to the nodes in the
-       cluster for verification.
-    - Once the configuration is checked on the cluster side, the cluster sends back its own set of required configuration settings.
-    - The joining node will then verify if it’s compliant with the cluster configuration.
-    - The joining node will only proceed if all checks pass, on both sides.
-    - Akka Cluster can be used across multiple data centers, availability zones or regions,
-      so that one Cluster can span multiple data centers and still be tolerant to network partitions.
+   - The Configuration Compatibility Check feature ensures that all nodes in a cluster have a compatible configuration.
+   - Whenever a new node is joining an existing cluster, a subset of its configuration settings (only needed) is sent
+     to the nodes in the cluster for verification.
+   - Once the configuration is checked on the cluster side, the cluster sends back its own set of required configuration settings.
+   - The joining node will then verify if it’s compliant with the cluster configuration.
+   - The joining node will only proceed if all checks pass, on both sides.
+   - Akka Cluster can be used across multiple data centers, availability zones or regions, so that one Cluster can span
+     multiple data centers and still be tolerant to network partitions.
 
 
-                              Singleton manager
+                                         Singleton manager
 
-    - singleton actor instance among all cluster nodes or a group of nodes tagged with a specific role.
-    - started on the oldest node by creating a child actor from supplied Behavior.
-    - it makes sure that at most one singleton instance is running at any point in time.
-    - always running on the oldest member with specified role.
-    - when the oldest node is Leaving the cluster there is an exchange from the oldest and the new oldest before a new singleton is started up.
-    - the cluster failure detector will notice when oldest node becomes unreachable due to things like JVM crash, hard shut down, or network failure.
-      After Downing and removing that node the a new oldest node will take over and a new singleton actor is created.
+    - Singleton actor instance among all cluster nodes or a group of nodes tagged with a specific role.
+    - Started on the oldest node by creating a child actor from supplied Behavior.
+    - It makes sure that at most one singleton instance is running at any point in time.
+    - Always running on the oldest member with specified role.
+    - When the oldest node is Leaving the cluster there is an exchange from the oldest and the new oldest before
+      a new singleton is started up.
+    - The cluster failure detector will notice when oldest node becomes unreachable due to things like JVM crash,
+      hard shut down, or network failure. After Downing and removing that node the a new oldest node will take over
+      and a new singleton actor is created.
 
-   - To communicate with a given named singleton in the cluster you can access it though a proxy ActorRef.
-   - ClusterSingleton.init for a given singletonName  ActorRef is returned.
-   - if there already is a singleton manager running - is returned.
+    - To communicate with a given named singleton in the cluster you can access it though a proxy ActorRef.
+    - ClusterSingleton.init for a given singletonName  ActorRef is returned.
+    - If there already is a singleton manager running - is returned.
 
-   - The proxy will route all messages to the current instance of the singleton, and keep track of the oldest node in
-     the cluster and discover the singleton’s ActorRef.
-   - singleton is unavailable:
-     - the proxy will buffer the messages sent to the singleton
-     - deliver them when the singleton is finally available
-     - if the buffer is full the proxy will drop old messages when new messages are sent via the proxy.
-     - the size of the buffer is configurable and it can be disabled by using a buffer size of 0.
+    - The proxy will route all messages to the current instance of the singleton, and keep track of the oldest node in
+      the cluster and discover the singleton’s ActorRef.
+    - Singleton is unavailable:
+        - the proxy will buffer the messages sent to the singleton
+        - deliver them when the singleton is finally available
+        - if the buffer is full the proxy will drop old messages when new messages are sent via the proxy.
+        - the size of the buffer is configurable and it can be disabled by using a buffer size of 0.
 
-   Example:
+    Example:
 
-  val singletonManager = ClusterSingleton(system)
-  val proxy: ActorRef[Counter.Command] =
-    singletonManager
+    val proxy: ActorRef[Counter.Command] =
+    ClusterSingleton(system)
       .init(
         SingletonActor(Behaviors.supervise(Counter())
           .onFailure[Exception](SupervisorStrategy.restart), "GlobalCounter"))
 
+
+
+
+                                          Receptionist AND MessageAdaptor
+
+  In case current actor have no idea how to handle some type of message (another protocol) but it's need it
+  in this case that message type can be wrapped and messageAdaptor can handle this case.
+
+
+    In case current actor does not support(have no idea how to handle) some type of message but
+  we are interesting on response (and father handling) to our self and we should provide a link to our self
+  we can use `ctx.messageAdaptor` which will return a link to OurSelf with a function inside
+  function inside it's just a wrapper on message response
+
+  Ability to find any actor in cluster, but first you need to register it.
+
+  Register an actor:
+    val actorRef = ctx.spawn(someBehavior(), "some-behavior")
+    ctx.system.receptionist ! Register(ServiceKey[SomeMessage]("some-message"), actorRef)
+
+  Find it:
+    val adaptor = ctx.messageAdapter(WrappedListing)
+    ctx.system.receptionist ! Find(SomeMessage.key, adaptor)
+
+  Handle case in the actor when we get a response message:
+    case WrappedListing(SomeMessage.key.Listing(listings)) =>
+      listings.foreach(actorRef => actorRef ! M2)
+
+  Example(full):
 */
 
+  // message protocol declaration
+  trait SomeMessage
+  case object Message1 extends SomeMessage
+  case class WrappedListing(listing: Listing) extends SomeMessage
+  object SomeMessageProtocol {
+    val key = ServiceKey[SomeMessage]("some-message")
+  }
+
+  trait SomeOtherMessage
+  case object Message2 extends SomeOtherMessage
+  object SomeOtherMessageProtocol {
+    val key = ServiceKey[SomeOtherMessage]("some-other-message")
+  }
+
+
+  def initReceptionist(): Behavior[Nothing] =
+    Behaviors.setup[Nothing] { ctx =>
+      val actorRef1 = ctx.spawn(actor1Behavior(), "some-behavior")
+      val actorRef2 = ctx.spawn(actor2Behavior(), "some-other-behavior")
+      ctx.system.receptionist ! Register(SomeMessageProtocol.key, actorRef1)      // register an actor which handle that kind of protocol messages
+      ctx.system.receptionist ! Register(SomeOtherMessageProtocol.key, actorRef2) // the same here ...
+
+      actorRef1 ! Message1
+      Behaviors.same[Nothing]
+    }
+
+
+  def actor1Behavior(): Behavior[SomeMessage] =
+    Behaviors.receive { (ctx, msgs) =>
+      msgs match {
+        case Message1 =>
+          ctx.system.receptionist ! Find(
+            key = SomeOtherMessageProtocol.key,
+            replyTo = ctx.messageAdapter(WrappedListing))
+          Behaviors.same
+
+        case WrappedListing(SomeOtherMessageProtocol.key.Listing(listings)) =>
+          listings.foreach(actorRef2 => actorRef2 ! Message2)
+          Behaviors.same
+      }
+    }
+
+  def actor2Behavior(): Behavior[SomeOtherMessage] =
+    Behaviors.receiveMessage {
+      case Message2 => Behaviors.same
+    }
 
 }
-
 
