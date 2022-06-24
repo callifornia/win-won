@@ -42,14 +42,13 @@ object Main {
 
 
   object EventHandler {
-    def apply(id: Int): EventSourcedBehavior[Command, Event, Account] = {
+    def apply(id: Int): EventSourcedBehavior[Command, Event, Account] =
       EventSourcedBehavior.apply(
         persistenceId = PersistenceId.apply(Account.entityTypeKey.name, id.toString),
         emptyState = Account.empty,
         commandHandler = Account.commandHandler,
         eventHandler = Account.eventHandler
       )
-    }
   }
 
   def main(args: Array[String]): Unit = {
