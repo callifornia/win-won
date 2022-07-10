@@ -10,6 +10,8 @@ libraryDependencies ++= List(
   "dev.zio" %% "zio" % ZioVersion,
   "ch.qos.logback" % "logback-classic" % "1.2.3",
   "org.typelevel" %% "cats-effect" % CatsEffectVersion,
+  "org.typelevel" %% "cats-core" % "2.8.0",
+  "org.typelevel" %% "cats-free" % "2.8.0",
 
   "com.typesafe.akka" %% "akka-actor-typed" % AkkaVersion,
   "com.typesafe.akka" %% "akka-cluster-typed" % AkkaVersion,

@@ -1,9 +1,9 @@
 /*
 
   Different SQL Operators:::    = , <, >, >=, <=, <>, !=, BETWEEN, ORDER BY, IN, NOT IN, LIKE, ALIASE, DISTINCT, LIMIT, CASE:
-  Comparison Operators: =, <>, != , >, <, >=, <=
-  Arithmetic Operators: +, -, *, /, %
-  Logical Operators: AND, OR, NOT, IN, BETWEEN, LIKE etc.
+  Comparison Operators:        =, <>, != , >, <, >=, <=
+  Arithmetic Operators:        +, -, *, /, %
+  Logical Operators:           AND, OR, NOT, IN, BETWEEN, LIKE etc.
 
   Constrains:
     - CHECK
