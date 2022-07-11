@@ -1,11 +1,55 @@
 #! /bin/bash
 
-a2="hello there"
-echo ${a2:l}
-echo ${a2:u}
+
+#functions 2
+function fee_two() {
+	inside_variable="linux"
+}
+inside_variable="mac"
+echo "$inside_variable" #will print mac
+fee_two
+echo "$inside_variable" # will print linux because function was called
 exit 1
 
-Ермак не засланый вообще
+
+
+#functions 1
+variable=123
+function fee_one() {
+	variable2=321
+	echo "function body inside_variable: $variable"
+	echo "function arguments: $1, $2, $3"
+}
+fee_one 'aaa' 123 'bbb'
+echo "value inside a function: $variable2"
+exit 1
+
+
+
+#array
+cars=('bmw' 'toyota' 'honda')
+cars_tmp=$cars
+echo "${cars[@]}"   # print all of them
+echo "${!cars[@]}"  # print indexes
+echo "${#cars[@]}"  # print indexes
+echo "${cars[0]}" 	# print lenght
+echo "${cars[1]}"
+echo "${cars[2]}"
+echo "${cars[3]}"
+
+unset cars[2]   # remove second element from an array
+cars[2]='mersedes'
+echo "${cars[@]}"
+exit 1
+
+
+
+#math operation
+n1=2
+n2=3
+echo $( expr $n1 + $n2 )
+echo $(( 1 + 2 ))
+exit 1
 
 
 
