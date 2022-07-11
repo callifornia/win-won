@@ -1,5 +1,90 @@
 #! /bin/bash
 
+#grep command
+set -x
+echo "please enter the word to search"
+set +x
+# read word_to_search
+# -c words count
+# -n line number
+# -i case sensetive turned off
+awk '/linux/ {print}' tmp.txt
+exit 1
+
+
+
+#grep command
+echo "please enter the word to search"
+read word_to_search
+# -c words count
+# -n line number
+# -i case sensetive turned off
+grep -i -n -c $word_to_search tmp.txt
+exit 1
+
+
+for i in {1..5}
+do
+	echo "This is a linux"
+	echo "This is a mac"
+	echo "This is a marianna"
+done >> tmp.txt
+exit 1
+
+
+#waiting the input from the user
+echo "Please press any key to continue"
+while [[ true ]]
+do
+	read -t 3 -n 1
+	if [[ $? = 0 ]]; then
+		echo "You have pressed some key to exit"
+		exit 1
+	else 
+		echo "...press any key spam msg ..."
+	fi
+done
+exit 1
+
+
+
+#select stuff -> like a menu
+select car in "honda" "bmw" "other_car"
+do
+	echo "You have selected: $car"
+done
+exit 1
+
+
+
+#curl
+curl "www.google.com" > google.txt
+exit 1
+
+
+
+#directories
+echo "Please enter the directory name to check:"
+read directory_name
+# -d check if directory with a name exists or not
+# -f check if file with a name exists or not
+if [[ -d "$directory_name" ]]; then 
+	echo "Directory with a name: $directory_name already exists"
+else 
+	echo "Directory with a name doesn't exists"
+fi
+exit 1
+
+
+
+#directories
+echo "Please enter the directory name: "
+read directory_name
+mkDir $directory_name
+echo "Directory was created: $(ls)"
+exit 1
+
+
 
 #functions 2
 function fee_two() {
