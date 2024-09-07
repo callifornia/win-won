@@ -358,22 +358,40 @@ having count(1) > 1;
 
 -- SUBQUERY: Query written inside a query is called subquery
 -- Scalary subquery query which return always 1 row and 1 column
-Find the employees who's salary is more that the average salary earned by all employees
-1. find the avg salary
-2. filter the employees based on the above result
+
+-- Find the employees who's salary is more that the average salary earned by all employees
+    1. find the avg salary
+    2. filter the employees based on the above result
 
 
-select *          -- main query
-from employee
-where salary > (select avg(salary) from employee); -- subquery / inner query
+    select *          -- main query
+    from employee
+    where salary > (select avg(salary) from employee); -- subquery / inner query
+
+
 
 -- multiple row subquery
 -- Find the employees who earn the highest salary in each department
+    select *
+    from employee
+    where (dept_name, salary) in (select dept_name, max(salary)
+                                  from employee
+                                  group by dept_name);
+
+
+-- Find the department who don't have any employee
+    select *
+    from department
+    where dept_name not in (select distinct dept_name from employee)
+
+
+-- Correlated subquery
+-- Find the employee who earn more than the average salary in that departmant
 select *
-from employee
-where (dept_name, salary) in (select dept_name, max(salary)
-                              from employee
-                              group by dept_name);
+from employee e1
+where salary > (select avg(salary)
+                from employee e2
+                where e1.dept_name = e2.dept_name )
 
 
 
