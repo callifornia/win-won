@@ -16,12 +16,12 @@
 одного банковского счета на другой, нужно отразить эти изменения и на вашем счете, и на счете получателя.
 Такую транзакцию невозможно считать завершенной без выполнения обоих шагов.
 
-В базах данных ACID приоритет отдается согласованности в ущерб доступности. Если на любом этапе транзакции возникает ошибка,
+  В базах данных ACID приоритет отдается согласованности в ущерб доступности. Если на любом этапе транзакции возникает ошибка,
 вся транзакция полностью отменяется.
-Напротив, базы данных BASE отдают приоритет доступности в ущерб согласованности. При неудачном завершении транзакции
+  Напротив, базы данных BASE отдают приоритет доступности в ущерб согласованности. При неудачном завершении транзакции
 пользователи могут временно получать несогласованные данные. Согласованность данных восстанавливается с некоторой задержкой.
 
-BASE - модель транзакций.
+BASE - модель транзакций
 BASE означает:
     - базовую доступность (Basically Available)
       База данных должна быть доступна одновременно для всех пользователей в любое время. Пользователю не нужно ждать,
@@ -39,14 +39,14 @@ BASE означает:
 Требования АСИД - набір правил які забезпечують цілісність данних.
 
 Атомарність.
-Гарантує що транзакция буде виконана повність або не буде виконана взагалі. Не допускаються проміжні стани.
+  Гарантує що транзакция буде виконана повність або не буде виконана взагалі. Не допускаються проміжні стани.
 
 Узгодженість.
-Перевод бази даних з одого согласованого стану в інший согласований стан. Приклад: В рамках одної транзакції
-є три insert -> у випадку якщо один insert впавв з помилкою то відкатуються два інші.
+  Перевод бази даних з одого согласованого стану в інший согласований стан. Приклад: В рамках одної транзакції
+є три insert -> у випадку якщо один insert впав з помилкою то відкатуються два інші.
 
 Ізоляція.
-Події, що відбуваються всередині транзакції, повинні бути приховані від інших транзакцій, що одночасно виконуються.
+  Події, що відбуваються всередині транзакції, повинні бути приховані від інших транзакцій, що одночасно виконуються.
 При параллельном выполнении транзакций возможны следующие проблемы:
 
   - «грязное» чтение (уровень READ UNCOMMITTED) — чтение данных, добавленных или изменённых транзакцией,
@@ -170,8 +170,7 @@ where salary <= 10000; -- All records where salary is less than or equal to 1000
 
 
 
-                                                    -- Logical Operators
-
+-- Logical Operators
 
 select *
 from staff_salary
@@ -217,10 +216,7 @@ where
 
 
 
-                                                        -- Arithmetic Operators
-
-
-
+-- Arithmetic Operators
 select (5 + 2) as addition; -- Sum of two numbers. PostgreSQL does not need FROM clause to execute such queries.
 select (5-2) as subtract; -- Oracle & MySQL equivalent query would be -->  select (5+2) as Addition FROM DUAL; --> Where dual is a dummy table.
 select (5 * 2) as multiply;
@@ -231,15 +227,11 @@ select staff_type from staff ; -- Returns lot of duplicate data.
 select distinct staff_type from staff ; -- Returns unique values only.
 select staff_type from staff limit 5; -- Fetches only the first 5 records from the result.
 
-
 select * from staff_view;
 
 
 
-                                                    -- CASE statement
-
-
-
+-- CASE statement
 (IF 1 then print True ; IF 0 then print FALSE ; ELSE print -1)
 
 -- multiply case is allowed in select statement but each case for each column
@@ -264,9 +256,7 @@ order by 2 desc;
 
 
 
-                                                      -- TO_CHAR / TO_DATE:
-
-
+-- TO_CHAR / TO_DATE:
 select *
 from students
 where to_char(dob, 'YYYY') = '2014';
@@ -283,23 +273,19 @@ where dob = to_date('13-JAN-2014', 'DD-MON-YYYY');
 
  -- JOINS
 --(Two ways to write SQL queries):
--- #1. Using JOIN keyword between tables in FROM clause.
+-- #1 Using JOIN keyword between tables in FROM clause.
 
 select t1.column1 as c1,
 	t1.column2 c2,
-	t2.column3 as c3 -- C1, C2, C3 are aliase to the column
-
+	t2.column3 as c3
 from table1 t1
 join table2 as t2 on t1.c1 = t2.c1
-and t1.c2 = t2.c2; -- T1, T2 are aliases for table names.
+and t1.c2 = t2.c2;
 
 -- #2. Using comma "," between tables in FROM clause.
 
-select t1.column1 as c1,
-	t1.column2 as c2,
-	t2.column3 c3
-from table1 as t1,
-	table2 as t2
+select t1.c1 as c1, t1.c2 as c2, t2.c3 c3
+from table1 as t1, table2 as t2
 where t1.c1 = t2.c1
 	and t1.c2 = t2.c2;
 
@@ -370,7 +356,30 @@ having count(1) > 1;
 
 
 
-                            -- SUBQUERY: Query written inside a query is called subquery
+-- SUBQUERY: Query written inside a query is called subquery
+-- Scalary subquery query which return always 1 row and 1 column
+Find the employees who's salary is more that the average salary earned by all employees
+1. find the avg salary
+2. filter the employees based on the above result
+
+
+select *          -- main query
+from employee
+where salary > (select avg(salary) from employee); -- subquery / inner query
+
+-- multiple row subquery
+-- Find the employees who earn the highest salary in each department
+select *
+from employee
+where (dept_name, salary) in (select dept_name, max(salary)
+                              from employee
+                              group by dept_name);
+
+
+
+
+
+
 
 
 
@@ -402,7 +411,7 @@ where staff_id IN
 
 
 
-                               --  Aggregate Functions (AVG, MIN, MAX, SUM, COUNT):
+--  Aggregate Functions (AVG, MIN, MAX, SUM, COUNT):
 
 
 
