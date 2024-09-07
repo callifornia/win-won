@@ -164,7 +164,7 @@ where dob = to_date('13-JAN-2014', 'DD-MON-YYYY');
 
 
 
-                                                      -- JOINS
+ -- JOINS
 
 
 --(Two ways to write SQL queries):
