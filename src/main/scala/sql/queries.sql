@@ -1,3 +1,23 @@
+
+
+Концепція транзакції, що включає в наведеному прикладі всі взаємодії з базою даних між $BEGIN_TRANSACTION і $COMMIT_TRANSACTION вимагає,
+щоб усі дії виконувались нероздільно:
+- або всі дії належним чином відображаються у стані бази даних,
+- або нічого не відбувається.
+
+Якщо в будь-який момент часу до досягнення $COMMIT_TRANSACTION виникаєє помилука, то в базі даних не відображаються жодних змін.
+Для досягнення такої неподільності транзакція повинна мати наступні чотири властивості:
+
+
+
+
+
+
+
+
+
+
+
 /*
 
   Different SQL Operators:::    = , <, >, >=, <=, <>, !=, BETWEEN, ORDER BY, IN, NOT IN, LIKE, ALIASE, DISTINCT, LIMIT, CASE:
@@ -165,8 +185,6 @@ where dob = to_date('13-JAN-2014', 'DD-MON-YYYY');
 
 
  -- JOINS
-
-
 --(Two ways to write SQL queries):
 -- #1. Using JOIN keyword between tables in FROM clause.
 
