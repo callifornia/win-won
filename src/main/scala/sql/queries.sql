@@ -386,6 +386,7 @@ having count(1) > 1;
 
 
 -- Correlated subquery
+-- Subquery where inner query depends on main query
 -- Find the employee who earn more than the average salary in that departmant
 select *
 from employee e1
@@ -398,6 +399,8 @@ where salary > (select avg(salary)
 
 
 
+
+-- Other queries
 
 
 
