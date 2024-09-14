@@ -28,6 +28,7 @@ object Main {
 
 
   //    Big O notation
+  /* https://www.youtube.com/watch?v=ZRdOb4yR0kk */
 
   /* Big O - показивает верхнюю межу складності виконання алгоритма в залежності від вхвідних параметрів. */
 
@@ -43,9 +44,14 @@ object Main {
   }
 
 
-  
 
-
+  /* Функція котра пробінається по всьому масиву і додвє два числа
+  *
+  *  Швидкодія: O(N)
+  * */
+  def sumSuqences(n: Int): Int = (0 to n).map(k => innerSumFuntion(k, k + 1)).sum
+                                                        /* швидкодія: О(1) */
+  def innerSumFuntion(a: Int, b: Int): Int = a + b
 
 
 
