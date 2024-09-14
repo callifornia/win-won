@@ -3,6 +3,7 @@ package repeat.main.scala
 object Main {
   def main(args: Array[String]): Unit = {
 
+    println("Going to start repeat Scala")
   }
 /*
 
