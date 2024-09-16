@@ -2,11 +2,7 @@ package repeat.main.scala
 
 object Main {
   def main(args: Array[String]): Unit = {
-
-    println("Going to start repeat Scala")
-//    println(naturalNumberSum2(4))
-    println("function 2: " + mesureCalculation("2")(naturalNumberSum2)(Int.MaxValue))
-    println("function 1: " + mesureCalculation("1")(naturalNumberSum)(Int.MaxValue))
+    println("Notes can be found bellow ...")
 
   }
 
