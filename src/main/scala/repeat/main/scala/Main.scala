@@ -134,16 +134,69 @@ object Main {
 
   def function(number: Int, cents: Set[Int], result: List[Int] = Nil): List[Int] =
     number match {
-      case n if n <= 0  => result
-      case _            =>
+      case n if n <= 0          => result
+      case _ if cents.nonEmpty  =>
         number - cents.max match {
           case 0            => result :+ cents.max
           case n if n < 0   => function(number, cents.-(cents.max), result)
           case n if n > 0   => function(number - cents.max, cents, result :+ cents.max)
         }
+      case _ => result
     }
 
   function(number, cents.toSet)
+
+
+
+  /*
+  * Almost the same task but with a small changes.
+  * Changes: find more optima solution
+  *
+  * For example:
+  *   coins: 1,5,10,20,25
+  *   number: 41
+  *   answer: 20,20,1
+  *
+  *   Solution: list with a lowest length
+  *
+  * */
+
+  val cents_1 = 1 :: 5 :: 10 :: 20 :: 25 :: Nil
+  val number_1 = 41
+
+  def function_1(number: Int, cents: Set[Int], result: List[Int] = Nil): List[Int] =
+    number match {
+      case n if n <= 0         => result
+      case _ if cents.nonEmpty =>
+        number - cents.max match {
+          case 0            => result :+ cents.max
+          case n if n < 0   => function(number, cents.-(cents.max), result)
+          case n if n > 0   => function(number - cents.max, cents, result :+ cents.max)
+        }
+      case _ => result
+    }
+
+  def function_2(number: Int, cents: List[Int]): List[List[Int]] =
+    cents.sorted.inits.foldLeft(List.empty[List[Int]]){ (result, cents) =>
+      result :+ function_1(number, cents.toSet)
+    }
+
+  function_2(number_1, cents_1).mkString("\n")
+  /*
+  * result is:
+  *
+  * List(25, 10, 5, 1)
+  * List(20, 20, 1)                       <---------- this is an optimal solution
+  * List(10, 10, 10, 10, 1)
+  * List(5, 5, 5, 5, 5, 5, 5, 5, 1)
+  * List(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+  * */
+
+
+
+
+
+
 }
 
 
