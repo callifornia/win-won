@@ -200,11 +200,11 @@ object Main {
 
   val list = 1 :: 3 :: 2 :: 4 :: 6 :: 5 :: 7 :: Nil
 
-  def function3(elements: List[Int]): MutableArray[Int] = {
+  def function_3(elements: List[Int]): MutableArray[Int] = {
     val mutableArray = MutableArray.from(elements)
 
-    (0 to mutableArray.length).foreach { _ =>
-      (0 to mutableArray.length - 2).foreach { stepIndex =>
+    (1 until elements.length).foreach { _ =>
+      (0 until elements.length - 1).foreach { stepIndex =>
         val nextIndex = stepIndex + 1
         val stepElement = mutableArray(stepIndex)
         val nextElement = mutableArray(nextIndex)
@@ -218,10 +218,7 @@ object Main {
     mutableArray
   }
 
-  function3(list)
-
-
-
+  function_3(list)
 }
 
 
