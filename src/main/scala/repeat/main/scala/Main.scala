@@ -203,8 +203,8 @@ object Main {
   def function3(elements: List[Int]): MutableArray[Int] = {
     val mutableArray = MutableArray.from(elements)
 
-    (0 to elements.length).foreach { _ =>
-      (0 to elements.length - 2).foreach { stepIndex =>
+    (0 to mutableArray.length).foreach { _ =>
+      (0 to mutableArray.length - 2).foreach { stepIndex =>
         val nextIndex = stepIndex + 1
         val stepElement = mutableArray(stepIndex)
         val nextElement = mutableArray(nextIndex)
