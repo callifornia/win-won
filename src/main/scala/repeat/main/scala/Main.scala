@@ -116,19 +116,35 @@ object Main {
 
 // Data structure and Algorithm
 
-  def naturalNumberSum(n: Int): Int = (1 to n).sum
-  def naturalNumberSum2(n: Int): Int = (1 to n).foldLeft(0)(_ + _)
+{
 
+  /*
+  * Find all coins which in sum will be equal some number.
+  * For example:
+  *   coins: 1,5,10
+  *   number: 26
+  *   answer: 10, 10, 5, 1
+  *
+  *
+  * Solution above:
+  * */
 
-  def mesureCalculation(c: String)(function: Int => Int): Int => Int = {
-    (a: Int) => {
-      val now = System.currentTimeMillis().toInt
-      println("start function: " + c)
-      function(a)
-      println("end function: " + c)
-      System.currentTimeMillis().toInt - now
+  val cents = 1 :: 5 :: 10 :: Nil
+  val number = 26
+
+  def function(number: Int, cents: Set[Int], result: List[Int] = Nil): List[Int] =
+    number match {
+      case n if n <= 0  => result
+      case _            =>
+        number - cents.max match {
+          case 0            => result :+ cents.max
+          case n if n < 0   => function(number, cents.-(cents.max), result)
+          case n if n > 0   => function(number - cents.max, cents, result :+ cents.max)
+        }
     }
-  }
+
+  function(number, cents.toSet)
+}
 
 
 
