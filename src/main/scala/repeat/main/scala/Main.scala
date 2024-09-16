@@ -4,6 +4,10 @@ object Main {
   def main(args: Array[String]): Unit = {
 
     println("Going to start repeat Scala")
+//    println(naturalNumberSum2(4))
+    println("function 2: " + mesureCalculation("2")(naturalNumberSum2)(Int.MaxValue))
+    println("function 1: " + mesureCalculation("1")(naturalNumberSum)(Int.MaxValue))
+
   }
 
 
@@ -88,7 +92,7 @@ object Main {
 
   }
 
-  
+
   /*
   DataStructure, Algorithm
   Scala main
@@ -111,6 +115,20 @@ object Main {
 // Big O notation
 
 // Data structure and Algorithm
+
+  def naturalNumberSum(n: Int): Int = (1 to n).sum
+  def naturalNumberSum2(n: Int): Int = (1 to n).foldLeft(0)(_ + _)
+
+
+  def mesureCalculation(c: String)(function: Int => Int): Int => Int = {
+    (a: Int) => {
+      val now = System.currentTimeMillis().toInt
+      println("start function: " + c)
+      function(a)
+      println("end function: " + c)
+      System.currentTimeMillis().toInt - now
+    }
+  }
 
 
 
