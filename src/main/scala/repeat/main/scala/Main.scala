@@ -219,11 +219,49 @@ object Main {
   }
 
   function_3(list.reverse)
-}
+
+
+  /*
+  * Select sort.
+  * 1. pick up the first element
+  * 2. find the lowest element in an array
+  * 3. compare element in step 1 with an element in step 2
+  * 4. swap elements in case first element is not lowest
+  * 5. pick up second element
+  * 6. then step 2 and so on...until end of an array
+  *
+  * Solution:
+  * */
+
+  val list_2 = 1 :: 3 :: 2 :: 4 :: 6 :: 5 :: 7 :: 0 :: Nil
+  def function_4(elements: List[Int]): MutableArray[Int] = {
+
+    val mutableArray = MutableArray.from(elements)
+
+    (0 until mutableArray.length - 1).foreach { index =>
+      val lowestIndex = (index + 1 until mutableArray.length).foldLeft(index) {
+        (lowestIndex, stepIndex) =>
+          mutableArray(lowestIndex) >= mutableArray(stepIndex) match {
+            case true   => stepIndex
+            case false  => lowestIndex
+          }
+      }
+
+      /* swap if lowest element was found otherwise ignore */
+      if (lowestIndex != index) {
+        val stepElement = mutableArray(index)
+        mutableArray(index) = mutableArray(lowestIndex)
+        mutableArray(lowestIndex) = stepElement
+      }
+    }
+
+    mutableArray
+  }
+
+  function_4(list_2.sorted.reverse)
 
 
 
-
-
+} // content end brakets
 }
 
