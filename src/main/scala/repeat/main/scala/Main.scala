@@ -218,7 +218,7 @@ object Main {
     mutableArray
   }
 
-  function_3(list)
+  function_3(list.reverse)
 }
 
 
