@@ -239,19 +239,19 @@ object Main {
     val mutableArray = MutableArray.from(elements)
 
     (0 until mutableArray.length - 1).foreach { index =>
-      val lowestIndex = (index + 1 until mutableArray.length).foldLeft(index) {
-        (lowestIndex, stepIndex) =>
-          mutableArray(lowestIndex) >= mutableArray(stepIndex) match {
+      val indexWithLowestElem = (index + 1 until mutableArray.length).foldLeft(index) {
+        (indexWithLowestElem, stepIndex) =>
+          mutableArray(indexWithLowestElem) >= mutableArray(stepIndex) match {
             case true   => stepIndex
-            case false  => lowestIndex
+            case false  => indexWithLowestElem
           }
       }
 
       /* swap if lowest element was found otherwise ignore */
-      if (lowestIndex != index) {
+      if (indexWithLowestElem != index) {
         val stepElement = mutableArray(index)
-        mutableArray(index) = mutableArray(lowestIndex)
-        mutableArray(lowestIndex) = stepElement
+        mutableArray(index) = mutableArray(indexWithLowestElem)
+        mutableArray(indexWithLowestElem) = stepElement
       }
     }
 
