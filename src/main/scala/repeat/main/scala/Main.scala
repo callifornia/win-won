@@ -261,7 +261,32 @@ object Main {
   function_4(list_2.sorted.reverse)
 
 
+  /*
+  * Insert sort.
+  * 1. Pick up an element
+  * 2. Pick up previous element
+  * 3. Compare 1 and 2
+  * 4. Swap in case 2 is higher than 1
+  *
+  * */
 
+  val list_3 = 7 :: 6 :: 5 :: 4 :: 10 :: 3 :: 13 :: 2 :: 1 :: 0 :: Nil
+
+  def function_5(element: List[Int]): MutableArray[Int] = {
+    val mutableArray = MutableArray.from(element)
+    (0 to  mutableArray.length - 1).foreach { i =>
+      var j = i
+      while(j > 0  && mutableArray(j - 1) > mutableArray(j)) {
+        val a = mutableArray(j - 1)
+        val b = mutableArray(j)
+        mutableArray(j - 1) = b
+        mutableArray(j) = a
+        j = j - 1
+      }
+    }
+
+    mutableArray
+  }
 
 
 

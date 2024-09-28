@@ -1,24 +1,24 @@
 import scala.collection.mutable.{ArraySeq => MutableArray}
 
-val list = 1 :: 3 :: 2 :: 4 :: 6 :: 5 :: 7 :: 0 :: Nil
+val list = 7 :: 6 :: 5 :: 4 :: 10 :: 3 :: 13 :: 2 :: 1 :: 0 :: Nil
 
 def function(element: List[Int]): MutableArray[Int] = {
   val mutableArray = MutableArray.from(element)
-
-  (1 to mutableArray.length - 1).foreach { stepIndex =>
-    val stepElemment = mutableArray(stepIndex)
-    if (stepIndex != 0 ) {
-      val stepElement = mutableArray(stepIndex)
-      val prevIndex = stepIndex - 1
-      val prevElement = mutableArray(prevIndex)
-      if (stepElemment > prevElement) {
-        mutableArray(stepIndex) = prevElement
-        mutableArray(prevIndex) = stepElement
-      }
+  (0 to  mutableArray.length - 1).foreach { i =>
+    var j = i
+    while(j > 0  && mutableArray(j - 1) > mutableArray(j)) {
+      val a = mutableArray(j - 1)
+      val b = mutableArray(j)
+      mutableArray(j - 1) = b
+      mutableArray(j) = a
+      j = j - 1
     }
   }
+
   mutableArray
 }
 
-function(list.sorted.reverse)
+function(list)
+
+
 
