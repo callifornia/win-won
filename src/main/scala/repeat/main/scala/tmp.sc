@@ -4,6 +4,12 @@ val list = 1 :: 4 :: 2 :: 5 :: 6 :: 3 :: Nil
 
 
 
+val array_1 = MutableArray.from(1 :: 2 :: Nil)
+val array_2 = MutableArray.from(3 :: 4 :: Nil)
+
+
+array_2 ++ array_1
+
 def quickSort(array: MutableArray[Int]): MutableArray[Int] = {
   val pivot = array(array.length - 1)
   var swapMarker = 0

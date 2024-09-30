@@ -10,6 +10,24 @@ object MainTmp {
     println(quickSort(MutableArray.from(list)))
   }
 
+
+  /*
+  * ............
+  *
+  * */
+  def splitAndSort(list: List[Int]) = list match {
+    case  Nil => list
+    case x :: y :: xs =>
+    case _ =>
+      val (listOne, listTwo) = splitAndSort(list.splitAt(list.length / 2))
+      ???
+  }
+
+
+
+
+
+
   def quickSort(array: MutableArray[Int]): MutableArray[Int] = {
     val pivot = array(array.length - 1)
     var swapMarker = 0
