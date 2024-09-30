@@ -292,7 +292,7 @@ object Main {
   /*
   * Merge sort: O(logN)
   *
-  * 
+  *
   *  Solution:
   * */
   val list_4 = 7 :: 6 :: 5 :: 4 :: 10 :: 3 :: 13 :: 2 :: 1 :: 0 :: Nil
