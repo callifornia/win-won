@@ -4,7 +4,7 @@ import scala.collection.mutable.{ArraySeq => MutableArray}
 
 object MainTmp {
 
-  val list = 1 :: 4 :: 2 :: 5 :: 6 :: 3 :: Nil
+  val list = 1 :: 4 :: 0 :: 2 :: 5 :: 6 :: 3 :: Nil
 
   def main(args: Array[String]): Unit = {
     println(quickSort(MutableArray.from(list)))
@@ -32,5 +32,7 @@ object MainTmp {
     }
     array
   }
+
+  
 }
 
