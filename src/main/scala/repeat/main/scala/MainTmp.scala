@@ -19,7 +19,7 @@ object MainTmp {
     case  Nil => list
     case x :: y :: xs =>
     case _ =>
-      val (listOne, listTwo) = splitAndSort(list.splitAt(list.length / 2))
+//      val (listOne, listTwo) = splitAndSort(list.splitAt(list.length / 2))
       ???
   }
 

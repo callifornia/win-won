@@ -3,6 +3,7 @@ package repeat.main.scala
 object Main {
   def main(args: Array[String]): Unit = {
     println("Notes can be found bellow ...")
+    println("Hi Scala, how are you today, i am very glad to comeback")
 
   }
 
