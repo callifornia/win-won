@@ -50,14 +50,37 @@ object ScalaTutorials {
 
 
   // SELF TYPE
-  trait Builder
-  trait Hospital { selfType: Builder =>
-
-  }
   /*
-  * Which mean everyone who extends Hospital MUST extends Hospital
+  * Which mean everyone who extends Hospital MUST extends Builder
   *
   * */
+  trait Builder {
+    def build(asd: String): Boolean = true
+  }
+  trait Hospital { selfType: Builder =>
+    def makeNewHospital(value: Int): Boolean = selfType.build(value.toString)
+  }
+
+  class makeNewStructure extends Hospital with Builder {
+    def someAwesomeMethod(): Unit = makeNewHospital(3)
+  }
+
+  
+  // Nothing
+  class MyClass
+  val _: String = throw new NullPointerException
+  val _: Int = throw new NullPointerException
+  val _: MyClass = throw new NullPointerException
+
+  /* can we use Nothing ? */
+  def someFunction(a: Nothing): Int = ???
+  def someFunction2(a: Nothing): Nothing = throw new NullPointerException
+
+  /* use in covariant side */
+  abstract class MyList2[+T]
+  class MyListSpec[T] extends MyList2[T]
+  object MyListSpecEmpty extends MyList2[Nothing]
+
 
 
 
