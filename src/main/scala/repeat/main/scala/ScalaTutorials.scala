@@ -68,9 +68,9 @@ object ScalaTutorials {
   
   // Nothing
   class MyClass
-  val _: String = throw new NullPointerException
-  val _: Int = throw new NullPointerException
-  val _: MyClass = throw new NullPointerException
+  val a: String = throw new NullPointerException
+  val b: Int = throw new NullPointerException
+  val c: MyClass = throw new NullPointerException
 
   /* can we use Nothing ? */
   def someFunction(a: Nothing): Int = ???
@@ -82,15 +82,57 @@ object ScalaTutorials {
   object MyListSpecEmpty extends MyList2[Nothing]
 
 
+  // call by name
+  def byValueFunction(x: Int): Int = x + 1
+  byValueFunction(3 + 2) // 3 + 2 evaluated before method "byValueFunction" are going to be called
+
+  def byNameFunction(x: => Int): Int = x + 1
+  byNameFunction(3 + 2) // 3 + 2 are going to be evaluated when it's going to be used inside that function "byNameFunction".
+    // in other words => call by need
 
 
+  /*    example with reevaluation   */
+  def byValue(x: Long): Unit = {
+    println(x)
+    println(x)
+  }
+
+  def byName(x: => Long): Unit = {
+    println(x)
+    println(x)
+  }
+
+  byValue(System.nanoTime())
+  byName(System.nanoTime())
 
 
+  /* example with infinity list where tail or in other words all structure evaluated when it's needed */
 
+  abstract class MyList1[+T] {
+    def head: T
+    def tail: MyList1[T]
+  }
 
+  case object EmptyList extends MyList1[Nothing] {
+    override def head: Nothing = throw new NullPointerException
+    override def tail: MyList1[Nothing] = throw new NullPointerException
+  }
 
+  class NonEmptyList[T](h: => T, t: MyList1[T]) extends MyList1[T] {
+    override lazy val head: T = {
+      println("Head is evaluated: " + h)
+      h
+    }
+    override lazy val tail: MyList1[T] = {
+      println("Tail is evaluated: " + h)
+      t
+    }
+  }
 
-  
+  val list = new NonEmptyList[Int](1, new NonEmptyList[Int](2, new NonEmptyList[Int](3, new NonEmptyList[Int](4, EmptyList))))
+  list.head
+  list.tail.tail.head
+
 
 
 
