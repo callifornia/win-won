@@ -106,7 +106,9 @@ object ScalaTutorials {
   byName(System.nanoTime())
 
 
-  /* example with infinity list where tail or in other words all structure evaluated when it's needed */
+  /* example with infinity list where tail or in other words all structure evaluated when it's needed.
+  *  That pattern is named as "call by need"
+  * */
 
   abstract class MyList1[+T] {
     def head: T
@@ -128,6 +130,7 @@ object ScalaTutorials {
       t
     }
   }
+
 
   val list = new NonEmptyList[Int](1, new NonEmptyList[Int](2, new NonEmptyList[Int](3, new NonEmptyList[Int](4, EmptyList))))
   list.head
