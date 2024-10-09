@@ -215,6 +215,22 @@ object ScalaTutorials {
 
   summup(List(1,2,3))
   summup("asd" :: "123" :: Nil)
+
+
+
+  // null, Null, Nothing, None
+  /* null */
+  val _: String = null /* as in a Java world */
+  val d: Null = null /* Null has no methods, no fields, can not be extended or instantiated  and only possible value is 'null'.
+  It's extends all references types
+  AnyRef -> all reference types -> Null
+  */
+  val _: String = d
+
+
+  /* Unit is like a void in a java world*/
+  /* Nothing. Examples: throw new NullpointerException,  ??? no value at all*/
+
 }
 
 
