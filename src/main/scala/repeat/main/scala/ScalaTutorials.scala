@@ -1,4 +1,8 @@
 package repeat.main.scala
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+
+
 
 object ScalaTutorials {
   def main(args: Array[String]): Unit = {
@@ -84,11 +88,11 @@ object ScalaTutorials {
 
   // call by name
   def byValueFunction(x: Int): Int = x + 1
-  byValueFunction(3 + 2) // 3 + 2 evaluated before method "byValueFunction" are going to be called
+  byValueFunction(3 + 2) /* 3 + 2 evaluated before method "byValueFunction" are going to be called*/
 
   def byNameFunction(x: => Int): Int = x + 1
-  byNameFunction(3 + 2) // 3 + 2 are going to be evaluated when it's going to be used inside that function "byNameFunction".
-    // in other words => call by need
+  byNameFunction(3 + 2)  /* 3 + 2 are going to be evaluated when it's going to be used inside that function "byNameFunction".
+     in other words => call by need */
 
 
   /*    example with reevaluation   */
@@ -107,7 +111,7 @@ object ScalaTutorials {
 
 
   /* example with infinity list where tail or in other words all structure evaluated when it's needed.
-  *  That pattern is named as "call by need"
+  *  That pattern is named as "call by need". It powerful in infinity collections
   * */
 
   abstract class MyList1[+T] {
@@ -137,9 +141,80 @@ object ScalaTutorials {
   list.tail.tail.head
 
 
+  /*
+    - call by name also used in a Future which allows to execute some functionality in some time in some thread
+    - Try as an example also implemented in such way: Try(throw new NullPointerExceptions)
+  * */
 
 
 
+  //  Blocking | Async | Non-blocking
+
+  /*  Blocking */
+  def blockingCode(a: Int): Int = {
+    Thread.sleep(10000)
+    23
+  }
+  blockingCode(23)
+  val _: Int = 33 /* will wait 10 seconds before evaluated */
+
+
+
+  /* async blocking */
+  def asyncBlockingCode(a: Int): Future[Int] = Future {
+    Thread.sleep(1000)
+    12
+  }
+
+  asyncBlockingCode(123)
+  val _: Int = 123 /* evaluate immediate without any delay */
+
+
+  /* async non-blocking when current thread or other one are not blocked
+  * as an example akka actor which is basically data structure
+  * */
+
+
+  // right associative method
+  class MyClass_2 {
+    def :: (a: Int): Unit = println("")
+  }
+  val myClass = new MyClass_2
+  123 :: myClass /* because method in class MyClass_2 ended with a ":" */
+
+
+
+  // Type class - is data structure which support ad hoc polymorphism
+
+  trait Convertor[T] {
+    def convert(list : List[T]): T
+  }
+
+  object Convertor {
+    implicit object IntSummup extends Convertor[Int] {
+      override def convert(list: List[Int]): Int = list.sum
+    }
+
+    implicit object StrSummup extends Convertor[String] {
+      override def convert(list: List[String]): String = list.mkString(", ")
+    }
+  }
+
+
+  /*
+    The behavior of that method is 'ad-hoc' because of: implicit convertor: Convertor[T] where in the code we have capability to call
+    convert method on convertor only when convertor is supplied. That is the part of ad-hoc.
+    Polymorphism part is the [T] - where for any specific type we must have it's own implementation
+
+    implicit convertor: Convertor[T] <- ad-hoc
+    [T]                              <- polymorphism
+
+  */
+  def summup[T](list: List[T])(implicit convertor: Convertor[T]): T = /* ad-hoc polymorphism */
+    convertor.convert(list)
+
+  summup(List(1,2,3))
+  summup("asd" :: "123" :: Nil)
 }
 
 

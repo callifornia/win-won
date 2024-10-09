@@ -24,11 +24,23 @@ object ScalaTutorialWorkSheatObject {
     }
   }
 
+  class MyClass {
+    def :: (a: Int): Unit = println("")
+  }
+  val myClass = new MyClass
+  123 :: myClass
 
   def main(args: Array[String]): Unit = {
     val list = new NonEmptyList[Int](1, new NonEmptyList[Int](2, new NonEmptyList[Int](3, new NonEmptyList[Int](4, EmptyList))))
     list.head
     list.tail.tail.head
 
+    summup(List(1,2,3))
+    summup("asd" :: "123" :: Nil)
+
   }
+
+
+
+
 }
