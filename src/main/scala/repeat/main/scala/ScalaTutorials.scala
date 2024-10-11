@@ -220,16 +220,140 @@ object ScalaTutorials {
 
   // null, Null, Nothing, None
   /* null */
-  val _: String = null /* as in a Java world */
+  val g: String = null /* as in a Java world */
   val d: Null = null /* Null has no methods, no fields, can not be extended or instantiated  and only possible value is 'null'.
   It's extends all references types
   AnyRef -> all reference types -> Null
   */
-  val _: String = d
+  val y: String = d
 
 
   /* Unit is like a void in a java world*/
   /* Nothing. Examples: throw new NullpointerException,  ??? no value at all*/
+
+
+
+  // Abstract class vs trait
+  abstract class Person {
+    def canFly: Boolean = true
+    val canDrive: Boolean
+    def discussWith(abother: Person): String
+  }
+
+  trait PersonTrait {
+    def canFly: Boolean = true
+    val canDrive: Boolean
+    def discussWith(abother: Person): String
+  }
+
+  /*
+    - they can't be instantiated on their own
+    - may have abstract fields/methods
+    - may have non-abstract fields/methods
+  * */
+
+
+  /*
+  * - can inherit from a SINGLE abstract class
+  * - can inherit from MULTIPLE traits
+  * - abstract class can take constructor arguments
+  * - trait can't take constructor arguments
+  * - represent things as a classes
+  * - represent behavior as traits
+  * */
+
+
+  // Eta-Expansion & Partially applied function
+  /*
+  * - function can be assigned to a value which can be passed as an argument
+  * - function is an instance of a function traits family
+  * - method depends on a class or object where it defined where function is a plain object
+  * - eta-expansion is a transform method into the function
+  *       val something = someMethod _
+  *  example:
+  *   List(1,2,3,4).map(incrementMethod) <- compiler automatically transform "incrementMethod" into the function
+  * 
+  * */
+
+
+
+  // Types system
+  val anInt: Int = 123    // level - 0 type
+  class MyAwesomeList[T]  // level - 1 type (type constructor)
+  class Function[F[_]]    // level - 2 type
+  class Meta[F[_[_]]]     // level - 3 type
+
+
+
+
+  // call-by need pattern
+  /*
+  * This pattern is about lazy evaluations where class parameters are declared as call-by name and values marked as a
+  * lazy val ... Example can be find bellow (linked list)
+  * */
+
+  trait DLLList[+T] {
+    def value: T
+    def next: DLLList[T]
+    def prev: DLLList[T]
+    def append[S >: T](element: S): DLLList[S]
+    def prepend[S >: T](element: S): DLLList[S]
+
+    def updateNext[S >: T](newNext: => DLLList[S]): DLLList[S]
+    def updatePrev[S >: T](newPrev: => DLLList[S]): DLLList[S]
+
+  }
+
+
+  object DLLEnpty extends DLLList[Nothing] {
+    override def value: Nothing = throw new NoSuchElementException("There are no element")
+    override def next: DLLList[Nothing] = throw new NoSuchElementException("There are no element")
+    override def prev: DLLList[Nothing] = throw new NoSuchElementException("There are no element")
+
+    override def append[S >: Nothing](element: S) = new DLLCons(element, DLLEnpty, DLLEnpty)
+    override def prepend[S >: Nothing](element: S) = new DLLCons(element, DLLEnpty, DLLEnpty)
+
+    override def updateNext[S >: Nothing](newNext: => DLLList[S]) = this
+    override def updatePrev[S >: Nothing](newPrev: => DLLList[S]) = this
+
+  }
+
+
+
+  class DLLCons[+T](override val value: T,
+                    p: => DLLList[T],
+                    n: => DLLList[T]) extends DLLList[T] {
+
+    override lazy val next: DLLList[T] = n
+    override lazy val prev: DLLList[T] = p
+
+
+    override def updatePrev[S >: T](newPrev: => DLLList[S]): DLLList[S] = {
+      lazy val result: DLLList[S] = new DLLCons(value, newPrev, n.updatePrev(result))
+      result
+    }
+
+
+    override def updateNext[S >: T](newNext: => DLLList[S]): DLLList[S] = {
+      lazy val result: DLLList[S] = new DLLCons(value, p.updateNext(result), newNext)
+      result
+    }
+
+
+
+    override def append[S >: T](element: S): DLLList[S] = {
+      lazy val result: DLLList[S] = new DLLCons(value, p.updateNext(result), n.append(element).updatePrev(result))
+      result
+    }
+
+
+    override def prepend[S >: T](element: S): DLLList[S] = {
+      lazy val result: DLLList[S] = new DLLCons(value, p.prepend(element).updateNext(result), n.updatePrev(result))
+      result
+    }
+
+  }
+
 
 }
 
