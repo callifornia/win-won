@@ -356,9 +356,4 @@ object ScalaTutorials {
     assert(list.next.next.prev.prev == list)
 
   }
-
 }
-
-
-
-
