@@ -453,4 +453,12 @@ object ScalaTutorials {
   def devx10[C[_]](container: C[Int])(implicit functor: Functor[C]) = {
     functor.map(container)(_ * 10)
   }
+
+
+
+  // Loan - pattern
+  /* ... continue here ...
+  * https://docs.google.com/document/d/1wWwg0ATcr5HvXIk1wPW8a1JiTvi9MvwFAF5jxHGRTko/edit?tab=t.0
+  * */
+
 }
