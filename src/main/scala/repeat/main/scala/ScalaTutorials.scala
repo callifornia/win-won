@@ -184,7 +184,13 @@ object ScalaTutorials {
 
 
 
-  // Type class - is data structure which support ad hoc polymorphism
+  //  Type class - is a data structure which support ad hoc polymorphism
+  /*  We can ADD NEW METHOD or NEW DATA without changing existing code
+      There are three important point about type classes:
+        - Type class itself
+        - Instances for particular type
+        - Interface method that we exposed to user
+  */
 
   trait Convertor[T] {
     def convert(list : List[T]): T
@@ -355,5 +361,96 @@ object ScalaTutorials {
     assert(list.next.next.value == 4)
     assert(list.next.next.prev.prev == list)
 
+  }
+
+
+
+  // referentially transparent - завжди повертає один і той самий результат
+  // infix notation - fundamental feature in language. Ability to use method without any dots or parentheses
+  // auxiliary constructors - Overloaded constructor this(). All auxiliary constructors must first call the primary
+  //                          constructor or another auxiliary constructor. Guarantees that the object is properly
+  //                          initialized before the auxiliary constructor comes into play
+  // lifting - when we pass some function as if it were a function, Scala automatically converts it to a function object.
+  // Why is it preferable to leave the parentheses off methods that don’t change an object? Programmers who call getB
+  // should not have to care whether getB is a field (val) or a method (def). The caller only cares that getB produces
+  // the desired value, not how it happens (this is the Uniform Access Principle).
+
+
+
+  //  - Scala prefixes all the parameters with val, and that will make them public value. But remamber that you still
+  //    never access the value directly; you always access through accessors
+  //  - Equals/hashCode are implemented for you based on the given parameters
+  //  - toString method implemented. Method return class name and its parameters
+  //  - copy method. This method allows you to easily create a modified copy of the class’s instance
+  //  - a companion object is created with the appropriate apply method, which takes the same arguments as declared in the class
+  //  - unapply, which allow the class name to be used as an extractor for pattern matching
+  //  - when you declare an abstract case class, Scala won’t generate the apply method in the companion object
+  //    That makes sense because you can’t create an instance of an abstract class
+  //  - to extend a sealed trait, all the classes need to be in the same source file
+
+
+  //  - Scala also lets you qualify the private modifier: private[this]. In this case, it means object private.
+  //    And object private is only accessible to the object in which it’s defined
+  //
+  //  - protected modifier is applicable to class member definitions. It’s accessible to the defining class and its
+  //    subclasses. It’s also accessible to a companion object of the defining class and companion objects of all the
+  //    subclasses. Like the private modifier, you can also qualify the protected modifier with class, package, and this.
+  //    By default, when you don’t specify any modifier, everything is public. Scala doesn’t provide any modifier to
+  //    mark members as public.
+
+  //  - first-class citizens:  We can use functions as values or like normal variables; we can replace a variable or
+  //    value with a function
+
+  //  - what packages scala imports implicitly: java.lang._, scala._, scala.Predef._
+  //    Implicit scope
+
+  //    Look in current scope
+  //      1. Implicit defined in current scope
+  //      2. Imports explicit, wildcard
+  //    Look at associated types in
+  //      1. Companion object of a type
+  //      2. Companion object OtherClass
+  //      3. Companion object B
+  //      4. Any superclass of B
+
+
+
+
+  // Functor
+  trait Functor[C[_]] {
+    def map[A, B](container: C[A])(function: A => B): C[B]
+  }
+
+
+  object Functor {
+
+    implicit object ListFunctor extends Functor[List] {
+      override def map[A, B](container: List[A])(function: A => B): List[B] = container.map(function)
+    }
+
+    implicit object OptionFunctor extends Functor[Option] {
+      override def map[A, B](container: Option[A])(function: A => B): Option[B] = container.map(function)
+    }
+
+    implicit object TreeFunctor extends Functor[Tree] {
+      override def map[A, B](container: Tree[A])(function: A => B): Tree[B] = container match {
+        case Leaf(value)                => Leaf(function(value))
+        case Branch(value, left, right) => Branch(function(value), map(left)(function), map(right)(function))
+      }
+    }
+  }
+
+
+  trait Tree[+T]
+  object Tree {
+    def leaf[T](value: T): Tree[T] = Leaf(value)
+    def branch[T](value: T, left: Tree[T], right: Tree[T]): Tree[T] = Branch(value, left, right)
+  }
+
+  case class Leaf[+T](value: T) extends Tree[T]
+  case class Branch[+T](value: T, left: Tree[T], right: Tree[T]) extends Tree[T]
+
+  def devx10[C[_]](container: C[Int])(implicit functor: Functor[C]) = {
+    functor.map(container)(_ * 10)
   }
 }
