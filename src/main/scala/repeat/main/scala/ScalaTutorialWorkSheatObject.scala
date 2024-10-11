@@ -2,68 +2,46 @@ package repeat.main.scala
 
 object ScalaTutorialWorkSheatObject {
 
+  trait Tree[+T]
+  object Tree {
+    def leaf[T](value: T): Tree[T] = Leaf(value)
+    def branch[T](value: T, left: Tree[T], right: Tree[T]): Tree[T] = Branch(value, left, right)
+  }
 
-  trait DLLList[+T] {
-    def value: T
-    def next: DLLList[T]
-    def prev: DLLList[T]
-    def append[S >: T](element: S): DLLList[S]
-    def prepend[S >: T](element: S): DLLList[S]
+  case class Leaf[+T](value: T) extends Tree[T]
+  case class Branch[+T](value: T, left: Tree[T], right: Tree[T]) extends Tree[T]
 
-    def updateNext[S >: T](newNext: => DLLList[S]): DLLList[S]
-    def updatePrev[S >: T](newPrev: => DLLList[S]): DLLList[S]
-
+  trait Functor[C[_]] {
+    def map[A, B](container: C[A])(function: A => B): C[B]
   }
 
 
-  object DLLEnpty extends DLLList[Nothing] {
-    override def value: Nothing = throw new NoSuchElementException("There are no element")
-    override def next: DLLList[Nothing] = throw new NoSuchElementException("There are no element")
-    override def prev: DLLList[Nothing] = throw new NoSuchElementException("There are no element")
+  object Functor {
 
-    override def append[S >: Nothing](element: S) = new DLLCons(element, DLLEnpty, DLLEnpty)
-    override def prepend[S >: Nothing](element: S) = new DLLCons(element, DLLEnpty, DLLEnpty)
+    implicit object ListFunctor extends Functor[List] {
+      override def map[A, B](container: List[A])(function: A => B): List[B] = container.map(function)
+    }
 
-    override def updateNext[S >: Nothing](newNext: => DLLList[S]) = this
-    override def updatePrev[S >: Nothing](newPrev: => DLLList[S]) = this
+    implicit object OptionFunctor extends Functor[Option] {
+      override def map[A, B](container: Option[A])(function: A => B): Option[B] = container.map(function)
+    }
 
+    implicit object TreeFunctor extends Functor[Tree] {
+      override def map[A, B](container: Tree[A])(function: A => B): Tree[B] = container match {
+        case Leaf(value)                => Leaf(function(value))
+        case Branch(value, left, right) => Branch(function(value), map(left)(function), map(right)(function))
+      }
+    }
+  }
+
+  def devx10[C[_]](container: C[Int])(implicit functor: Functor[C]) = {
+    functor.map(container)(_ * 10)
   }
 
 
 
-  class DLLCons[+T](override val value: T,
-                    p: => DLLList[T],
-                    n: => DLLList[T]) extends DLLList[T] {
-
-    override lazy val next: DLLList[T] = n
-    override lazy val prev: DLLList[T] = p
 
 
-    override def updatePrev[S >: T](newPrev: => DLLList[S]): DLLList[S] = {
-      lazy val result: DLLList[S] = new DLLCons(value, newPrev, n.updatePrev(result))
-      result
-    }
-
-
-    override def updateNext[S >: T](newNext: => DLLList[S]): DLLList[S] = {
-      lazy val result: DLLList[S] = new DLLCons(value, p.updateNext(result), newNext)
-      result
-    }
-
-
-
-    override def append[S >: T](element: S): DLLList[S] = {
-      lazy val result: DLLList[S] = new DLLCons(value, p.updateNext(result), n.append(element).updatePrev(result))
-      result
-    }
-
-
-    override def prepend[S >: T](element: S): DLLList[S] = {
-      lazy val result: DLLList[S] = new DLLCons(value, p.prepend(element).updateNext(result), n.updatePrev(result))
-      result
-    }
-
-  }
 
 
   def main(args: Array[String]): Unit = {
@@ -79,3 +57,4 @@ object ScalaTutorialWorkSheatObject {
     assert(list.next.next.prev.prev == list)
   }
 }
+

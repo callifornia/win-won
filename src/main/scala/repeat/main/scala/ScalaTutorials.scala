@@ -278,10 +278,11 @@ object ScalaTutorials {
 
 
   // Types system
-  val anInt: Int = 123    // level - 0 type
-  class MyAwesomeList[T]  // level - 1 type (type constructor)
-  class Function[F[_]]    // level - 2 type
-  class Meta[F[_[_]]]     // level - 3 type
+  val anInt: Int = 123    /*  level - 0 type */
+  class MyAwesomeList[T]  /*  level - 1 type (type constructor) */
+  class Function[F[_]]    /*  level - 2 type */
+  class Meta[F[_[_]]]     /*  level - 3 type */
+
 
 
 
@@ -315,9 +316,7 @@ object ScalaTutorials {
 
     override def updateNext[S >: Nothing](newNext: => DLLList[S]) = this
     override def updatePrev[S >: Nothing](newPrev: => DLLList[S]) = this
-
   }
-
 
 
   class DLLCons[+T](override val value: T,
@@ -327,33 +326,36 @@ object ScalaTutorials {
     override lazy val next: DLLList[T] = n
     override lazy val prev: DLLList[T] = p
 
-
     override def updatePrev[S >: T](newPrev: => DLLList[S]): DLLList[S] = {
       lazy val result: DLLList[S] = new DLLCons(value, newPrev, n.updatePrev(result))
       result
     }
-
 
     override def updateNext[S >: T](newNext: => DLLList[S]): DLLList[S] = {
       lazy val result: DLLList[S] = new DLLCons(value, p.updateNext(result), newNext)
       result
     }
 
-
-
     override def append[S >: T](element: S): DLLList[S] = {
       lazy val result: DLLList[S] = new DLLCons(value, p.updateNext(result), n.append(element).updatePrev(result))
       result
     }
-
 
     override def prepend[S >: T](element: S): DLLList[S] = {
       lazy val result: DLLList[S] = new DLLCons(value, p.prepend(element).updateNext(result), n.updatePrev(result))
       result
     }
 
-  }
+    val list = DLLEnpty.prepend(1).append(2).prepend(3).append(4)
+    assert(list.value == 1)
+    assert(list.next.value == 2)
+    assert(list.next.prev == list)
+    assert(list.prev.value == 3)
+    assert(list.prev.next == list)
+    assert(list.next.next.value == 4)
+    assert(list.next.next.prev.prev == list)
 
+  }
 
 }
 
