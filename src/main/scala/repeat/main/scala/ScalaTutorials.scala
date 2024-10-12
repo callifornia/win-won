@@ -486,7 +486,7 @@ object ScalaTutorials {
   }
 
 
-  
+
 
   // Algorithm and data structure
   {
