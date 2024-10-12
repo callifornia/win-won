@@ -4,24 +4,18 @@ object ScalaTutorialWorkSheatObject {
 
 
 
+  case class Session(url: String, isAlive: Boolean)
 
-  def customWhile(bool: Boolean)(function : => Unit): Unit =
-    bool match {
-      case true =>
-        function
-        customWhile(bool)(function)
-      case false => ()
-    }
+  def builder(handle: Session => Unit): Unit = {
+    handle(Session("www.trump.ua", true))
+  }
 
-
+  builder {session =>
+    println(session.url)
+    println(session.isAlive)
+  }
 
   def main(args: Array[String]): Unit = {
-
-    val a = 123
-    customWhile(a > 0) {
-      println("Hello world ...")
-    }
-
 
   }
 
