@@ -10,6 +10,400 @@ object ScalaTutorials {
   }
 
 
+
+  // general notes
+  {
+    /*
+
+      referentially transparent - завжди повертає один і той самий результат
+      infix notation            - fundamental feature in language. Ability to use method without any dots or parentheses
+      auxiliary constructors    - Overloaded constructor this(). All auxiliary constructors must first call the primary
+                                  constructor or another auxiliary constructor. Guarantees that the object is properly
+                                  initialized before the auxiliary constructor comes into play
+      lifting                   - when we pass some function as if it were a function, Scala automatically converts it
+                                  to a function object.
+
+      scala prefixes            - all the parameters with val
+      equals/hashCode           - implemented for you based on the given parameters
+      companion object          - created with the appropriate apply method, which takes the same arguments as declared in the class
+      unapply                   - allow the class name to be used as an extractor for pattern matching
+
+      sealed trait              - all the classes need to be in the same source file
+
+
+      first-class citizens      - we can use functions as values or like normal variables
+      default scala imports     - implicitly: java.lang._, scala._, scala.Predef._ */
+  }
+
+
+
+
+  // implicit lookup
+  {
+    /*    Look in current scope
+            - Implicit defined in current scope
+            - Imports explicit, wildcard
+        Look at associated types in
+            - Companion object of a type
+            - Companion object OtherClass
+            - Companion object B
+            - Any superclass of B */
+  }
+
+
+
+
+  // substitution model
+  /*
+        sumOfSquares(3, 2 + 2)
+        sumOfSquares(3, 4)
+        square(3) + square(4)
+        3 * 3 + square(4)
+        9 + square(4)
+        9 + 4 * 4
+        9 + 16
+        25
+                           */
+
+
+
+
+  // call by name
+  {
+    def byValueFunction(x: Int): Int = x + 1
+    byValueFunction(3 + 2) /* 3 + 2 evaluated before method "byValueFunction" are going to be called*/
+  def byNameFunction(x: => Int): Int = x + 1
+    byNameFunction(3 + 2) /* 3 + 2 are going to be evaluated when it's going to be used inside that function "byNameFunction".
+     in other words => call by need */
+
+    /*    example with reevaluation   */
+    def byValue(x: Long): Unit = {
+      println(x)
+      println(x)
+    }
+
+    def byName(x: => Long): Unit = {
+      println(x)
+      println(x)
+    }
+
+    byValue(System.nanoTime())
+    byName(System.nanoTime())
+
+
+    /* example with infinity list where tail or in other words all structure evaluated when it's needed.
+       That pattern is named as "call by need". It powerful in infinity collections
+       */
+
+    abstract class MyList1[+T] {
+      def head: T
+
+      def tail: MyList1[T]
+    }
+
+    case object EmptyList extends MyList1[Nothing] {
+      override def head: Nothing = throw new NullPointerException
+
+      override def tail: MyList1[Nothing] = throw new NullPointerException
+    }
+
+    class NonEmptyList[T](h: => T, t: MyList1[T]) extends MyList1[T] {
+      override lazy val head: T = {
+        println("Head is evaluated: " + h)
+        h
+      }
+      override lazy val tail: MyList1[T] = {
+        println("Tail is evaluated: " + h)
+        t
+      }
+    }
+
+
+    val list = new NonEmptyList[Int](1, new NonEmptyList[Int](2, new NonEmptyList[Int](3, new NonEmptyList[Int](4, EmptyList))))
+    list.head
+    list.tail.tail.head
+
+
+    /*
+        - call by name also used in a Future which allows to execute some functionality in some time in some thread
+        - Try as an example also implemented in such way: Try(throw new NullPointerExceptions)
+    */
+  }
+
+
+
+
+  // variants | covariant | contravariant
+  {
+    /*
+       Dog is subtype of Animal
+       Is List[Dog] is subtype of List[Animal] = this is variant question
+
+       In case answer is YES         => it means Covariant | In Scala it marked as List[+A] */
+    class Animal
+    class Dog extends Animal
+    val _: List[Animal] = List.empty[Dog]
+
+    /*   In case answer is NO         => it means Invariant where no relationships between List[Animal] and List[Dog]. In Scala it marked as List[A] */
+    class MyList[A]
+    val _: MyList[Animal] = new MyList[Animal]
+
+    /*    In case answer is HELL NO   => it means Contravariant. Where in Scala it marked as List[-A] */
+    class MyList_2[-A]
+    val _: MyList_2[Dog] = new MyList_2[Animal]
+
+    /* example */
+    trait Vet[-T] {
+      def heal(animal: T): Boolean
+    }
+
+    val myDogVet: Vet[Dog] = new Vet[Animal] {
+      override def heal(animal: Animal): Boolean = {
+        println("Dog is healthy")
+        true
+      }
+    }
+
+    myDogVet.heal(new Dog)
+
+    /*
+       Summary
+        - In case your generic type produce(creates) or contain an elements   =>  COVARIANT
+        - In case your generic type "acts on" or consume an elements          =>  CONTRAVARIANTx
+   */
+
+  }
+
+
+
+
+  // self type
+  {
+    /*  Which mean everyone who extends Hospital MUST extends Builder  */
+    trait Builder {
+      def build(asd: String): Boolean = true
+    }
+    trait Hospital {
+      selfType: Builder =>
+      def makeNewHospital(value: Int): Boolean = selfType.build(value.toString)
+    }
+
+    class makeNewStructure extends Hospital with Builder {
+      def someAwesomeMethod(): Unit = makeNewHospital(3)
+    }
+  }
+
+
+
+
+  // null, Null, Nothing, None
+  {
+    /* null */
+    val g: String = null
+    /* as in a Java world */
+    val d: Null = null
+    /* Null has no methods, no fields, can not be extended or instantiated  and only possible value is 'null'.
+        It's extends all references types
+        AnyRef -> all reference types -> Null
+     */
+    val y: String = d
+
+    /* Unit is like a void in a java world*/
+    /* Nothing. Examples: throw new NullpointerException,  ??? no value at all*/
+  }
+
+
+
+
+
+  // nothing
+  {
+    class MyClass
+    val a: String = throw new NullPointerException
+    val b: Int = throw new NullPointerException
+    val c: MyClass = throw new NullPointerException
+
+    /* can we use Nothing ? */
+    def someFunction(a: Nothing): Int = ???
+    def someFunction2(a: Nothing): Nothing = throw new NullPointerException
+
+    /* use in covariant side */
+    abstract class MyList2[+T]
+    class MyListSpec[T] extends MyList2[T]
+    object MyListSpecEmpty extends MyList2[Nothing]
+
+  }
+
+
+
+
+
+  // abstract class vs trait
+  {
+    abstract class Person {
+      def canFly: Boolean = true
+      val canDrive: Boolean
+      def discussWith(abother: Person): String
+    }
+
+    trait PersonTrait {
+      def canFly: Boolean = true
+      val canDrive: Boolean
+      def discussWith(abother: Person): String
+    }
+
+    /*
+    - they can't be instantiated on their own
+    - may have abstract fields/methods
+    - may have non-abstract fields/methods
+
+
+    - can inherit from a SINGLE abstract class
+    - can inherit from MULTIPLE traits
+    - abstract class can take constructor arguments
+    - trait can't take constructor arguments
+    - represent things as a classes
+    - represent behavior as traits
+                                                      */
+  }
+
+
+
+
+  // Eta-Expansion & Partially applied function
+  {
+    /*
+     - function can be assigned to a value which can be passed as an argument
+     - function is an instance of a function traits family
+     - method depends on a class or object where it defined where function is a plain object
+     - eta-expansion is a transform method into the function
+           val something = someMethod _
+      example:
+       List(1,2,3,4).map(incrementMethod) <- compiler automatically transform "incrementMethod" into the function
+
+                                                        */
+  }
+
+
+
+
+  //  Blocking | Async | Non-blocking
+  {
+    /*  Blocking */
+    def blockingCode(a: Int): Int = {
+      Thread.sleep(10000)
+      23
+    }
+
+    blockingCode(23)
+    val _: Int = 33 /* will wait 10 seconds before evaluated */
+
+
+    /* async blocking */
+    def asyncBlockingCode(a: Int): Future[Int] = Future {
+      Thread.sleep(1000)
+      12
+    }
+
+    asyncBlockingCode(123)
+    val _: Int = 123 /* evaluate immediate without any delay */
+
+
+    /* async non-blocking when current thread or other one are not blocked
+       as an example akka actor which is basically data structure
+      */
+
+
+    /* right associative method */
+    class MyClass_2 {
+      def ::(a: Int): Unit = println("")
+    }
+    val myClass = new MyClass_2
+    123 :: myClass /* because method in class MyClass_2 ended with a ":" */
+
+
+  }
+
+
+
+
+  //  Type classes
+  {
+    /*  - is a data structure which support ad hoc polymorphism
+      - we can ADD NEW METHOD or NEW DATA without changing existing code
+      There are three important point about type classes:
+        - Type class itself
+        - Instances for particular type
+        - Interface method that we exposed to user
+  */
+
+    trait Convertor[T] {
+      def convert(list: List[T]): T
+    }
+
+    object Convertor {
+      implicit object IntSummup extends Convertor[Int] {
+        override def convert(list: List[Int]): Int = list.sum
+      }
+
+      implicit object StrSummup extends Convertor[String] {
+        override def convert(list: List[String]): String = list.mkString(", ")
+      }
+    }
+
+
+    /*
+    The behavior of that method is 'ad-hoc' because of: implicit convertor: Convertor[T] where in the code we have capability to call
+    convert method on convertor only when convertor is supplied. That is the part of ad-hoc.
+    Polymorphism part is the [T] - where for any specific type we must have it's own implementation
+
+    implicit convertor: Convertor[T] <- ad-hoc
+    [T]                              <- polymorphism
+
+  */
+    def summup[T](list: List[T])(implicit convertor: Convertor[T]): T = /* ad-hoc polymorphism */
+      convertor.convert(list)
+
+    summup(List(1, 2, 3))
+    summup("asd" :: "123" :: Nil)
+  }
+
+
+
+
+
+  // Types system
+  {
+    val anInt: Int = 123        /*  level - 0 type */
+    class MyAwesomeList[T]      /*  level - 1 type (type constructor) */
+    class Function[F[_]]        /*  level - 2 type */
+    class Meta[F[_[_]]]         /*  level - 3 type */
+  }
+
+
+
+
+  // custom while
+  {
+    def customWhile(bool: => Boolean)(function: => Unit): Unit =
+      bool match {
+        case true =>
+          function
+          customWhile(bool)(function)
+        case false => ()
+      }
+
+    var i = 3
+    customWhile(i > 0) {
+      println("Hello world")
+      i = i - 1
+    }
+
+  }
+
+
+
+
   // Big O notation
   {
     /* https://www.youtube.com/watch?v=ZRdOb4yR0kk */
@@ -92,396 +486,213 @@ object ScalaTutorials {
   }
 
 
+  
 
-
-
-  // Variants | Covariant | Contravariant
+  // Algorithm and data structure
   {
-    /*
-       Dog is subtype of Animal
-       Is List[Dog] is subtype of List[Animal] = this is variant question
-
-       In case answer is YES         => it means Covariant | In Scala it marked as List[+A] */
-    class Animal
-    class Dog extends Animal
-    val _: List[Animal] = List.empty[Dog]
-
-    /*   In case answer is NO         => it means Invariant where no relationships between List[Animal] and List[Dog]. In Scala it marked as List[A] */
-    class MyList[A]
-    val _: MyList[Animal] = new MyList[Animal]
-
-    /*    In case answer is HELL NO   => it means Contravariant. Where in Scala it marked as List[-A] */
-    class MyList_2[-A]
-    val _: MyList_2[Dog] = new MyList_2[Animal]
-
-    /* example */
-    trait Vet[-T] {
-      def heal(animal: T): Boolean
-    }
-
-    val myDogVet: Vet[Dog] = new Vet[Animal] {
-      override def heal(animal: Animal): Boolean = {
-        println("Dog is healthy")
-        true
-      }
-    }
-
-    myDogVet.heal(new Dog)
 
     /*
-       Summary
-        - In case your generic type produce(creates) or contain an elements   =>  COVARIANT
-        - In case your generic type "acts on" or consume an elements          =>  CONTRAVARIANTx
-   */
+    * Find all coins which in sum will be equal some number.
+    * For example:
+    *   coins: 1,5,10
+    *   number: 26
+    *   answer: 10, 10, 5, 1
+    *
+    *
+    * Solution above:
+    * */
+    val cents = 1 :: 5 :: 10 :: Nil
+    val number = 26
 
-  }
-
-
-
-
-  // SELF TYPE
-  {
-    /*  Which mean everyone who extends Hospital MUST extends Builder  */
-    trait Builder {
-      def build(asd: String): Boolean = true
-    }
-    trait Hospital {
-      selfType: Builder =>
-      def makeNewHospital(value: Int): Boolean = selfType.build(value.toString)
-    }
-
-    class makeNewStructure extends Hospital with Builder {
-      def someAwesomeMethod(): Unit = makeNewHospital(3)
-    }
-  }
-
-
-
-
-  // Nothing
-  {
-    class MyClass
-    val a: String = throw new NullPointerException
-    val b: Int = throw new NullPointerException
-    val c: MyClass = throw new NullPointerException
-
-    /* can we use Nothing ? */
-    def someFunction(a: Nothing): Int = ???
-    def someFunction2(a: Nothing): Nothing = throw new NullPointerException
-
-    /* use in covariant side */
-    abstract class MyList2[+T]
-    class MyListSpec[T] extends MyList2[T]
-    object MyListSpecEmpty extends MyList2[Nothing]
-
-  }
-
-
-
-
-  // call by name
-  {
-    def byValueFunction(x: Int): Int = x + 1
-    byValueFunction(3 + 2) /* 3 + 2 evaluated before method "byValueFunction" are going to be called*/
-    def byNameFunction(x: => Int): Int = x + 1
-    byNameFunction(3 + 2) /* 3 + 2 are going to be evaluated when it's going to be used inside that function "byNameFunction".
-     in other words => call by need */
-
-    /*    example with reevaluation   */
-    def byValue(x: Long): Unit = {
-      println(x)
-      println(x)
-    }
-
-    def byName(x: => Long): Unit = {
-      println(x)
-      println(x)
-    }
-
-    byValue(System.nanoTime())
-    byName(System.nanoTime())
-
-
-    /* example with infinity list where tail or in other words all structure evaluated when it's needed.
-       That pattern is named as "call by need". It powerful in infinity collections
-       */
-
-    abstract class MyList1[+T] {
-      def head: T
-
-      def tail: MyList1[T]
-    }
-
-    case object EmptyList extends MyList1[Nothing] {
-      override def head: Nothing = throw new NullPointerException
-
-      override def tail: MyList1[Nothing] = throw new NullPointerException
-    }
-
-    class NonEmptyList[T](h: => T, t: MyList1[T]) extends MyList1[T] {
-      override lazy val head: T = {
-        println("Head is evaluated: " + h)
-        h
-      }
-      override lazy val tail: MyList1[T] = {
-        println("Tail is evaluated: " + h)
-        t
-      }
-    }
-
-
-    val list = new NonEmptyList[Int](1, new NonEmptyList[Int](2, new NonEmptyList[Int](3, new NonEmptyList[Int](4, EmptyList))))
-    list.head
-    list.tail.tail.head
-
-
-    /*
-        - call by name also used in a Future which allows to execute some functionality in some time in some thread
-        - Try as an example also implemented in such way: Try(throw new NullPointerExceptions)
-    */
-  }
-
-
-
-  //  Blocking | Async | Non-blocking
-  {
-    /*  Blocking */
-    def blockingCode(a: Int): Int = {
-      Thread.sleep(10000)
-      23
-    }
-
-    blockingCode(23)
-    val _: Int = 33 /* will wait 10 seconds before evaluated */
-
-
-    /* async blocking */
-    def asyncBlockingCode(a: Int): Future[Int] = Future {
-      Thread.sleep(1000)
-      12
-    }
-
-    asyncBlockingCode(123)
-    val _: Int = 123 /* evaluate immediate without any delay */
-
-
-    /* async non-blocking when current thread or other one are not blocked
-       as an example akka actor which is basically data structure
-      */
-
-
-    /* right associative method */
-    class MyClass_2 {
-      def ::(a: Int): Unit = println("")
-    }
-    val myClass = new MyClass_2
-    123 :: myClass /* because method in class MyClass_2 ended with a ":" */
-
-
-  }
-
-
-
-  //  Type classes
-  {
-    /*  - is a data structure which support ad hoc polymorphism
-      - we can ADD NEW METHOD or NEW DATA without changing existing code
-      There are three important point about type classes:
-        - Type class itself
-        - Instances for particular type
-        - Interface method that we exposed to user
-  */
-
-    trait Convertor[T] {
-      def convert(list: List[T]): T
-    }
-
-    object Convertor {
-      implicit object IntSummup extends Convertor[Int] {
-        override def convert(list: List[Int]): Int = list.sum
+    def function(number: Int, cents: Set[Int], result: List[Int] = Nil): List[Int] =
+      number match {
+        case n if n <= 0 => result
+        case _ if cents.nonEmpty =>
+          number - cents.max match {
+            case 0 => result :+ cents.max
+            case n if n < 0 => function(number, cents.-(cents.max), result)
+            case n if n > 0 => function(number - cents.max, cents, result :+ cents.max)
+          }
+        case _ => result
       }
 
-      implicit object StrSummup extends Convertor[String] {
-        override def convert(list: List[String]): String = list.mkString(", ")
-      }
-    }
+    function(number, cents.toSet)
 
 
     /*
-    The behavior of that method is 'ad-hoc' because of: implicit convertor: Convertor[T] where in the code we have capability to call
-    convert method on convertor only when convertor is supplied. That is the part of ad-hoc.
-    Polymorphism part is the [T] - where for any specific type we must have it's own implementation
+    * Almost the same task but with a small changes.
+    * Changes: find more optima solution
+    *
+    * For example:
+    *   coins: 1,5,10,20,25
+    *   number: 41
+    *   answer: 20,20,1
+    *
+    *   Solution: list with a lowest length
+    *
+    * */
+    val cents_1 = 1 :: 5 :: 10 :: 20 :: 25 :: Nil
+    val number_1 = 41
 
-    implicit convertor: Convertor[T] <- ad-hoc
-    [T]                              <- polymorphism
-
-  */
-    def summup[T](list: List[T])(implicit convertor: Convertor[T]): T = /* ad-hoc polymorphism */
-      convertor.convert(list)
-
-    summup(List(1, 2, 3))
-    summup("asd" :: "123" :: Nil)
-  }
-
-
-
-
-  // null, Null, Nothing, None
-  {
-    /* null */
-    val g: String = null
-    /* as in a Java world */
-    val d: Null = null
-    /* Null has no methods, no fields, can not be extended or instantiated  and only possible value is 'null'.
-        It's extends all references types
-        AnyRef -> all reference types -> Null
-     */
-    val y: String = d
-
-    /* Unit is like a void in a java world*/
-    /* Nothing. Examples: throw new NullpointerException,  ??? no value at all*/
-  }
-
-
-
-
-  // Abstract class vs trait
-  {
-    abstract class Person {
-      def canFly: Boolean = true
-      val canDrive: Boolean
-      def discussWith(abother: Person): String
-    }
-
-    trait PersonTrait {
-      def canFly: Boolean = true
-      val canDrive: Boolean
-      def discussWith(abother: Person): String
-    }
-
-    /*
-    - they can't be instantiated on their own
-    - may have abstract fields/methods
-    - may have non-abstract fields/methods
-
-
-    - can inherit from a SINGLE abstract class
-    - can inherit from MULTIPLE traits
-    - abstract class can take constructor arguments
-    - trait can't take constructor arguments
-    - represent things as a classes
-    - represent behavior as traits
-                                                      */
-  }
-
-
-
-
-  // Eta-Expansion & Partially applied function
-  {
-    /*
-     - function can be assigned to a value which can be passed as an argument
-     - function is an instance of a function traits family
-     - method depends on a class or object where it defined where function is a plain object
-     - eta-expansion is a transform method into the function
-           val something = someMethod _
-      example:
-       List(1,2,3,4).map(incrementMethod) <- compiler automatically transform "incrementMethod" into the function
-
-                                                        */
-  }
-
-
-
-
-  // Types system
-  {
-    val anInt: Int = 123        /*  level - 0 type */
-    class MyAwesomeList[T]      /*  level - 1 type (type constructor) */
-    class Function[F[_]]        /*  level - 2 type */
-    class Meta[F[_[_]]]         /*  level - 3 type */
-  }
-
-
-
-
-  // general notes
-  {
-    /*
-
-      referentially transparent - завжди повертає один і той самий результат
-      infix notation            - fundamental feature in language. Ability to use method without any dots or parentheses
-      auxiliary constructors    - Overloaded constructor this(). All auxiliary constructors must first call the primary
-                                  constructor or another auxiliary constructor. Guarantees that the object is properly
-                                  initialized before the auxiliary constructor comes into play
-      lifting                   - when we pass some function as if it were a function, Scala automatically converts it
-                                  to a function object.
-
-      scala prefixes            - all the parameters with val
-      equals/hashCode           - implemented for you based on the given parameters
-      companion object          - created with the appropriate apply method, which takes the same arguments as declared in the class
-      unapply                   - allow the class name to be used as an extractor for pattern matching
-
-      sealed trait              - all the classes need to be in the same source file
-
-
-      first-class citizens      - we can use functions as values or like normal variables
-      default scala imports     - implicitly: java.lang._, scala._, scala.Predef._ */
-  }
-
-
-
-
-  // implicit lookup
-  {
-    /*    Look in current scope
-            - Implicit defined in current scope
-            - Imports explicit, wildcard
-        Look at associated types in
-            - Companion object of a type
-            - Companion object OtherClass
-            - Companion object B
-            - Any superclass of B */
-  }
-
-
-
-  // substitution model
-    /*
-          sumOfSquares(3, 2 + 2)
-          sumOfSquares(3, 4)
-          square(3) + square(4)
-          3 * 3 + square(4)
-          9 + square(4)
-          9 + 4 * 4
-          9 + 16
-          25
-                             */
-
-
-
-  // custom while
-  {
-    def customWhile(bool: => Boolean)(function: => Unit): Unit =
-      bool match {
-        case true =>
-          function
-          customWhile(bool)(function)
-        case false => ()
+    def function_1(number: Int, cents: Set[Int], result: List[Int] = Nil): List[Int] =
+      number match {
+        case n if n <= 0 => result
+        case _ if cents.nonEmpty =>
+          number - cents.max match {
+            case 0 => result :+ cents.max
+            case n if n < 0 => function(number, cents.-(cents.max), result)
+            case n if n > 0 => function(number - cents.max, cents, result :+ cents.max)
+          }
+        case _ => result
       }
 
-    var i = 3
-    customWhile(i > 0) {
-      println("Hello world")
-      i = i - 1
+    def function_2(number: Int, cents: List[Int]): List[List[Int]] =
+      cents.sorted.inits.foldLeft(List.empty[List[Int]]) {(result, cents) =>
+        result :+ function_1(number, cents.toSet)
+      }
+
+    function_2(number_1, cents_1).mkString("\n")
+    /*
+    * result is:
+    *
+    * List(25, 10, 5, 1)
+    * List(20, 20, 1)                       <---------- this is an optimal solution
+    * List(10, 10, 10, 10, 1)
+    * List(5, 5, 5, 5, 5, 5, 5, 5, 1)
+    * List(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+    * */
+
+
+    /*
+    * Bubble sort. implemented in mutable way
+    *
+    * Solution:
+    * */
+    import scala.collection.mutable.{ArraySeq => MutableArray}
+
+    val list = 1 :: 3 :: 2 :: 4 :: 6 :: 5 :: 7 :: Nil
+
+    def function_3(elements: List[Int]): MutableArray[Int] = {
+      val mutableArray = MutableArray.from(elements)
+
+      (1 until elements.length).foreach {_ =>
+        (0 until elements.length - 1).foreach {stepIndex =>
+          val nextIndex = stepIndex + 1
+          val stepElement = mutableArray(stepIndex)
+          val nextElement = mutableArray(nextIndex)
+
+          if (stepElement > nextElement) {
+            mutableArray(nextIndex) = stepElement
+            mutableArray(stepIndex) = nextElement
+          }
+        }
+      }
+      mutableArray
     }
 
-  }
+    function_3(list.reverse)
 
+
+    /*
+    * Select sort.
+    * 1. pick up the first element
+    * 2. find the lowest element in an array
+    * 3. compare element in step 1 with an element in step 2
+    * 4. swap elements in case first element is not lowest
+    * 5. pick up second element
+    * 6. then step 2 and so on...until end of an array
+    *
+    * Solution:
+    * */
+
+    val list_2 = 1 :: 3 :: 2 :: 4 :: 6 :: 5 :: 7 :: 0 :: Nil
+
+    def function_4(elements: List[Int]): MutableArray[Int] = {
+
+      val mutableArray = MutableArray.from(elements)
+
+      (0 until mutableArray.length - 1).foreach {index =>
+        val indexWithLowestElem = (index + 1 until mutableArray.length).foldLeft(index) {
+          (indexWithLowestElem, stepIndex) =>
+            mutableArray(indexWithLowestElem) >= mutableArray(stepIndex) match {
+              case true => stepIndex
+              case false => indexWithLowestElem
+            }
+        }
+
+        /* swap if lowest element was found otherwise ignore */
+        if (indexWithLowestElem != index) {
+          val stepElement = mutableArray(index)
+          mutableArray(index) = mutableArray(indexWithLowestElem)
+          mutableArray(indexWithLowestElem) = stepElement
+        }
+      }
+
+      mutableArray
+    }
+
+    function_4(list_2.sorted.reverse)
+
+
+    /*
+    * Insert sort: O(n^2)
+    * 1. Pick up an element
+    * 2. Pick up previous element
+    * 3. Compare 1 and 2
+    * 4. Swap in case 2 is higher than 1
+    *
+    * Solution:
+    * */
+
+    val list_3 = 7 :: 6 :: 5 :: 4 :: 10 :: 3 :: 13 :: 2 :: 1 :: 0 :: Nil
+
+    def function_5(element: List[Int]): MutableArray[Int] = {
+      val mutableArray = MutableArray.from(element)
+      (0 to mutableArray.length - 1).foreach {i =>
+        var j = i
+        while (j > 0 && mutableArray(j - 1) > mutableArray(j)) {
+          val previous = mutableArray(j - 1)
+          mutableArray(j - 1) = mutableArray(j)
+          mutableArray(j) = previous
+          j = j - 1
+        }
+      }
+
+      mutableArray
+    }
+
+
+    /*
+    * Merge sort: O(logN)
+    *
+    *
+    *  Solution:
+    * */
+    val list_4 = 7 :: 6 :: 5 :: 4 :: 10 :: 3 :: 13 :: 2 :: 1 :: 0 :: Nil
+
+    def merge(listOne: List[Int], listTwo: List[Int]): List[Int] = (listOne, listTwo) match {
+      case (Nil, list) => list
+      case (list, Nil) => list
+      case (x :: xs, y :: ys) =>
+        if (x < y) x :: merge(xs, listTwo)
+        else y :: merge(listOne, ys)
+    }
+
+    def mergeSort(list: List[Int]): List[Int] = list match {
+      case Nil => list
+      case xs :: Nil => List(xs)
+      case _ =>
+        val (left, right) = list splitAt list.length / 2
+        merge(mergeSort(left), mergeSort(right))
+    }
+
+    mergeSort(list_4)
+  }
 
 
 
   //                          **********      Patterns        **********
+
 
 
   // call-by need pattern
@@ -595,7 +806,6 @@ object ScalaTutorials {
     }
 
   }
-
 
 
 
