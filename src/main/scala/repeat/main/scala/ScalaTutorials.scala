@@ -14,7 +14,7 @@ object ScalaTutorials {
   // general notes
   {
     /*
-
+      associativity             - a x (b x c) = (a x b) x c
       referentially transparent - завжди повертає один і той самий результат
       infix notation            - fundamental feature in language. Ability to use method without any dots or parentheses
       auxiliary constructors    - Overloaded constructor this(). All auxiliary constructors must first call the primary
@@ -406,56 +406,66 @@ object ScalaTutorials {
 
   // Big O notation
   {
-    /* https://www.youtube.com/watch?v=ZRdOb4yR0kk */
+    /* https://www.youtube.com/watch?v=ZRdOb4yR0kk
 
-    /* Big O - показивает верхнюю межу складності виконання алгоритма в залежності від вхвідних параметрів.
-    *  Ми не беремо до уваги константи та "наважну" складність
-    *
-    *  - послідовність дій                                                => додавання
-    *  - вложеність дій                                                   => множення
-    *  - для алгоритма де на конжній ітерації береться половина елементів => log N
-    *
-    *
-    *    О(N^2 + N^2)            = O(N^2)
-    *    О(N^2 + N)              = O(N^2)
-    *    О(N + logN)             = O(N)
-    *    O(5 * 2^N + 10*N^100)   = O(2^N)     2^N - растет гараздо бистрее чем N^100
-    * */
+        Big O - показивает верхнюю межу складності виконання алгоритма в залежності від вхвідних параметрів.
+        Ми не беремо до уваги константи та "наважну" складність
+
+      - послідовність дій                                                => додавання
+      - вложеність дій                                                   => множення
+      - для алгоритма де на конжній ітерації береться половина елементів => log N
 
 
-    /* Рекурсивна фунція яка рахує сумму чисел
-    * У випадку коли N = 3 функція викличе себе 3 рази
-    * у випадку коли N = 4 функція викличе себе 4 рази
-    *
-    * Швидкодія:   О (N)
-    * */
+        О(N^2 + N^2)            = O(N^2)
+        О(N^2 + N)              = O(N^2)
+        О(N + logN)             = O(N)
+        O(5 * 2^N + 10*N^100)   = O(2^N)     2^N - растет гараздо бистрее чем N^100
+
+
+       O (big 0): In academia, big O describes an upper bound on the time.
+           An algorithm that prints all the values in an array could be described as O(N),
+           but it could also be described as O(N2), O(N3) ... therefore they are upper
+           bounds on the runtime.
+           X <= 1, 000 or X <= 1,000,000. It's technically true
+
+      `0` (big omega): In academia, `0` is the equivalent concept but for lower bound.
+               Printing the values in an array is O(N) as well as O(log N) and 0(1).
+               After all, you know that it won't be faster than those runtimes.
+
+      `E` (big theta): In academia, `E` means both O and `0`. That is, an algorithm is E(N) if it is both O(N) and
+                 `0`( N). 0 gives a tight bound on runtime.
+
+
+       Рекурсивна фунція яка рахує сумму чисел
+       У випадку коли N = 3 функція викличе себе 3 рази
+       у випадку коли N = 4 функція викличе себе 4 рази
+
+       Швидкодія:   О (N)
+     */
     def sum(n: Int): Int = n match {
       case 1 => 1
       case b => b + sum(b - 1)
     }
 
 
-    /* Функція котра пробігається по всьому масиву і додвє два числа.
-    *
-    *  Швидкодія: O(N)
-    * */
+    /*  Функція котра пробігається по всьому масиву і додвє два числа.
+        Швидкодія: O(N)
+    */
     def sumSuqences(n: Int): Int = (0 to n).map(k => innerSumFuntion(k, k + 1)).sum
+
 
     /* швидкодія: О(1) */
     def innerSumFuntion(a: Int, b: Int): Int = a + b
 
 
-    /*
-    * Швидкодія: O(A + B)
-    * */
+    /* Швидкодія: O(A + B) */
     def function_1(array_1: Array[Int], array_2: Array[Int]): Unit = {
       array_1.foreach(println)
       array_2.foreach(println)
     }
 
-    /*
-    * Швидкодія: O(N^2) томущо є вложеність
-    * */
+
+    /* Швидкодія: O(N^2) томущо є вложеність */
     def function_2(array_1: Array[Int]): Unit = {
       array_1.foreach(a =>
         array_1.foreach(b =>
@@ -463,9 +473,7 @@ object ScalaTutorials {
     }
 
 
-    /*
-    * Швидкодія: O(A * B) томущо є вложеність
-    * */
+    /* Швидкодія: O(A * B) томущо є вложеність */
     def function_3(array_A: Array[Int], array_B: Array[Int]): Unit = {
       array_A.foreach(a =>
         array_B.foreach(b =>
@@ -473,15 +481,11 @@ object ScalaTutorials {
     }
 
 
-    /*
-    * Швидкодія: O(N)
-    * */
+    /* Швидкодія: O(N) */
     def function_4(array: Array[Int]): Unit = (1 to array.length / 2).foreach(println)
 
 
-    /*
-      O(log N) -> для алгоритма, де на кожній ітерації береться половина елементів складність буде включати log N
-    */
+    /*  O(log N) -> для алгоритма, де на кожній ітерації береться половина елементів складність буде включати log N     */
 
   }
 
@@ -768,6 +772,18 @@ object ScalaTutorials {
 
   // Functor
   {
+  /*
+      A Functor for a type provides the ability for its values to be "mapped over",
+    i.e. apply a function that transforms inside a value while remembering its shape.
+    For example, to modify every element of a collection without dropping or adding elements.
+
+   Laws:
+     identity:               fa.map(x => x)    ==  fa
+     composition:            fa.map(f).map(g)  ==  fa.map(x => f(x) andThen g(x))
+
+
+   */
+
     trait Functor[C[_]] {
       def map[A, B](container: C[A])(function: A => B): C[B]
     }
@@ -826,8 +842,27 @@ object ScalaTutorials {
 
 
 
+  // singleton
+  /*    In scala it's represented in one line just as object    */
+  object Singleton
+
+
+
+  // companion object
+  /*  class + object = companion  */
+  class Kid {
+    val _ = Kid.privateField
+  }
+
+  object Kid { private val privateField = 123 }
 
 
 
 
 }
+
+
+
+
+
+
