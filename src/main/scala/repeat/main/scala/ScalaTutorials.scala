@@ -454,6 +454,7 @@ object ScalaTutorials {
     functor.map(container)(_ * 10)
   }
 
+  
 
 
   // Loan - pattern
