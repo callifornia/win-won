@@ -695,6 +695,43 @@ object ScalaTutorials {
 
 
 
+  // algebra data type | ADT
+  {
+      /*  SUM type  */
+      sealed trait Weather
+      case object Sunny extends Weather
+      case object Rainy extends Weather
+      case object Cloudy extends Weather
+      case object Windy extends Weather
+
+
+      /*  Product type  */
+      case class Product(name: Name, email: Email)
+      case class Email(value: String)
+      case class Name(value: String)
+
+
+      /*  Hybrid type */
+      sealed trait WeatherForeCastResponse
+      case class Valid(weather: Weather) extends WeatherForeCastResponse
+      case class Invalid(error: String, description: String) extends WeatherForeCastResponse
+
+
+    /*
+        1. Illigal states ar not representable.
+            def check(weather: Weather): Unit = ??? <- so we can not put anything else than Weather
+        2. highly composable
+        3. immutable data structure
+        4. just data, not functionality => structure our code
+        
+     */
+
+
+
+  }
+
+
+
   //                          **********      Patterns        **********
 
 

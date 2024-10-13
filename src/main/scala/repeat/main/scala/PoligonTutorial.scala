@@ -7,11 +7,25 @@ object PoligonTutorial {
   def something(handle: Session => Unit) =
     handle(Session("www.asd.com", true))
 
+  sealed trait A
+  case object B extends A
+  case object C extends A
+
+  def check(s: A): Unit = s match {
+    case B => println("asd")
+
+  }
 
   def main(args: Array[String]): Unit = {
-    something { session =>
-      println(session.url)
-      println(session.isActive)
-    }
+    println("asd")
+    check(C)
+
+
+
+
+//    something { session =>
+//      println(session.url)
+//      println(session.isActive)
+//    }
   }
 }
