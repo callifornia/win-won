@@ -4,6 +4,17 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 
 
+/*
+*   TODO:
+*     Functional programingwl;'
+*
+*
+*       https://www.youtube.com/watch?v=Y5rPHZaUakg&list=PLmtsMNDRU0Bzj7INIrLugi3a_WClwQuiS&index=45
+*
+*
+* */
+
+
 object ScalaTutorials {
   def main(args: Array[String]): Unit = {
     println("Is everything ok ???????")
@@ -35,6 +46,37 @@ object ScalaTutorials {
       default scala imports     - implicitly: java.lang._, scala._, scala.Predef._ */
   }
 
+
+
+
+
+
+  // value classes
+  {
+    case class BarCode(value: String) extends AnyVal {
+      def countryCode: Char = value.charAt(0)
+    }
+
+    /*
+        Restriction:
+      - no vals only def
+      - only one constructors
+      - can not be extended
+      - can only extend universal trait (traits with just def and without initialization)
+      - no runtime overhead, in heap we are going to have String instead of BarCode
+      - instance of the BarCode is going to be created only if it in use in generic type: */
+                    def show[T](agr: T): String = agr.toString
+                    show(BarCode("..."))
+
+                    Array[BarCode](BarCode("..."))
+
+                    BarCode("...") match {
+                      case BarCode(_) => println("...")
+                    }
+
+
+
+  }
 
 
 
@@ -691,6 +733,25 @@ object ScalaTutorials {
     }
 
     mergeSort(list_4)
+
+
+
+    /* insert sort */
+
+    def insertSort(list: List[Int]): List[Int] = {
+      def insert(number: Int, sortedList: List[Int]): List[Int] = {
+        if (sortedList.isEmpty || number < sortedList.head) number :: sortedList
+        else sortedList.head :: insert(number, sortedList.tail)
+      }
+
+      if (list.isEmpty || list.tail.isEmpty) list
+      else insert(list.head, insertSort(list.tail))
+    }
+
+    assert(insertSort(Nil) == Nil)
+    assert(insertSort(List(1)) == List(1))
+    assert(insertSort(List(3,2,1)) == List(1,2,3))
+    assert(insertSort(List(3,2,1,4,5,9,0)) == List(0,1,2,3,4,5,9))
   }
 
 
@@ -723,7 +784,7 @@ object ScalaTutorials {
         2. highly composable
         3. immutable data structure
         4. just data, not functionality => structure our code
-        
+
      */
 
 
