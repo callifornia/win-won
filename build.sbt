@@ -5,6 +5,8 @@ val CatsEffectVersion = "3.3.12"
 
 scalaVersion := "2.13.8"
 libraryDependencies ++= List(
+  "org.scalatest" %% "scalatest" % "3.2.19" % "test",
+  "org.scalactic" %% "scalactic" % "3.2.19",
   "com.lihaoyi" %% "fansi" % "0.3.1",
   "org.scalameta" %% "munit" % "0.7.29" % Test,
   "dev.zio" %% "zio" % ZioVersion,

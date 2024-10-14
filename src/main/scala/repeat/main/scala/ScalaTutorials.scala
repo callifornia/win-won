@@ -6,7 +6,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 /*
 *   TODO:
-*     Functional programingwl;'
+*     Functional programing'
 *
 *
 *       https://www.youtube.com/watch?v=Y5rPHZaUakg&list=PLmtsMNDRU0Bzj7INIrLugi3a_WClwQuiS&index=45
@@ -21,12 +21,33 @@ object ScalaTutorials {
   }
 
 
+  // referential transparency
+  /*
+   -  property to replace expression without changing meaning of the program
+   -  in other words we can replace expression with a value which expression evaluates
+   example:
+  * */
+  def add(a: Int, b: Int): Int = a + b
+  val five = add(2, 3)
+  val b = five + five
+  val ten_v1 = add(2, 3) + add(2, 3)
+  val ten_v2 = 5 + add(2, 3)
+
+  /* referencial transparency is not */
+  def showTime(): Long = System.currentTimeMillis()
+
+
+
+
+
+
+
+
 
   // general notes
   {
     /*
       associativity             - a x (b x c) = (a x b) x c
-      referentially transparent - завжди повертає один і той самий результат
       infix notation            - fundamental feature in language. Ability to use method without any dots or parentheses
       auxiliary constructors    - Overloaded constructor this(). All auxiliary constructors must first call the primary
                                   constructor or another auxiliary constructor. Guarantees that the object is properly
@@ -50,12 +71,12 @@ object ScalaTutorials {
 
 
 
-
   // value classes
   {
-    case class BarCode(value: String) extends AnyVal {
-      def countryCode: Char = value.charAt(0)
-    }
+    /*
+      case class BarCode(value: String) extends AnyVal {
+        def countryCode: Char = value.charAt(0)
+    }*/
 
     /*
         Restriction:
@@ -64,7 +85,7 @@ object ScalaTutorials {
       - can not be extended
       - can only extend universal trait (traits with just def and without initialization)
       - no runtime overhead, in heap we are going to have String instead of BarCode
-      - instance of the BarCode is going to be created only if it in use in generic type: */
+      - instance of the BarCode is going to be created only if it in use in generic type:
                     def show[T](agr: T): String = agr.toString
                     show(BarCode("..."))
 
@@ -74,7 +95,7 @@ object ScalaTutorials {
                       case BarCode(_) => println("...")
                     }
 
-
+*/
 
   }
 
@@ -257,7 +278,6 @@ object ScalaTutorials {
 
 
 
-
   // nothing
   {
     class MyClass
@@ -275,7 +295,6 @@ object ScalaTutorials {
     object MyListSpecEmpty extends MyList2[Nothing]
 
   }
-
 
 
 
@@ -369,58 +388,15 @@ object ScalaTutorials {
 
 
 
-  //  Type classes
-  {
-    /*  - is a data structure which support ad hoc polymorphism
-      - we can ADD NEW METHOD or NEW DATA without changing existing code
-      There are three important point about type classes:
-        - Type class itself
-        - Instances for particular type
-        - Interface method that we exposed to user
-  */
-
-    trait Convertor[T] {
-      def convert(list: List[T]): T
-    }
-
-    object Convertor {
-      implicit object IntSummup extends Convertor[Int] {
-        override def convert(list: List[Int]): Int = list.sum
-      }
-
-      implicit object StrSummup extends Convertor[String] {
-        override def convert(list: List[String]): String = list.mkString(", ")
-      }
-    }
-
-
-    /*
-    The behavior of that method is 'ad-hoc' because of: implicit convertor: Convertor[T] where in the code we have capability to call
-    convert method on convertor only when convertor is supplied. That is the part of ad-hoc.
-    Polymorphism part is the [T] - where for any specific type we must have it's own implementation
-
-    implicit convertor: Convertor[T] <- ad-hoc
-    [T]                              <- polymorphism
-
-  */
-    def summup[T](list: List[T])(implicit convertor: Convertor[T]): T = /* ad-hoc polymorphism */
-      convertor.convert(list)
-
-    summup(List(1, 2, 3))
-    summup("asd" :: "123" :: Nil)
-  }
-
-
-
-
-
   // Types system
   {
     val anInt: Int = 123        /*  level - 0 type */
-    class MyAwesomeList[T]      /*  level - 1 type (type constructor) */
-    class Function[F[_]]        /*  level - 2 type */
-    class Meta[F[_[_]]]         /*  level - 3 type */
+  class MyAwesomeList[T]      /*  level - 1 type (type constructor) */
+  class Function[F[_]]        /*  level - 2 type */
+  class Meta[F[_[_]]]         /*  level - 3 type */
   }
+
+
 
 
 
@@ -756,6 +732,7 @@ object ScalaTutorials {
 
 
 
+
   // algebra data type | ADT
   {
       /*  SUM type  */
@@ -793,7 +770,96 @@ object ScalaTutorials {
 
 
 
+
+  // test
+  {
+    /* used for test behavior
+    class SomeClass extends AnyFunSpec {
+      describe("multiplication") {
+        describe("...") {
+          it("should give back 0") {
+            ???
+          }
+        }
+      }
+    }
+
+
+    class SomeOtherClas extends AnyWordSpec {
+      "A calculator" should {
+        "give bqck 0" in {
+          ???
+        }
+      }
+    }
+
+
+     organize your test in a custom way as you wish
+    class SomethingElse extends AnyFreeSpec {
+      "any free way to write" - {
+        ???
+      }
+    }
+
+    class SomethingNew extends AnyPropSpec {
+      property("...") {
+        ???
+      }
+    }
+    */
+  }
+
+
+
+  // how to make sure the type are the same
+  /* (implicit evicted: A =:= B) - means types A and B must be the same otherwise it will not compile */
+  def wrapper[A, B](la: List[A], lb: List[B])(implicit evicted: A =:= B): List[(A, B)] = ???
+
+
+
   //                          **********      Patterns        **********
+
+  //  Type classes
+  {
+    /*  - is a data structure which support ad hoc polymorphism
+      - we can ADD NEW METHOD or NEW DATA without changing existing code
+      There are three important point about type classes:
+        - Type class itself
+        - Instances for particular type
+        - Interface method that we exposed to user
+  */
+
+    trait Convertor[T] {
+      def convert(list: List[T]): T
+    }
+
+    object Convertor {
+      implicit object IntSummup extends Convertor[Int] {
+        override def convert(list: List[Int]): Int = list.sum
+      }
+
+      implicit object StrSummup extends Convertor[String] {
+        override def convert(list: List[String]): String = list.mkString(", ")
+      }
+    }
+
+
+    /*
+    The behavior of that method is 'ad-hoc' because of: implicit convertor: Convertor[T] where in the code we have capability to call
+    convert method on convertor only when convertor is supplied. That is the part of ad-hoc.
+    Polymorphism part is the [T] - where for any specific type we must have it's own implementation
+
+    implicit convertor: Convertor[T] <- ad-hoc
+    [T]                              <- polymorphism
+
+  */
+    def summup[T](list: List[T])(implicit convertor: Convertor[T]): T = /* ad-hoc polymorphism */
+      convertor.convert(list)
+
+    summup(List(1, 2, 3))
+    summup("asd" :: "123" :: Nil)
+  }
+
 
 
 
