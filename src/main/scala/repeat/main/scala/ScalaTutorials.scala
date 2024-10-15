@@ -8,7 +8,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 *   TODO:
 *     Functional programing'
 *
-*
+*       https://www.youtube.com/watch?v=ozcY_K-ij20&list=PLmtsMNDRU0Bzj7INIrLugi3a_WClwQuiS&index=52
+*       https://www.youtube.com/watch?v=m3Qh-MmWpbM&list=PLmtsMNDRU0Bzj7INIrLugi3a_WClwQuiS&index=51
 *       https://www.youtube.com/watch?v=Y5rPHZaUakg&list=PLmtsMNDRU0Bzj7INIrLugi3a_WClwQuiS&index=45
 *
 *
@@ -37,6 +38,32 @@ object ScalaTutorials {
   def showTime(): Long = System.currentTimeMillis()
 
 
+  // unapply
+  {
+    case class Pet(age: Int, name: String)
+    object Pet {
+      def unapply(pet: Pet): Option[(Int, String)] =
+        pet.age > 10 match {
+          case true => Some(10, "...")
+          case false => Some(12, "...")
+        }
+
+      def unapply(value: Int): Option[String] =
+        value > 12 match {
+          case true => Some("Zero")
+          case false => Some("One")
+        }
+    }
+
+
+    Pet(13, "Billy") match {
+      case Pet(age, status) => println(age, status) /* (10,...) */
+    }
+
+    Pet(13, "Billy").age match {
+      case Pet(status) => println(status) /* Zero */
+    }
+  }
 
 
 
@@ -47,6 +74,10 @@ object ScalaTutorials {
   // general notes
   {
     /*
+      scala vision              - we think about program as one expression which return a value which can me
+                                  complex like server application. Think in terms of expression instead of instructinos.
+                                  We an instructino problem which means evaluate the expresion while maintaining type safty
+                                  and return the right value with the right type
       associativity             - a x (b x c) = (a x b) x c
       infix notation            - fundamental feature in language. Ability to use method without any dots or parentheses
       auxiliary constructors    - Overloaded constructor this(). All auxiliary constructors must first call the primary
