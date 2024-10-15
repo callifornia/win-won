@@ -853,6 +853,77 @@ object ScalaTutorials {
   def wrapper[A, B](la: List[A], lb: List[B])(implicit evicted: A =:= B): List[(A, B)] = ???
 
 
+  // sbt
+    /*
+          assembly -  build a sbt .jar
+          resolver -  is a think which allow us to set repository where sbt is going to search artifacts and libs
+                      - can be internal - search in local machine: Resolver.mavenLocal() //
+                                          .m2/ folder where maven are going to look up
+                      - can be external - search in a specific web: Resolver.url("my-test-repo", "https://rockthejvm.com/repository")
+          task     - we can create custom one as a separate scala file which we can invoke акщь sbt file than we can
+                     hit or trigger that task via sbt console
+                     -  can depend on each other
+          object StringTask {
+            def generateUUID(): String = { UUID.randomUUID() }
+          }
+
+          sbt file:
+            lazy val uuidTask = taskKey[String]("Name of the custom task")
+            uuidTask := { StringTask.generateUUID() }
+          in sbt console run command:
+            uuidTask
+
+
+          custom setting - ability to save custom value in a "global variable". Something like javaScrips has with
+                           variable named "property"
+
+          sbt file:
+            lazy val uuidSetting = settingKey[String]("custom name ...")
+            uuidSetting:= {
+                StringTask.generateUUID()
+            }
+
+          sbt console:
+            uuidSetting
+
+          task and setting - example. We do have generateUUID() method described in task and in setting.
+                             Differences:
+                              - task    -> new UUID each time(dynamic)
+                              - setting -> the same (static)
+
+          command aliases - example:
+                            sbt file:
+                                addCommand("some_custom_name", "compile; test; assembly")
+                            sbt console:
+                                some_custom_name
+
+          crossScalaVersions - allow us to compile the project for different versions. example
+                            sbt file:
+                              val scala212 = "scala 2.12"
+                              val scala213 = "scala 2.13"
+
+                              lazy val core = (project in file("core")).setting (
+                                assembly / mainClass := Some("com.rockthejvm.CoreApp")
+                                crossScalaVersions := List(scala212, scala213)
+                              )
+          name              - in sbt file -> name of the project
+          build.properties  - it's a file where we can set sbtversion
+          runMain           - command which is used to run main method from sbt console
+          ~compile          - command from sbt console which allow us to recompile file automatically in case file was
+                              changed
+          libraryDependecies - list with addidtionals libs
+          test: testOnly     - command from sbt console to run test
+
+          multiply projects - example
+              lazy val core = (project in file("core"))
+              lazy val server = (project in file("server")).dependsOn(core)
+              lazy val root = (project in file(.)).aggregate(core, server)
+
+          plugin.sbt - file where plugins are added. As an example we can add docker plugin
+          assembly - plugin and command which we run via sbt console which allow us to build jar file
+          java -jar core-assembly-1.0.jar - run jar file
+    */
+
 
   //                          **********      Patterns        **********
 
@@ -1087,6 +1158,11 @@ object ScalaTutorials {
   trait Monoid[T] extends Semigroup[T] {
     def empty: T
   }
+
+
+  /*
+  *   Monads + Akka + SQL
+  * */
 
 
 
