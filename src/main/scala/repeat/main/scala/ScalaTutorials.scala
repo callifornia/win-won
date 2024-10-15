@@ -67,17 +67,25 @@ object ScalaTutorials {
 
 
 
-
-
-
-
   // general notes
   {
     /*
-      scala vision              - we think about program as one expression which return a value which can me
-                                  complex like server application. Think in terms of expression instead of instructinos.
-                                  We an instructino problem which means evaluate the expresion while maintaining type safty
+      scala 3 -
+                      extension(n: Int) {
+                            def times(s: String): Unit = println("...")
+                      }
+                      5.times("Scala")
+
+
+                      def someMethod(b: Int)(using implicit value: String) = "..."
+
+
+      scala vision              - we think about program as one expression which evaluates and return a value which can be
+                                  complex like server application. Think in terms of expression instead of instructions(imperetive approuch).
+                                  We have an instruction problem which means evaluate the expression while maintaining type sefty
                                   and return the right value with the right type
+                                  Think of functions as values
+
       associativity             - a x (b x c) = (a x b) x c
       infix notation            - fundamental feature in language. Ability to use method without any dots or parentheses
       auxiliary constructors    - Overloaded constructor this(). All auxiliary constructors must first call the primary
@@ -97,8 +105,6 @@ object ScalaTutorials {
       first-class citizens      - we can use functions as values or like normal variables
       default scala imports     - implicitly: java.lang._, scala._, scala.Predef._ */
   }
-
-
 
 
 
@@ -1051,6 +1057,36 @@ object ScalaTutorials {
 
   object Kid { private val privateField = 123 }
 
+
+  //Semigroup
+  trait Semigroup[T] {
+    def combine(a: T, b: T): T
+  }
+
+  def combine[T](a: T, b: T)(implicit semigroup: Semigroup[T]): T = semigroup.combine(a, b)
+
+  object Semigroup {
+    implicit val intSemigroup = new Semigroup[Int] {
+      override def combine(a: Int, b: Int): Int = a + b
+    }
+
+  }
+
+  implicit class IntOps[T](value: T) {
+    def |+|(otherValue: T)(implicit semigroup: Semigroup[T]): T = semigroup.combine(value, otherValue)
+  }
+
+  2 |+| 3 |+| 5
+
+
+  // monoid
+  /*
+    law:
+      empty + x == x  | for all x
+  * */
+  trait Monoid[T] extends Semigroup[T] {
+    def empty: T
+  }
 
 
 

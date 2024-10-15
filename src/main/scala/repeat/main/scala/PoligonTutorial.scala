@@ -2,29 +2,33 @@ package repeat.main.scala
 
 object PoligonTutorial {
 
-  case class Pet(age: Int, name: String)
-  object Pet {
-    def unapply(pet: Pet): Option[(Int, String)] =
-      pet.age > 10 match {
-        case true  => Some(10, "...")
-        case false => Some(12, "...")
-      }
 
-    def unapply(value: Int): Option[String] =
-      value > 12 match {
-        case true  => Some("Zero")
-        case false => Some("One")
-      }
+  trait Semigroup[T] {
+    def combine(a: T, b: T): T
   }
 
+  def combine[T](a: T, b: T)(implicit semigroup: Semigroup[T]) = semigroup.combine(a, b)
+
+  object Semigroup {
+    implicit val intSemigroup = new Semigroup[Int] {
+      override def combine(a: Int, b: Int): Int = a + b
+    }
+
+    implicit val stringSemigroup = new Semigroup[String] {
+      override def combine(a: String, b: String): String = a + b
+    }
+
+    implicit val listSemigroup = new Semigroup[List[Int]] {
+      override def combine(a: List[Int], b: List[Int]): List[Int] = a.concat(b)
+    }
+  }
+
+  implicit class IntOps[T](value: T) {
+    def |+|(otherValue: T)(implicit semigroup: Semigroup[T]): T = semigroup.combine(value, otherValue)
+  }
 
   def main(args: Array[String]): Unit = {
-    Pet(13, "Billy") match {
-      case Pet(age, status) => println(age, status) /* (10,...) */
-    }
-
-    Pet(13, "Billy").age match {
-      case Pet(status) => println(status)           /* Zero */
-    }
+    val combined = 2 |+| 3
+    val combinedOps = 4 |+| 5
   }
 }
