@@ -1,4 +1,4 @@
-package repeat.main.scala
+package repeat.main.scala_main_concepts
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
