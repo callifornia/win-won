@@ -14,11 +14,11 @@ object Main {
       concurrency     - might not be executing simultaneously (паралельно)
       parallelism     - can be truly simultaneous (паралельно)
       synchronous     - caller cannot make progress until the method returns a value or throws an exception
+      blocking        - if the delay of one thread can indefinitely delay some of the other threads
       asynchronous    - caller can make progress. Completion  may be signalled via some additional mechanism
                         Actors - are asynchronous by nature: an actor can progress after a message send without
                         waiting for the actual delivery to happen
 
-      blocking        - if the delay of one thread can indefinitely delay some of the other threads
       non-blocking    - means that no thread is able to indefinitely delay others
       deadlock        - arises when several participants are waiting on each other to reach a specific state to be
                         able to progress
@@ -94,8 +94,8 @@ object Main {
 
 
     Mailbox
-      mail-box - the piece which connects sender and receiver is the actor’s. Each actor hs one mailbox to which all
-                senders enqueue their messages. Default FIFO
+      mail-box - the piece which connects sender and receiver is the actor’s. Each actor has one mailbox to which all
+                 senders enqueue their messages. Default FIFO
 
 
     Child Actors
@@ -184,7 +184,7 @@ object Main {
 
       How do I Receive Dead Letters?
         - actor can subscribe to class akka.actor.DeadLetter on the event stream
-          
+
 
 
 

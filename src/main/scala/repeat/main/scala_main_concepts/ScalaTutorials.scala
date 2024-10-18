@@ -23,20 +23,26 @@ object ScalaTutorials {
 
 
   // referential transparency
-  /*
-   -  property to replace expression without changing meaning of the program
-   -  in other words we can replace expression with a value which expression evaluates
-   example:
-  * */
-  def add(a: Int, b: Int): Int = a + b
-  val five = add(2, 3)
-  val b = five + five
-  val ten_v1 = add(2, 3) + add(2, 3)
-  val ten_v2 = 5 + add(2, 3)
+  {
+    /*
+  -  property to replace expression without changing meaning of the program
+  -  in other words we can replace expression with a value which expression evaluates
+  example:
+    */
 
-  /* referencial transparency is not */
-  def showTime(): Long = System.currentTimeMillis()
+    def add(a: Int, b: Int): Int = a + b
 
+    val five = add(2, 3)
+    val b = five + five
+    val ten_v1 = add(2, 3) + add(2, 3)
+    val ten_v2 = 5 + add(2, 3)
+
+
+    /* referencial transparency is not */
+
+    def showTime(): Long = System.currentTimeMillis()
+
+  }
 
   // unapply
   {
@@ -87,23 +93,26 @@ object ScalaTutorials {
                                   Think of functions as values
 
       associativity             - a x (b x c) = (a x b) x c
-      infix notation            - fundamental feature in language. Ability to use method without any dots or parentheses
+      infix notation            - ability to use method without any dots or parentheses, fundamental feature in language
       auxiliary constructors    - Overloaded constructor this(). All auxiliary constructors must first call the primary
                                   constructor or another auxiliary constructor. Guarantees that the object is properly
                                   initialized before the auxiliary constructor comes into play
-      lifting                   - when we pass some function as if it were a function, Scala automatically converts it
+      lifting                   - when we pass some method as if it were a function, Scala automatically converts it
                                   to a function object.
 
       scala prefixes            - all the parameters with val
       equals/hashCode           - implemented for you based on the given parameters
-      companion object          - created with the appropriate apply method, which takes the same arguments as declared in the class
+      companion object          - created with the appropriate apply method, which takes the same arguments as declared in the case class
       unapply                   - allow the class name to be used as an extractor for pattern matching
 
       sealed trait              - all the classes need to be in the same source file
 
 
       first-class citizens      - we can use functions as values or like normal variables
-      default scala imports     - implicitly: java.lang._, scala._, scala.Predef._ */
+      default scala imports     - implicitly: java.lang._, scala._, scala.Predef._
+
+      lizerazation - ???
+      */
   }
 
 
@@ -117,20 +126,20 @@ object ScalaTutorials {
 
     /*
         Restriction:
-      - no vals only def
-      - only one constructors
-      - can not be extended
-      - can only extend universal trait (traits with just def and without initialization)
-      - no runtime overhead, in heap we are going to have String instead of BarCode
-      - instance of the BarCode is going to be created only if it in use in generic type:
-                    def show[T](agr: T): String = agr.toString
-                    show(BarCode("..."))
+            - no vals only def
+            - only one constructors
+            - can not be extended
+            - can only extend universal trait (traits with just def and without initialization)
+            - no runtime overhead, in heap we are going to have String instead of BarCode
+            - instance of the BarCode is going to be created only if it in use in generic type:
+                          def show[T](agr: T): String = agr.toString
+                          show(BarCode("..."))
 
-                    Array[BarCode](BarCode("..."))
+                          Array[BarCode](BarCode("..."))
 
-                    BarCode("...") match {
-                      case BarCode(_) => println("...")
-                    }
+                          BarCode("...") match {
+                            case BarCode(_) => println("...")
+                          }
 
 */
 
@@ -143,7 +152,7 @@ object ScalaTutorials {
     /*    Look in current scope
             - Implicit defined in current scope
             - Imports explicit, wildcard
-        Look at associated types in
+          Look at associated types in
             - Companion object of a type
             - Companion object OtherClass
             - Companion object B
@@ -172,7 +181,9 @@ object ScalaTutorials {
   {
     def byValueFunction(x: Int): Int = x + 1
     byValueFunction(3 + 2) /* 3 + 2 evaluated before method "byValueFunction" are going to be called*/
-  def byNameFunction(x: => Int): Int = x + 1
+
+
+    def byNameFunction(x: => Int): Int = x + 1
     byNameFunction(3 + 2) /* 3 + 2 are going to be evaluated when it's going to be used inside that function "byNameFunction".
      in other words => call by need */
 
@@ -191,19 +202,17 @@ object ScalaTutorials {
     byName(System.nanoTime())
 
 
-    /* example with infinity list where tail or in other words all structure evaluated when it's needed.
+    /* example with infinity list where tail or in other words all structure evaluated when it's needed
        That pattern is named as "call by need". It powerful in infinity collections
        */
 
     abstract class MyList1[+T] {
       def head: T
-
       def tail: MyList1[T]
     }
 
     case object EmptyList extends MyList1[Nothing] {
-      override def head: Nothing = throw new NullPointerException
-
+      override def head: Nothing          = throw new NullPointerException
       override def tail: MyList1[Nothing] = throw new NullPointerException
     }
 
@@ -281,7 +290,7 @@ object ScalaTutorials {
   {
     /*  Which mean everyone who extends Hospital MUST extends Builder  */
     trait Builder {
-      def build(asd: String): Boolean = true
+      def build(_: String): Boolean = true
     }
     trait Hospital {
       selfType: Builder =>
@@ -299,8 +308,7 @@ object ScalaTutorials {
   // null, Null, Nothing, None
   {
     /* null */
-    val g: String = null
-    /* as in a Java world */
+    val g: String = null  /* as in a Java world */
     val d: Null = null
     /* Null has no methods, no fields, can not be extended or instantiated  and only possible value is 'null'.
         It's extends all references types
@@ -309,7 +317,7 @@ object ScalaTutorials {
     val y: String = d
 
     /* Unit is like a void in a java world*/
-    /* Nothing. Examples: throw new NullpointerException,  ??? no value at all*/
+    /* Nothing. Examples: throw new NullpointerException,  ??? no value at all */
   }
 
 
@@ -318,13 +326,13 @@ object ScalaTutorials {
   // nothing
   {
     class MyClass
-    val a: String = throw new NullPointerException
-    val b: Int = throw new NullPointerException
-    val c: MyClass = throw new NullPointerException
+    val a: String   = throw new NullPointerException
+    val b: Int      = throw new NullPointerException
+    val c: MyClass  = throw new NullPointerException
 
     /* can we use Nothing ? */
-    def someFunction(a: Nothing): Int = ???
-    def someFunction2(a: Nothing): Nothing = throw new NullPointerException
+    def someFunction(_: Nothing): Int      = ???
+    def someFunction2(_: Nothing): Nothing = throw new NullPointerException
 
     /* use in covariant side */
     abstract class MyList2[+T]
@@ -341,27 +349,28 @@ object ScalaTutorials {
     abstract class Person {
       def canFly: Boolean = true
       val canDrive: Boolean
-      def discussWith(abother: Person): String
+      def discussWith(_: Person): String
     }
 
     trait PersonTrait {
       def canFly: Boolean = true
       val canDrive: Boolean
-      def discussWith(abother: Person): String
+      def discussWith(_: Person): String
     }
 
     /*
-    - they can't be instantiated on their own
-    - may have abstract fields/methods
-    - may have non-abstract fields/methods
+
+        - they can't be instantiated on their own
+        - may have abstract fields/methods
+        - may have non-abstract fields/methods
 
 
-    - can inherit from a SINGLE abstract class
-    - can inherit from MULTIPLE traits
-    - abstract class can take constructor arguments
-    - trait can't take constructor arguments
-    - represent things as a classes
-    - represent behavior as traits
+        - can inherit from a SINGLE abstract class
+        - can inherit from MULTIPLE traits
+        - abstract class can take constructor arguments
+        - trait can't take constructor arguments
+        - note: represent things as a classes
+        - note: represent behavior as traits
                                                       */
   }
 
@@ -372,14 +381,15 @@ object ScalaTutorials {
   {
     /*
      - function can be assigned to a value which can be passed as an argument
-     - function is an instance of a function traits family
+     - function is an instance of a function traits family: example: new Function[Int, Int]
      - method depends on a class or object where it defined where function is a plain object
      - eta-expansion is a transform method into the function
            val something = someMethod _
+
       example:
        List(1,2,3,4).map(incrementMethod) <- compiler automatically transform "incrementMethod" into the function
 
-                                                        */
+   */
   }
 
 
@@ -388,7 +398,7 @@ object ScalaTutorials {
   //  Blocking | Async | Non-blocking
   {
     /*  Blocking */
-    def blockingCode(a: Int): Int = {
+    def blockingCode(_: Int): Int = {
       Thread.sleep(10000)
       23
     }
@@ -407,14 +417,15 @@ object ScalaTutorials {
     val _: Int = 123 /* evaluate immediate without any delay */
 
 
-    /* async non-blocking when current thread or other one are not blocked
-       as an example akka actor which is basically data structure
+    /*
+        async non-blocking when current thread or other one are not blocked
+        as an example akka actor which is basically data structure
       */
 
 
     /* right associative method */
     class MyClass_2 {
-      def ::(a: Int): Unit = println("")
+      def ::(_: Int): Unit = println("")
     }
     val myClass = new MyClass_2
     123 :: myClass /* because method in class MyClass_2 ended with a ":" */
@@ -428,9 +439,9 @@ object ScalaTutorials {
   // Types system
   {
     val anInt: Int = 123        /*  level - 0 type */
-  class MyAwesomeList[T]      /*  level - 1 type (type constructor) */
-  class Function[F[_]]        /*  level - 2 type */
-  class Meta[F[_[_]]]         /*  level - 3 type */
+    class MyAwesomeList[T]      /*  level - 1 type (type constructor) */
+    class Function[F[_]]        /*  level - 2 type */
+    class Meta[F[_[_]]]         /*  level - 3 type */
   }
 
 
@@ -563,13 +574,13 @@ object ScalaTutorials {
     val cents = 1 :: 5 :: 10 :: Nil
     val number = 26
 
-    def function(number: Int, cents: Set[Int], result: List[Int] = Nil): List[Int] =
+    def function(number: Int, cents: Set[Int], acc_result: List[Int] = Nil): List[Int] =
       number match {
         case n if n <= 0 => result
         case _ if cents.nonEmpty =>
           number - cents.max match {
-            case 0 => result :+ cents.max
-            case n if n < 0 => function(number, cents.-(cents.max), result)
+            case 0          => acc_result :+ cents.max
+            case n if n < 0 => function(number, cents - cents.max, result)
             case n if n > 0 => function(number - cents.max, cents, result :+ cents.max)
           }
         case _ => result
@@ -598,8 +609,8 @@ object ScalaTutorials {
         case n if n <= 0 => result
         case _ if cents.nonEmpty =>
           number - cents.max match {
-            case 0 => result :+ cents.max
-            case n if n < 0 => function(number, cents.-(cents.max), result)
+            case 0          => result :+ cents.max
+            case n if n < 0 => function(number, cents - cents.max, result)
             case n if n > 0 => function(number - cents.max, cents, result :+ cents.max)
           }
         case _ => result
@@ -730,17 +741,17 @@ object ScalaTutorials {
     val list_4 = 7 :: 6 :: 5 :: 4 :: 10 :: 3 :: 13 :: 2 :: 1 :: 0 :: Nil
 
     def merge(listOne: List[Int], listTwo: List[Int]): List[Int] = (listOne, listTwo) match {
-      case (Nil, list) => list
-      case (list, Nil) => list
+      case (Nil, list)        => list
+      case (list, Nil)        => list
       case (x :: xs, y :: ys) =>
         if (x < y) x :: merge(xs, listTwo)
         else y :: merge(listOne, ys)
     }
 
     def mergeSort(list: List[Int]): List[Int] = list match {
-      case Nil => list
+      case Nil       => list
       case xs :: Nil => List(xs)
-      case _ =>
+      case _         =>
         val (left, right) = list splitAt list.length / 2
         merge(mergeSort(left), mergeSort(right))
     }
