@@ -87,7 +87,14 @@ object Main {
     Behavior
 
         - behavior means a function which defines the actions to be taken in reaction to the message at that point in time
-          This behavior may change over time
+          This behavior may change over time. When behavior is changed under the hood new object is created which means
+          StackOverflowError is not basically possible. So the code bellow:
+
+                              def someMethod(): Behavior[String] =
+                                Behavior.received {
+                                  case _: String => someMethod()
+                                }
+
         - actor references are parameterized and only messages that are of the specified type can be sent to them
           The association between an actor reference and its type parameter must be made when the actor reference (and its Actor) is created.
           For this purpose each behavior is also parameterized with the type of messages it is able to process
