@@ -1,7 +1,7 @@
 package repeat.main.scala_akka
 
-object MainPOligon {
+object SomeBasicCode_2 {
   def main(args: Array[String]): Unit = {
-    println("Hello akka ...")
+    println("Hi there ...")
   }
 }

@@ -1,4 +1,4 @@
-val AkkaVersion = "2.6.19"
+val AkkaVersion = "2.6.5"
 val KafkaVersion = "2.8.0"
 val ZioVersion = "1.0.12"
 val CatsEffectVersion = "3.3.12"
@@ -15,18 +15,18 @@ libraryDependencies ++= List(
   "org.typelevel" %% "cats-core" % "2.8.0",
   "org.typelevel" %% "cats-free" % "2.8.0",
 
-  "com.typesafe.akka" %% "akka-actor-typed" % AkkaVersion,
-  "com.typesafe.akka" %% "akka-cluster-typed" % AkkaVersion,
-  "com.typesafe.akka" %% "akka-cluster-sharding-typed" % AkkaVersion,
-  "com.typesafe.akka" %% "akka-serialization-jackson" % AkkaVersion,
+  "com.typesafe.akka" %% "akka-actor-typed" % AkkaVersion
+//  "com.typesafe.akka" %% "akka-cluster-typed" % AkkaVersion,
+//  "com.typesafe.akka" %% "akka-cluster-sharding-typed" % AkkaVersion,
+//  "com.typesafe.akka" %% "akka-serialization-jackson" % AkkaVersion,
 
-  "com.typesafe.akka" %% "akka-persistence-typed" % AkkaVersion,
-  "com.typesafe.akka" %% "akka-persistence-query" % AkkaVersion,
-  "com.lightbend.akka" %% "akka-projection-core" % "1.2.4",
-  "com.lightbend.akka" %% "akka-projection-eventsourced" % "1.2.4",
-  "com.lightbend.akka" %% "akka-projection-cassandra" % "1.2.4",
-  "com.typesafe.akka" %% "akka-stream" % AkkaVersion,
-  "com.typesafe.akka" %% "akka-persistence-cassandra" % "1.0.5"
+//  "com.typesafe.akka" %% "akka-persistence-typed" % AkkaVersion,
+//  "com.typesafe.akka" %% "akka-persistence-query" % AkkaVersion,
+//  "com.lightbend.akka" %% "akka-projection-core" % "1.2.4",
+//  "com.lightbend.akka" %% "akka-projection-eventsourced" % "1.2.4",
+//  "com.lightbend.akka" %% "akka-projection-cassandra" % "1.2.4",
+//  "com.typesafe.akka" %% "akka-stream" % AkkaVersion,
+//  "com.typesafe.akka" %% "akka-persistence-cassandra" % "1.0.5"
 
 
   // journal dependencies
