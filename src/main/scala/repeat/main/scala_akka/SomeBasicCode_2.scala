@@ -32,12 +32,6 @@ object SomeBasicCode_2 {
 }
 
 
-object RequestResponseWrappers {
-  case class WrappedStuff(response: ShoppingCart.Response) extends Checkout.Request
-
-  def wrappedReplyTo(implicit context: ActorContext[Checkout.Request]): ActorRef[ShoppingCart.Response] =
-    context.messageAdapter(rsp => WrappedStuff(rsp))
-}
 
 
 object CustomerActor {
@@ -52,8 +46,19 @@ object CustomerActor {
 }
 
 
+
 case class CustomerActor(ref: ActorRef[Checkout.Response])
 case class ShoppingCartActor(ref: ActorRef[ShoppingCart.Request])
+
+
+
+object RequestResponseWrappers {
+  case class WrappedStuff(response: ShoppingCart.Response) extends Checkout.Request
+
+  def wrappedReplyTo(context: ActorContext[Checkout.Request]): ActorRef[ShoppingCart.Response] =
+    context.messageAdapter(response => WrappedStuff(response))
+}
+
 
 
 object CheckoutActor {
@@ -110,6 +115,7 @@ object StoreDomain {
 }
 
 
+
 object ShoppingCart {
   sealed trait Request
   case class GetCurrentCart(cartId: CardId, ref: ActorRef[Response]) extends Request
@@ -119,6 +125,7 @@ object ShoppingCart {
 }
 
 
+
 object Checkout {
   sealed trait Request
   final case class InspectSummary(cardId: CardId, replyTo: ActorRef[Checkout.Response]) extends Request
@@ -126,6 +133,7 @@ object Checkout {
   sealed trait Response
   final case class Summary(cartId: CardId, amount: Double) extends Response
 }
+
 
 
 trait StaticMockedData {
