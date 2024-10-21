@@ -195,6 +195,14 @@ object Main {
 
 
 
+      Adapting Messages pattern
+        - the rule of thumb is that each actor needs to support its own “request” type and nothing else
+
+
+
+
+
+
 
 
 
