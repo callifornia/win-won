@@ -19,9 +19,9 @@ object SomeBasicCode_2 {
 
   def rootBehavior(): Behavior[String] =
     Behaviors.setup[String] {implicit context =>
-      val shopingCartActor = context.spawn(ShoppingCartActor.handle(), "shopping-cart-actor")
-      val checkoutActor    = context.spawn(CheckoutActor.handle(shoppingCart = ShoppingCartActor(shopingCartActor)), "checkout-actor")
-      val customerActor    = context.spawn(CustomerActor.handle(), "custom-actor")
+      val shoppingCartActor = context.spawn(ShoppingCartActor.handle(), "shopping-cart-actor")
+      val checkoutActor     = context.spawn(CheckoutActor.handle(shoppingCart = ShoppingCartActor(shoppingCartActor)), "checkout-actor")
+      val customerActor     = context.spawn(CustomerActor.handle(), "custom-actor")
 
       Behaviors.receiveMessage[String] {
         case "start" =>
@@ -93,10 +93,10 @@ object CheckoutActor {
 object ShoppingCartActor extends StaticMockedData {
   def handle(): Behavior[ShoppingCart.Request] =
     Behaviors.receive {
-      (contex, msg) =>
+      (context, msg) =>
         msg match {
           case GetCurrentCart(cartId, replyTo) =>
-            contex.log.info("ShoppingCart actor GetCurrentCart")
+            context.log.info("ShoppingCart actor GetCurrentCart")
             replyTo ! CurrentCart(cartId, mapa(cartId))
             Behaviors.same[ShoppingCart.Request]
         }
@@ -112,36 +112,37 @@ object StoreDomain {
 
 object ShoppingCart {
   sealed trait Request
-
   case class GetCurrentCart(cartId: CardId, ref: ActorRef[Response]) extends Request
 
   sealed trait Response
-
   case class CurrentCart(cartId: CardId, items: List[Product]) extends Response
 }
 
 
 object Checkout {
   sealed trait Request
-
   final case class InspectSummary(cardId: CardId, replyTo: ActorRef[Checkout.Response]) extends Request
 
   sealed trait Response
-
   final case class Summary(cartId: CardId, amount: Double) extends Response
 }
 
 
 trait StaticMockedData {
-  lazy val cartId1 = CardId(Random.nextInt(2))
-  lazy val cartId2 = CardId(Random.nextInt(2))
-  lazy val cartId3 = CardId(Random.nextInt(2))
+  lazy val cartId1 = CardId(1)
+  lazy val cartId2 = CardId(2)
+  lazy val cartId3 = CardId(3)
 
   private def db(): List[Product] =
     Product(name = Random.nextString(3), price = Random.nextInt(2)) ::
       Product(name = Random.nextString(3), price = Random.nextInt(2)) ::
       Product(name = Random.nextString(3), price = Random.nextInt(2)) :: Nil
 
+  println(s"""
+     | cartId1: $cartId1
+     | cartId2: $cartId2
+     | cartId3: $cartId3
+     |""".stripMargin)
   protected lazy val mapa = Map(cartId1 -> db, cartId2 -> db, cartId3 -> db)
 }
 
