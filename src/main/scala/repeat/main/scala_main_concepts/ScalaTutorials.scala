@@ -278,7 +278,7 @@ object ScalaTutorials {
     /*
        Summary
         - In case your generic type produce(creates) or contain an elements   =>  COVARIANT
-        - In case your generic type "acts on" or consume an elements          =>  CONTRAVARIANTx
+        - In case your generic type "acts on" or consume an elements          =>  CONTRAVARIANT
    */
 
   }
@@ -474,7 +474,7 @@ object ScalaTutorials {
   {
     /* https://www.youtube.com/watch?v=ZRdOb4yR0kk
 
-        Big O - показивает верхнюю межу складності виконання алгоритма в залежності від вхвідних параметрів.
+        Big O - показивает верхнюю межу складності виконання алгоритма в залежності від вхвідних параметрів
         Ми не беремо до уваги константи та "наважну" складність
 
       - послідовність дій                                                => додавання
@@ -930,8 +930,8 @@ object ScalaTutorials {
               lazy val server = (project in file("server")).dependsOn(core)
               lazy val root = (project in file(.)).aggregate(core, server)
 
-          plugin.sbt - file where plugins are added. As an example we can add docker plugin
-          assembly - plugin and command which we run via sbt console which allow us to build jar file
+          plugin.sbt                      - file where plugins are added. As an example we can add docker plugin
+          assembly                        - plugin and command which we run via sbt console which allow us to build jar file
           java -jar core-assembly-1.0.jar - run jar file
     */
 
@@ -966,7 +966,7 @@ object ScalaTutorials {
     /*
     The behavior of that method is 'ad-hoc' because of: implicit convertor: Convertor[T] where in the code we have capability to call
     convert method on convertor only when convertor is supplied. That is the part of ad-hoc.
-    Polymorphism part is the [T] - where for any specific type we must have it's own implementation
+    Polymorphism part           - is the [T],  where for any specific type we must have it's own implementation
 
     implicit convertor: Convertor[T] <- ad-hoc
     [T]                              <- polymorphism

@@ -14,12 +14,12 @@ object Main {
       concurrency     - might not be executing simultaneously (паралельно)
       parallelism     - can be truly simultaneous (паралельно)
       synchronous     - caller cannot make progress until the method returns a value or throws an exception
-      blocking        - if the delay of one thread can indefinitely delay some of the other threads
       asynchronous    - caller can make progress. Completion  may be signalled via some additional mechanism
                         Actors - are asynchronous by nature: an actor can progress after a message send without
                         waiting for the actual delivery to happen
-
+      blocking        - if the delay of one thread can indefinitely delay some of the other threads
       non-blocking    - means that no thread is able to indefinitely delay others
+
       deadlock        - arises when several participants are waiting on each other to reach a specific state to be
                         able to progress
       Race conditions - часто виникають, коли кілька потоків мають спільний змінний стан, і операції потоку над
@@ -53,6 +53,7 @@ object Main {
 
 
 
+
      Actor can do the following three fundamental actions:
           - create a finite number of new Actors
           - send a finite number of messages to Actors it knows
@@ -82,6 +83,7 @@ object Main {
 
         - akka will run sets of actors on sets of real threads, where typically many actors share one thread, and subsequent
           invocations of one actor may end up being processed on different threads
+
 
 
     Behavior
