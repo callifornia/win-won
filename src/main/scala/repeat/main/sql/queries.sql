@@ -11,7 +11,7 @@ NoSQL:
         - key-> value (like a Map): пара (ключ -> значение)
           Redis, memcash, dinamoDB
 
-        - columnstore (колоночние БД)
+        - column store (колоночние БД)
           нету схеми
           key -> value (только value єто несколько столбцов сразу)
           пример: история просмотров, логи
@@ -24,7 +24,7 @@ NoSQL:
 
         - графовие БД
           внемание пределяється тому как данние связание друг з другом.
-          есть узли которие представля.ют данние и єсть рєбра которие отображают связь межлу данними
+          есть узли которие представляют данние и єсть ребра которие отображают связь между данними
           пример: алгоритми рекомендации, социальние сети
 
         - поисковие БД
@@ -67,14 +67,14 @@ BASE означает:
 
 Требования АСИД - набір правил які забезпечують цілісність данних.
 
-Атомарність.
-  Гарантує що транзакция буде виконана повність або не буде виконана взагалі. Не допускаються проміжні стани.
+Атомарність
+  Гарантує що транзакция буде виконана повність або не буде виконана взагалі. Не допускаються проміжні стани
 
-Узгодженість.
+Узгодженість
   Перевод бази даних з одого согласованого стану в інший согласований стан. Приклад: В рамках одної транзакції
-є три insert -> у випадку якщо один insert впав з помилкою то відкатуються два інші.
+є три insert -> у випадку якщо один insert впав з помилкою то відкатуються два інші
 
-Ізоляція.
+Ізоляція
   Події, що відбуваються всередині транзакції, повинні бути приховані від інших транзакцій, що одночасно виконуються.
 При параллельном выполнении транзакций возможны следующие проблемы:
 
@@ -88,7 +88,7 @@ BASE означает:
                                                    SELECT f2 FROM tbl1 WHERE f1=1;
         ROLLBACK WORK;
     В транзакции 1 изменяется значение поля f2, а затем в транзакции 2 выбирается значение этого поля. После этого происходит
-    откат транзакции 1. В результате значение, полученное второй транзакцией, будет отличаться от значения, хранимого в базе данных.
+    откат транзакции 1. В результате значение, полученное второй транзакцией, будет отличаться от значения, хранимого в базе данных
 
 
 - неповторяющееся чтение (уровень READ COMMITTED) — при повторном чтении в рамках одной транзакции, ранее прочитанные
@@ -105,7 +105,7 @@ BASE означает:
   значения из поля f2 в транзакции 2 будет получен другой результат. Эта ситуация особенно неприемлема, когда данные
   считываются с целью их частичного изменения и обратной записи в базу данных.
 
-- фантомное чтение (уровень REPEATABLE READ) — при повторном чтении в рамках одной транзакции прочитаны данные(новые "фантомные" строки),
+- фантомное чтение (уровень READ REPEATABLE) — при повторном чтении в рамках одной транзакции прочитаны данные(новые "фантомные" строки),
   которых при предыдущих чтениях не было. Попросту говоря, фантомное чтение может происходить в случае, если в одной транзакции выбирается некоторый диапазон строк,
   затем другая транзакция вставляет новую строку в этот диапазон, после чего в первой транзакции выбирается тот же диапазон снова.
   В результате первая транзакция увидит новую «фантомную» строку.
@@ -129,7 +129,8 @@ BASE означает:
 
 
 
-Довговічність. Після того, як транзакція завершилася та зафіксувала свої результати в базі даних, система має гарантувати,
+Довговічність.
+  Після того, як транзакція завершилася та зафіксувала свої результати в базі даних, система має гарантувати,
 що ці результати переживуть будь-які подальші збої(виелючили світло тощо...)
 
 
@@ -511,17 +512,16 @@ select *
 --  cases:
 --    1. create view
 --    2. alter table by adding new column
---    3. view does not contain this new column. View should be recreated only then new column will appear.
+--    3. view does not contain this new column. View should be recreated only then new column will appear
 --
---  - View can be updated in case it was created based on only one table.
+--  - View can be updated in case it was created based on only one table
 
 create view some_view
-  as
-  select * from staff;
+       as  select * from staff;
 
 
-select * from staff_salary;
-select avg(salary) from staff_salary;
+select * from some_view;
+select avg(salary) from some_view;
 
 
 
@@ -533,8 +533,9 @@ select * from students_with -- using that query here
 
 with sales as
   (select store_name, sum(price) as total_sales
-    from sales
-     group by store_name)
+   from sales
+   group by store_name)
+
 select *
 from sales
 join (select avg(total_sales) as sales from sales x) avg_sales
@@ -571,27 +572,31 @@ where e.dep_name in (select dep_name from department where location = 'Bangalor'
 -- WINDOW FUNCTION
 
 select *, max(salary) over(partition by dept_name) as max_salary
-  from employee e;
+from employee e;
+
 
 -- ROW_NUMBER()
 select *, row_number() over(partition by dept_name) as rm
-  from employee
+from employee
+
 
 -- Find the first 2 employee who has joined the company for each department
 select *
-  from (
+from (
     select *, row_number() over(partition by dept_name order by e.emp_id) as rm
     from employee e
     ) x
   where x.rm < 3;
 
+
 -- RANK()
 -- Find the top 3 employees in each department earning the max salary
 select *
-  from (
-    select *,  rank() over(partition by dept_name order by salary desc) as asd
-    from employee e) x
-  where x.asd < 4 and ;
+from (
+  select *,  rank() over(partition by dept_name order by salary desc) as asd
+  from employee e) x
+where x.asd < 4 and ;
+
 
 -- DENSE_RANK()
 -- The deference between rank() and dense_rank() is that in case of similar values heppest `dense_rank` does not skip
@@ -607,7 +612,7 @@ from (
 where x.row_number < 4;
 
 
--- lag()   - looks at the previous record
+--  lag()   - looks at the previous record
 --  lead()  - looks at the next record
 --  Question: If salary of an employee is higher or lower or equal to the previous employee
 

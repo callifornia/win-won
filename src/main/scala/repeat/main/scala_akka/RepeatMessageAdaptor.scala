@@ -16,7 +16,7 @@ object RepeatMessageAdaptor {
     trait Request
   }
   case class GetData(replyTo: ActorRef[Customer.Request]) extends Customer.Request
-  
+
   def rootBehavior(): Behavior[String] =
     Behaviors.setup[String] { context =>
       val shoppingCartActor = context.spawn(shoppingCartBehavior(), "shopping-cart-behavior")
