@@ -202,6 +202,14 @@ object Main {
 
 
 
+      Akka http
+        Provide 2 types of API:
+          - high level api
+          - low level API
+        Marshaling
+          Transforming request and response bodies between over-the-wire formats and objects to be used in your
+          application is done separately from the route declarations, in marshallers, which are pulled in implicitly
+          using the “magnet” pattern
 
 
 
