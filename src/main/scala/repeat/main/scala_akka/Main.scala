@@ -11,18 +11,19 @@ object Main {
   // akka
   {
     /*
-      concurrency     - might not be executing simultaneously (паралельно)
-      parallelism     - can be truly simultaneous (паралельно)
+      concurrency     - might not be executing паралельно
+      parallelism     - can be truly паралельно
+
       synchronous     - caller cannot make progress until the method returns a value or throws an exception
       asynchronous    - caller can make progress. Completion  may be signalled via some additional mechanism
                         Actors - are asynchronous by nature: an actor can progress after a message send without
                         waiting for the actual delivery to happen
+
       blocking        - if the delay of one thread can indefinitely delay some of the other threads
       non-blocking    - means that no thread is able to indefinitely delay others
 
-      deadlock        - arises when several participants are waiting on each other to reach a specific state to be
-                        able to progress
-      Race conditions - часто виникають, коли кілька потоків мають спільний змінний стан, і операції потоку над
+      deadlock        - several are waiting on each other to reach a specific state to be able to progress
+      race conditions - кілька потоків мають спільний змінний стан, і операції потоку над
                         станом можуть чергуватися, спричиняючи неочікувану поведінку
                         One example could be a client sending unordered packets (e.g. UDP datagrams) P1, P2 to a server.
                         As the packets might potentially travel via different network routes, it is possible that the
@@ -37,19 +38,18 @@ object Main {
      assign sub-tasks to them, arrange their functions into an organizational structure and think about how to escalate failure
 
 
-      Error Kernel Pattern -  if one actor carries very important data (i.e. its state shall not be lost if avoidable),
-                             this actor should source out any possibly dangerous sub-tasks to children and handle
-                             failures of these children as appropriate. Depending on the nature of the requests,
-                             it may be best to create a new child for each request, which simplifies state management
-                             for collecting the replies
+     Error Kernel Pattern -  if one actor carries very important data (i.e. its state shall not be lost if avoidable),
+                              this actor should source out any possibly dangerous sub-tasks to children and handle
+                              failures of these children as appropriate. Depending on the nature of the requests,
+                              it may be best to create a new child for each request, which simplifies state management
+                              for collecting the replies
                               If one actor has multiple responsibilities each responsibility can often be pushed into a
-                             separate child to make the logic and state more simple
+                              separate child to make the logic and state more simple
 
 
      mutable objects between actors - Do not pass. In order to ensure that, prefer immutable messages. If the
                                       encapsulation of actors is broken by exposing their mutable state to the outside,
                                       you are back in normal Java concurrency land with all the drawbacks
-
 
 
 
@@ -62,15 +62,17 @@ object Main {
 
 
     An actor is a container for:
+          - Mailbox
           - State
           - Behavior
-          - Mailbox
+
           - Child Actors
           - Supervisor Strategy
 
 
+
     State
-        - actors have an explicit lifecycle, they are not automatically destroyed when no longer referenced;
+        - actors have an explicit lifecycle, they are not automatically destroyed when no longer referenced
           it is your responsibility to make sure that it will eventually be terminated
 
         - restarting an actor without needing to update references elsewhere
@@ -106,11 +108,14 @@ object Main {
       mail-box - the piece which connects sender and receiver is the actor’s. Each actor has one mailbox to which all
                  senders enqueue their messages. Default FIFO
 
+      How do I Receive Dead Letters?
+        - actor can subscribe to class akka.actor.DeadLetter on the event stream
+
 
     Child Actors
-      Each actor is potentially a parent: if it creates children for delegating sub-tasks, it will automatically supervise them.
-      The list of children is maintained within the actor’s context and the actor has access to it.
-      Modifications to the list are done by spawning or stopping children and these actions are reflected immediately.
+      Each actor is potentially a parent: if it creates children for delegating sub-tasks, it will automatically supervise them
+      The list of children is maintained within the actor’s context and the actor has access to it
+      Modifications to the list are done by spawning or stopping children and these actions are reflected immediately
       The actual creation and termination actions happen behind the scenes in an asynchronous way, so they do not “block” their parent.
 
 
@@ -137,69 +142,63 @@ object Main {
       children to get notified when they terminate. An example of this can be found in Bubble failures up through the hierarchy
 
 
-      Top-Level actors
+     Top-Level actors
         /user:    the user guardian actor. When the user guardian stops the entire actor system is shut down
         /system:  the system guardian actor
 
-      Lifecycle Monitoring
+
+     Lifecycle Monitoring
         -  ActorContext.watch(targetActorRef)     - start listening for Terminated messages
         -  ActorContext.unwatch(targetActorRef)   - stop listening, invoke
         -  Terminated message                     - to be received by the monitoring actor
 
-      Actors and exceptions
+
+     Actors and exceptions
         - if an exception is thrown while a message is being processed (i.e. taken out of its mailbox and handed over to the current behavior),
           then this message will be lost
         - Message is not put back on the mailbox. So if you want to retry processing of a message, you need to deal with it yourself by catching
           the exception and retry your flow
 
 
-      What happens to the mailbox
+     What happens to the mailbox
         - If an exception is thrown while a message is being processed, nothing happens to the mailbox. If the actor is restarted,
           the same mailbox will be there. So all messages on that mailbox will be there as well
 
 
-      What happens to the actor
-        - If code within an actor throws an exception, that actor is:suspended and the supervision process is started.
+     What happens to the actor
+        - If code within an actor throws an exception, that actor is:suspended and the supervision process is started
           Depending on the supervisor’s decision the actor:
-              - resumed (as if nothing happened),
+              - resumed (as if nothing happened)
               - restarted (wiping out its internal state and starting from scratch)
               - terminated
 
 
       Actor References, Paths and Addresses
-        - ActorContext.self -> local reference to the actor itself
+        - ActorContext.self ->  local reference to the actor itself
         - actor path        ->  an actor path consists of an anchor, which identifies the actor system,
-                                followed by the concatenation of the path elements, from root guardian to the designated actor;
+                                followed by the concatenation of the path elements, from root guardian to the designated actor
                                 the path elements are the names of the traversed actors and are separated by slashes
 
 
       What is the Difference Between Actor Reference and Path?
         - actor reference - позначає a single actor and the life-cycle of the reference matches that actor’s life-cycle
+                            reference to the old incarnation is not valid for the new incarnation
         - actor path      - represents a name which може або не може бути населений актором and the path itself does not have a life-cycle,
                             it never becomes invalid
                           - you can create an actor path without creating an actor
                           - you cannot create an actor reference without creating a corresponding actor
-                          - you can create an actor, terminate it, and then create a new actor with the same actor path
-        - actor reference - to the old incarnation is not valid for the new incarnation
+                          - same actor path -> create an actor -> terminate it -> create a new actor
         - messages sent   - to the old actor reference will not be delivered to the new incarnation even though they have the same path
 
 
       Semantics of a delivery mechanism
-        at-most-once    ->  message is delivered once or not at all; in more casual terms it means that messages may be lost
-                            fire-and-forget fashion. is the cheapest
-        at-least-once   ->  messages may be duplicated but not lost
-        exactly-once    ->  message не може бути втрачена чи продубльована. is most expensive
-
-
-      How do I Receive Dead Letters?
-        - actor can subscribe to class akka.actor.DeadLetter on the event stream
-
-
+        exactly-once                ->  message не може бути втрачений чи продубльована. most expensive
+        at-least-once(як мінімум)   ->  messages may be duplicated but not lost
+        at-most-once                ->  fire-and-forget fashionю message is delivered once or not at all. is the cheapest
 
 
       Adapting Messages pattern
-        - the rule of thumb is that each actor needs to support its own “request” type and nothing else
-
+        - the rule of thumb is that each actor needs to support it's own “request” type and nothing else
 
 
       Akka http

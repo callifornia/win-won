@@ -174,24 +174,11 @@ select * from subjects where subject_name != 'Mathematics'; -- same as above. Bo
 select * from staff_salary where salary > 10000; -- All records where salary is greater than 10000.
 select * from staff_salary where salary < 10000; -- All records where salary is less than 10000.
 
-select *
-  from staff_salary
-  where salary < 10000
-  order by salary; -- All records where salary is less than 10000 and the output is sorted in ascending order of salary.
 
 select *
   from staff_salary
   where salary < 10000
   order by salary desc; -- All records where salary is less than 10000 and the output is sorted in descending order of salary.
-
-select *
-  from staff_salary
-  where salary >= 10000; -- All records where salary is greater than or equal to 10000.
-
-select *
-  from staff_salary
-  where salary <= 10000; -- All records where salary is less than or equal to 10000.
-
 
 
 
@@ -243,31 +230,34 @@ select (5 * 2) as multiply;
 select (5 / 2) as divide; -- Divides 2 numbers and returns whole number.
 select (5 % 2) as modulus; -- Divides 2 numbers and returns the remainder
 
-select staff_type from staff ; -- Returns lot of duplicate data.
+select staff_type from staff ;          -- Returns lot of duplicate data.
 select distinct staff_type from staff ; -- Returns unique values only.
-select staff_type from staff limit 5; -- Fetches only the first 5 records from the result.
+select staff_type from staff limit 5;   -- Fetches only the first 5 records from the result.
 
 select * from staff_view;
 
 
+
+
+
 -- JOINS
 
-/*
+
 SQL Joins: There are several types of JOIN but we look at the most commonly used:
-1) Inner Join
+  Inner Join
     - Inner joins fetches records when there are matching values in both tables.
-2) Outer Join
-    - Left Outer Join
+  Outer Join
+    - Left Join
         - Left join fetches all records from left table and the matching records from right table.
         - The count of the query will be the count of the Left table.
         - Columns which are fetched from right table and do not have a match will be passed as NULL.
-    - Right Outer Join
+    - Right Join
         - Right join fetches all records from right table and the matching records from left table.
         - The count of the query will be the count of the right table.
         - Columns which are fetched from left table and do not have a match will be passed as NULL.
-    - Full Outer Join
+    - Full Join
         - Full join always return the matching and non-matching records from both left and right table.
-*/
+
 
 -- Inner Join: 21 records returned – Inner join always fetches only the matching records present in both right and left table.
 -- Inner Join can be represented as either "JOIN" or as "INNER JOIN". Both are correct and mean the same.
@@ -276,22 +266,6 @@ select count(1)
   join staff_salary ss on ss.staff_id = stf.staff_id
   order by 1;
 
-select distinct (stf.first_name || ' ' || stf.last_name) as full_name, ss.salary
-  from staff stf
-  join staff_salary ss on ss.staff_id = stf.staff_id
-  order by 2;
-
--- 23 records – 23 records present in left table.
--- All records from LEFT table with be fetched irrespective of whether there is matching record in the RIGHT table.
-select count(1)
-  from staff stf
-  left join staff_salary ss on ss.staff_id = stf.staff_id
-  order by 1;
-
-select distinct (stf.first_name || ' ' || stf.last_name) as full_name,ss.salary
-  from staff stf
-  left join staff_salary ss on ss.staff_id = stf.staff_id
-  order by 2;
 
 -- 24 records – 24 records in right table.
 -- All records from RIGHT table with be fetched irrespective of whether there is matching record in the LEFT table.
@@ -300,10 +274,6 @@ select count(1)
   right join staff_salary ss on ss.staff_id = stf.staff_id
   order by 1;
 
-select distinct (stf.first_name || ' ' || stf.last_name) as full_name, ss.salary
-  from staff stf
-  right join staff_salary ss on ss.staff_id = stf.staff_id
-  order by 1;
 
 -- 26 records – all records from both tables. 21 matching records + 2 records from left + 3 from right table.
 -- All records from both LEFT and RIGHT table with be fetched irrespective of whether there is matching record in both these tables.
@@ -312,21 +282,15 @@ select count(1)
   full outer join staff_salary ss on ss.staff_id = stf.staff_id
   order by 1;
 
-select distinct (stf.first_name || ' ' || stf.last_name) as full_name, ss.salary
-  from staff stf
-  full outer join staff_salary ss on ss.staff_id = stf.staff_id
-  order by 1,2;
-
 
 --(Two ways to write SQL queries):
 -- #1 Using JOIN keyword between tables in FROM clause.
-
 select t1.column1 as c1, t1.column2 c2, t2.column3 as c3
   from table1 t1
   join table2 as t2 on t1.c1 = t2.c1 and t1.c2 = t2.c2;
 
--- #2. Using comma "," between tables in FROM clause.
 
+-- #2. Using comma "," between tables in FROM clause.
 select t1.c1 as c1, t1.c2 as c2, t2.c3 c3
   from table1 as t1, table2 as t2
   where t1.c1 = t2.c1 and t1.c2 = t2.c2;
@@ -351,7 +315,10 @@ select distinct (stf.first_name || ' ' || stf.last_name) as full_name --, CLS.CL
 
 
 -- CASE statement
-(IF 1 then print True ; IF 0 then print FALSE ; ELSE print -1)
+    IF 1 then print True ;
+    IF 0 then print FALSE ;
+    ELSE print -1
+
 
 -- multiply case is allowed in select statement but each case for each column
 select age, gender, staff_id,
@@ -363,7 +330,6 @@ select age, gender, staff_id,
   end as gender_edit
 from staff;
 
-
 select staff_id,
 	salary,
 	case
@@ -373,6 +339,8 @@ select staff_id,
 	end as range
 from staff_salary
 order by 2 desc;
+
+
 
 -- TO_CHAR / TO_DATE:
 select *
@@ -397,11 +365,11 @@ select avg(ss.salary) as avg_salary
   join staff stf on stf.staff_id = ss.staff_id
   where stf.staff_type = 'Teaching';
 
-
 select stf.staff_type, avg(ss.salary) as avg_salary
   from staff_salary as ss
   join staff as stf on stf.staff_id = ss.staff_id
   group by stf.staff_type;
+
 
 -- SUM: Calculates the total sum of all values in the given column.
 select stf.staff_type, sum(ss.salary)::numeric(10, 2) as avg_salary
@@ -409,11 +377,13 @@ select stf.staff_type, sum(ss.salary)::numeric(10, 2) as avg_salary
   join staff stf on stf.staff_id = ss.staff_id
   group by stf.staff_type;
 
+
 -- MIN: Returns the record with minimun value in the given column.
 select stf.staff_type, min(ss.salary)::numeric(10,2) as avg_salary
   from staff_salary ss
   join staff stf on stf.staff_id = ss.staff_id
   group by stf.staff_type;
+
 
 -- MAX: Returns the record with maximum value in the given column.
 select stf.staff_type, max(ss.salary)::numeric(10,2) as avg_salary
@@ -421,12 +391,14 @@ select stf.staff_type, max(ss.salary)::numeric(10,2) as avg_salary
   join staff stf on stf.staff_id = ss.staff_id
   group by stf.staff_type;
 
+
 /* Note:
   '::NUMERIC' is a cast operator which is used to convert values from one data type to another.
   In the above query we use it display numeric value more cleanly by restricting the decimal point to only 2.
   Here 10 is precision which is the total no of digits allowed.
   2 is the scale which is the digits after decimal point.
 */
+
 
 
 -- Select count of students on each class
@@ -453,9 +425,9 @@ select parent_id, count(*) as "count_of_kids"
 
 
 -- SUBQUERY:
---   1. Scalar subquery
---   2. Multiply row
---   3. Correlated
+--       Scalar subquery      1 row and 1 column
+--       Multiply row
+--       Correlated           inner query depends on main query
 
 --   Subquery can be used in:
 --     -   SELECT - which is not recommended
@@ -469,11 +441,10 @@ select store_name, sum(quantity)
   from sales
   group by store_name
   having sum(quantity) > (select avg(quantity) from sales);
--- Query written inside a query is called subquery
+
 
 
 -- SCALARY
---  subquery query which return always 1 row and 1 column
 --  Find the employees who's salary is more that the average salary earned by all employees
 --  1. find the avg salary
 --  2. filter the employees based on the above result
@@ -486,6 +457,8 @@ select store_name, sum(quantity)
 
 -- MULTIPLE row subquery
 -- Find the employees who earn the highest salary in each department
+--  1. select max salary on each dept name
+--  2. select max from previous
     select *
       from employee
       where (dept_name, salary) in (select dept_name, max(salary)
@@ -498,14 +471,17 @@ select store_name, sum(quantity)
       where dept_name not in (select distinct dept_name from employee)
 
 
+
 -- CORRELATED subquery
--- Subquery where inner query depends on main query
--- Find the employee who earn more than the average salary in that departmant
+-- Find the employee who earn more than the average salary in that department
+--  1. average salary in that department
+--  2.
+
 select *
   from employee e1
   where salary > (select avg(salary)
-                    from employee e2
-                    where e1.dept_name = e2.dept_name )
+                  from employee e2
+                  where e1.dept_name = e2.dept_name )
 
 
 
@@ -513,11 +489,10 @@ select *
 -- VIEWS
 
 --  cases:
---    1. create view
---    2. alter table by adding new column
---    3. view does not contain this new column. View should be recreated only then new column will appear
---
---  - View can be updated in case it was created based on only one table
+--     create view
+--     alter table by adding new column
+--     view does not contain this new column. View should be recreated only then new column will appear
+--     view can be updated in case it was created based on only one table
 
 create view some_view
        as  select * from staff;
@@ -572,8 +547,8 @@ where e.dep_name in (select dep_name from department where location = 'Bangalor'
 
 
 
--- WINDOW FUNCTION
 
+-- WINDOW FUNCTION
 select *, max(salary) over(partition by dept_name) as max_salary
 from employee e;
 
