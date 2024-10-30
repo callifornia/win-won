@@ -16,7 +16,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 * */
 
 
-object ScalaTutorials {
+object MainTutorial {
   def main(args: Array[String]): Unit = {
     println("Is everything ok ???????")
   }
@@ -25,21 +25,20 @@ object ScalaTutorials {
   // referential transparency
   {
     /*
-  -  property to replace expression without changing meaning of the program
-  -  in other words we can replace expression with a value which expression evaluates
-  example:
+      -  property to replace expression without changing meaning of the program
+      -  in other words we can replace expression with a value which expression evaluates
+      example:
     */
 
     def add(a: Int, b: Int): Int = a + b
 
-    val five = add(2, 3)
-    val b = five + five
+    val five   = add(2, 3)
+    val _      = five + five
     val ten_v1 = add(2, 3) + add(2, 3)
     val ten_v2 = 5 + add(2, 3)
 
 
     /* referencial transparency is not */
-
     def showTime(): Long = System.currentTimeMillis()
 
   }
@@ -48,12 +47,13 @@ object ScalaTutorials {
   {
     case class Pet(age: Int, name: String)
     object Pet {
+      /*     case Pet               (age, name)             */
       def unapply(pet: Pet): Option[(Int, String)] =
         pet.age > 10 match {
           case true => Some(10, "...")
           case false => Some(12, "...")
         }
-
+      /*     case Pet               (name)                  */
       def unapply(value: Int): Option[String] =
         value > 12 match {
           case true => Some("Zero")
@@ -94,9 +94,8 @@ object ScalaTutorials {
 
       associativity             - a x (b x c) = (a x b) x c
       infix notation            - ability to use method without any dots or parentheses, fundamental feature in language
-      auxiliary constructors    - Overloaded constructor this(). All auxiliary constructors must first call the primary
-                                  constructor or another auxiliary constructor. Guarantees that the object is properly
-                                  initialized before the auxiliary constructor comes into play
+      auxiliary constructors    - overloaded constructor this().
+                                  must first call the primary constructor or another auxiliary constructor.
       lifting                   - when we pass some method as if it were a function, Scala automatically converts it
                                   to a function object.
 
@@ -120,11 +119,11 @@ object ScalaTutorials {
   // value classes
   {
     /*
-      case class BarCode(value: String) extends AnyVal {
-        def countryCode: Char = value.charAt(0)
-    }*/
 
-    /*
+                                case class BarCode(value: String) extends AnyVal {
+                                    def countryCode: Char = value.charAt(0)
+
+
         Restriction:
             - no vals only def
             - only one constructors
@@ -150,13 +149,13 @@ object ScalaTutorials {
   // implicit lookup
   {
     /*    Look in current scope
-            - Implicit defined in current scope
-            - Imports explicit, wildcard
+            - implicit defined in current scope
+            - imports explicit, wildcard
           Look at associated types in
-            - Companion object of a type
-            - Companion object OtherClass
-            - Companion object B
-            - Any superclass of B */
+            - companion object of a type
+            - companion object OtherClass
+            - companion object B
+            - any superclass of B */
   }
 
 
@@ -180,12 +179,12 @@ object ScalaTutorials {
   // call by name
   {
     def byValueFunction(x: Int): Int = x + 1
-    byValueFunction(3 + 2) /* 3 + 2 evaluated before method "byValueFunction" are going to be called*/
+    byValueFunction(3 + 2) /*     3 + 2 evaluated before method "byValueFunction" are going to be called        */
 
 
     def byNameFunction(x: => Int): Int = x + 1
-    byNameFunction(3 + 2) /* 3 + 2 are going to be evaluated when it's going to be used inside that function "byNameFunction".
-     in other words => call by need */
+    byNameFunction(3 + 2) /*  3 + 2 are going to be evaluated when it's going to be used inside that function "byNameFunction".
+                              in other words => call by need */
 
     /*    example with reevaluation   */
     def byValue(x: Long): Unit = {
@@ -202,8 +201,9 @@ object ScalaTutorials {
     byName(System.nanoTime())
 
 
-    /* example with infinity list where tail or in other words all structure evaluated when it's needed
-       That pattern is named as "call by need". It powerful in infinity collections
+    /*
+       example with infinity list where tail or in other words all structure evaluated when it's needed
+       that pattern is named as "call by need". It powerful in infinity collections
        */
 
     abstract class MyList1[+T] {
@@ -290,14 +290,14 @@ object ScalaTutorials {
   {
     /*  Which mean everyone who extends Hospital MUST extends Builder  */
     trait Builder {
-      def build(_: String): Boolean = true
+      def build(v: String): Boolean = true
     }
     trait Hospital {
       selfType: Builder =>
       def makeNewHospital(value: Int): Boolean = selfType.build(value.toString)
     }
 
-    class makeNewStructure extends Hospital with Builder {
+    class MakeNewStructure extends Hospital with Builder {
       def someAwesomeMethod(): Unit = makeNewHospital(3)
     }
   }
@@ -309,10 +309,11 @@ object ScalaTutorials {
   {
     /* null */
     val g: String = null  /* as in a Java world */
-    val d: Null = null
-    /* Null has no methods, no fields, can not be extended or instantiated  and only possible value is 'null'.
-        It's extends all references types
-        AnyRef -> all reference types -> Null
+    val d: Null = null/* Null -> no methods
+                              -> no fields,
+                              -> can not be extended or instantiated  and only possible value is 'null'
+                         It's extends all references types
+                         AnyRef -> all reference types -> Null
      */
     val y: String = d
 
@@ -331,8 +332,8 @@ object ScalaTutorials {
     val c: MyClass  = throw new NullPointerException
 
     /* can we use Nothing ? */
-    def someFunction(_: Nothing): Int      = ???
-    def someFunction2(_: Nothing): Nothing = throw new NullPointerException
+    def someFunction(a: Nothing): Int      = ???
+    def someFunction2(b: Nothing): Nothing = throw new NullPointerException
 
     /* use in covariant side */
     abstract class MyList2[+T]
@@ -349,13 +350,13 @@ object ScalaTutorials {
     abstract class Person {
       def canFly: Boolean = true
       val canDrive: Boolean
-      def discussWith(_: Person): String
+      def discussWith(p: Person): String
     }
 
     trait PersonTrait {
       def canFly: Boolean = true
       val canDrive: Boolean
-      def discussWith(_: Person): String
+      def discussWith(p: Person): String
     }
 
     /*
@@ -371,7 +372,8 @@ object ScalaTutorials {
         - trait can't take constructor arguments
         - note: represent things as a classes
         - note: represent behavior as traits
-                                                      */
+
+     */
   }
 
 
@@ -398,7 +400,7 @@ object ScalaTutorials {
   //  Blocking | Async | Non-blocking
   {
     /*  Blocking */
-    def blockingCode(_: Int): Int = {
+    def blockingCode(a: Int): Int = {
       Thread.sleep(10000)
       23
     }
@@ -425,7 +427,7 @@ object ScalaTutorials {
 
     /* right associative method */
     class MyClass_2 {
-      def ::(_: Int): Unit = println("")
+      def ::(a: Int): Unit = println("")
     }
     val myClass = new MyClass_2
     123 :: myClass /* because method in class MyClass_2 ended with a ":" */
@@ -475,11 +477,11 @@ object ScalaTutorials {
     /* https://www.youtube.com/watch?v=ZRdOb4yR0kk
 
         Big O - показивает верхнюю межу складності виконання алгоритма в залежності від вхвідних параметрів
-        Ми не беремо до уваги константи та "наважну" складність
+        Ми не беремо до уваги константи та "неважну" складність
 
-      - послідовність дій                                                => додавання
-      - вложеність дій                                                   => множення
-      - для алгоритма де на конжній ітерації береться половина елементів => log N
+      - послідовність дій                                                 => додавання
+      - вложеність дій                                                    => множення
+      - для алгоритма де на конжній ітерації береться половина елементів  => log N
 
 
         О(N^2 + N^2)            = O(N^2)
@@ -502,9 +504,9 @@ object ScalaTutorials {
                  `0`( N). 0 gives a tight bound on runtime.
 
 
-       Рекурсивна фунція яка рахує сумму чисел
-       У випадку коли N = 3 функція викличе себе 3 рази
-       у випадку коли N = 4 функція викличе себе 4 рази
+       Рекурсивна фунція яка рахує сумму чисел:
+            у випадку коли N = 3 функція викличе себе 3 рази
+            у випадку коли N = 4 функція викличе себе 4 рази
 
        Швидкодія:   О (N)
      */
@@ -514,7 +516,7 @@ object ScalaTutorials {
     }
 
 
-    /*  Функція котра пробігається по всьому масиву і додвє два числа.
+    /*  Функція котра пробігається по всьому масиву і додає два числа
         Швидкодія: O(N)
     */
     def sumSuqences(n: Int): Int = (0 to n).map(k => innerSumFuntion(k, k + 1)).sum
@@ -576,21 +578,21 @@ object ScalaTutorials {
 
     def function(number: Int, cents: Set[Int], acc_result: List[Int] = Nil): List[Int] =
       number match {
-        case n if n <= 0 => result
+        case n if n <= 0 => acc_result
         case _ if cents.nonEmpty =>
           number - cents.max match {
             case 0          => acc_result :+ cents.max
-            case n if n < 0 => function(number, cents - cents.max, result)
-            case n if n > 0 => function(number - cents.max, cents, result :+ cents.max)
+            case n if n < 0 => function(number, cents - cents.max, acc_result)
+            case n if n > 0 => function(number - cents.max, cents, acc_result :+ cents.max)
           }
-        case _ => result
+        case _ => acc_result
       }
 
     function(number, cents.toSet)
 
 
     /*
-    * Almost the same task but with a small changes.
+    * Almost the same task but with a small changes
     * Changes: find more optima solution
     *
     * For example:
@@ -634,7 +636,7 @@ object ScalaTutorials {
 
 
     /*
-    * Bubble sort. implemented in mutable way
+    * Bubble sort. implemented in а mutable way
     *
     * Solution:
     * */
@@ -664,7 +666,7 @@ object ScalaTutorials {
 
 
     /*
-    * Select sort.
+    * Select sort
     * 1. pick up the first element
     * 2. find the lowest element in an array
     * 3. compare element in step 1 with an element in step 2
@@ -804,16 +806,14 @@ object ScalaTutorials {
 
 
     /*
-        1. Illigal states ar not representable.
-            def check(weather: Weather): Unit = ??? <- so we can not put anything else than Weather
+
+        1. Illigal states are not representable
+                def check(weather: Weather): Unit = ??? <- so we can not put anything else than Weather
         2. highly composable
         3. immutable data structure
         4. just data, not functionality => structure our code
 
      */
-
-
-
   }
 
 
@@ -868,9 +868,10 @@ object ScalaTutorials {
     /*
           assembly -  build a sbt .jar
           resolver -  is a think which allow us to set repository where sbt is going to search artifacts and libs
-                      - can be internal - search in local machine: Resolver.mavenLocal() //
+                      - can be internal - search in local machine: Resolver.mavenLocal()
                                           .m2/ folder where maven are going to look up
-                      - can be external - search in a specific web: Resolver.url("my-test-repo", "https://rockthejvm.com/repository")
+                      - can be external - search in a specific web:
+                                Resolver.url("my-test-repo", "https://rockthejvm.com/repository")
           task     - we can create custom one as a separate scala file which we can invoke акщь sbt file than we can
                      hit or trigger that task via sbt console
                      -  can depend on each other
@@ -899,8 +900,8 @@ object ScalaTutorials {
 
           task and setting - example. We do have generateUUID() method described in task and in setting.
                              Differences:
-                              - task    -> new UUID each time(dynamic)
-                              - setting -> the same (static)
+                                  task      ->  new UUID each time(dynamic)
+                                  setting   ->  the same (static)
 
           command aliases - example:
                             sbt file:
@@ -918,17 +919,17 @@ object ScalaTutorials {
                                 crossScalaVersions := List(scala212, scala213)
                               )
           name              - in sbt file -> name of the project
-          build.properties  - it's a file where we can set sbtversion
+          build.properties  - it's a file where we can set sbt-version
           runMain           - command which is used to run main method from sbt console
           ~compile          - command from sbt console which allow us to recompile file automatically in case file was
                               changed
-          libraryDependecies - list with addidtionals libs
+          libraryDependecies - list with additional libs
           test: testOnly     - command from sbt console to run test
 
           multiply projects - example
-              lazy val core = (project in file("core"))
-              lazy val server = (project in file("server")).dependsOn(core)
-              lazy val root = (project in file(.)).aggregate(core, server)
+                            lazy val core   = (project in file("core"))
+                            lazy val server = (project in file("server")).dependsOn(core)
+                            lazy val root   = (project in file(.)).aggregate(core, server)
 
           plugin.sbt                      - file where plugins are added. As an example we can add docker plugin
           assembly                        - plugin and command which we run via sbt console which allow us to build jar file
@@ -940,12 +941,15 @@ object ScalaTutorials {
 
   //  Type classes
   {
-    /*  - is a data structure which support ad hoc polymorphism
-      - we can ADD NEW METHOD or NEW DATA without changing existing code
-      There are three important point about type classes:
-        - Type class itself
-        - Instances for particular type
-        - Interface method that we exposed to user
+    /*
+
+                  - is a data structure which support ad hoc polymorphism
+                  - we can ADD NEW METHOD or NEW DATA without changing existing code
+                  There are three important point about type classes:
+                      - type class itself
+                      - instances for particular type
+                      - interface method that we exposed to user
+
   */
 
     trait Convertor[T] {
@@ -964,12 +968,14 @@ object ScalaTutorials {
 
 
     /*
-    The behavior of that method is 'ad-hoc' because of: implicit convertor: Convertor[T] where in the code we have capability to call
-    convert method on convertor only when convertor is supplied. That is the part of ad-hoc.
-    Polymorphism part           - is the [T],  where for any specific type we must have it's own implementation
 
-    implicit convertor: Convertor[T] <- ad-hoc
-    [T]                              <- polymorphism
+      The behavior of that method is 'ad-hoc' because of: implicit convertor: Convertor[T] where in the code we have capability to call
+    convert method on convertor only when convertor is supplied. That is the part of ad-hoc
+
+      Polymorphism part           - is the [T],  where for any specific type we must have it's own implementation
+
+                            implicit convertor: Convertor[T] <- ad-hoc
+                            [T]                              <- polymorphism
 
   */
     def summup[T](list: List[T])(implicit convertor: Convertor[T]): T = /* ad-hoc polymorphism */
@@ -1056,14 +1062,14 @@ object ScalaTutorials {
   // Functor
   {
   /*
-      A Functor for a type provides the ability for its values to be "mapped over",
-    i.e. apply a function that transforms inside a value while remembering its shape.
-    For example, to modify every element of a collection without dropping or adding elements.
+        Functor
+          - provides the ability for its values to be "mapped over"
+          - function that transforms inside a value while remembering its shape
+          Example, modify every element of a collection without dropping or adding elements
 
    Laws:
      identity:               fa.map(x => x)    ==  fa
      composition:            fa.map(f).map(g)  ==  fa.map(x => f(x) andThen g(x))
-
 
    */
 
@@ -1117,7 +1123,7 @@ object ScalaTutorials {
       handle(Session("www.trump.ua", true))
     }
 
-    builder {session =>
+    builder { session =>
       println(session.url)
       println(session.isAlive)
     }
@@ -1151,7 +1157,6 @@ object ScalaTutorials {
     implicit val intSemigroup = new Semigroup[Int] {
       override def combine(a: Int, b: Int): Int = a + b
     }
-
   }
 
   implicit class IntOps[T](value: T) {
