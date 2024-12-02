@@ -1,4 +1,4 @@
-package repeat.main.interview
+package repeat.main.interview.notes.interview
 
 object InterviewStuff {
   def main(args: Array[String]): Unit = {

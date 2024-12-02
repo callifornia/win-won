@@ -1,4 +1,5 @@
-package repeat.main.scala_main_concepts
+package repeat.main.interview.notes.scala_main_concepts
+
 import scala.collection.mutable.{ArraySeq => MutableArray}
 
 

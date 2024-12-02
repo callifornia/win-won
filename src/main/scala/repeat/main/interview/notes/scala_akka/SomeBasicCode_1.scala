@@ -1,8 +1,8 @@
-package repeat.main.scala_akka
+package repeat.main.interview.notes.scala_akka
 
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ActorSystem, Behavior}
-import repeat.main.scala_akka.Messages.{ShoppingCartMessage, _}
+import Messages.{ShoppingCartMessage, _}
 
 
 object SomeBasicCode_1 {

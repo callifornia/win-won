@@ -1,8 +1,8 @@
-package repeat.main.scala_akka
+package repeat.main.interview.notes.scala_akka
 
 import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
 import akka.actor.typed.{ActorRef, ActorSystem, Behavior}
-import repeat.main.scala_akka.Checkout.{InspectSummary, Summary}
+import Checkout.{InspectSummary, Summary}
 import StoreDomain._
 import ShoppingCart._
 

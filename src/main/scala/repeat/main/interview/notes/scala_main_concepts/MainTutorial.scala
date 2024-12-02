@@ -1,4 +1,5 @@
-package repeat.main.scala_main_concepts
+package repeat.main.interview.notes.scala_main_concepts
+
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -490,10 +491,10 @@ object MainTutorial {
         O(5 * 2^N + 10*N^100)   = O(2^N)     2^N - растет гараздо бистрее чем N^100
 
 
-       O (big 0): In academia, big O describes an upper bound on the time.
+       O (big 0): In academia, big O describes an upper bound on the time
            An algorithm that prints all the values in an array could be described as O(N),
            but it could also be described as O(N2), O(N3) ... therefore they are upper
-           bounds on the runtime.
+           bounds on the runtime
            X <= 1, 000 or X <= 1,000,000. It's technically true
 
       `0` (big omega): In academia, `0` is the equivalent concept but for lower bound.
@@ -916,8 +917,8 @@ object MainTutorial {
 
                               lazy val core = (project in file("core")).setting (
                                 assembly / mainClass := Some("com.rockthejvm.CoreApp")
-                                crossScalaVersions := List(scala212, scala213)
-                              )
+                                crossScalaVersions := List(scala212, scala213))
+
           name              - in sbt file -> name of the project
           build.properties  - it's a file where we can set sbt-version
           runMain           - command which is used to run main method from sbt console
@@ -972,12 +973,12 @@ object MainTutorial {
       The behavior of that method is 'ad-hoc' because of: implicit convertor: Convertor[T] where in the code we have capability to call
     convert method on convertor only when convertor is supplied. That is the part of ad-hoc
 
-      Polymorphism part           - is the [T],  where for any specific type we must have it's own implementation
 
-                            implicit convertor: Convertor[T] <- ad-hoc
-                            [T]                              <- polymorphism
+                   implicit convertor: Convertor[T] <- ad-hoc
+                   [T]                              <- polymorphism, where for any specific type we must have it's own implementation
 
   */
+
     def summup[T](list: List[T])(implicit convertor: Convertor[T]): T = /* ad-hoc polymorphism */
       convertor.convert(list)
 
@@ -1065,7 +1066,7 @@ object MainTutorial {
         Functor
           - provides the ability for its values to be "mapped over"
           - function that transforms inside a value while remembering its shape
-          Example, modify every element of a collection without dropping or adding elements
+            Example, modify every element of a collection without dropping or adding elements
 
    Laws:
      identity:               fa.map(x => x)    ==  fa

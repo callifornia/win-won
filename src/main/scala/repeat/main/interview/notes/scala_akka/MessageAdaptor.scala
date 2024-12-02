@@ -1,9 +1,9 @@
-package repeat.main.scala_akka
+package repeat.main.interview.notes.scala_akka
 
 import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
 import akka.actor.typed.{ActorRef, ActorSystem, Behavior}
-import repeat.main.scala_akka.Receiver.{Data, GetData}
-import repeat.main.scala_akka.Sender.RequestData
+import Receiver.{Data, GetData}
+import Sender.RequestData
 
 import scala.util.Random
 

@@ -1,4 +1,4 @@
-package repeat.main.scala_akka
+package repeat.main.interview.notes.scala_akka
 
 import java.util.UUID
 import scala.util.Random

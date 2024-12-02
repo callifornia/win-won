@@ -1,9 +1,9 @@
-package repeat.main.scala_akka
+package repeat.main.interview.notes.scala_akka
 
 import akka.actor.ActorRef
 import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
-import repeat.main.scala_akka.Receiver.GetData
+import Receiver.GetData
 
 object RepeatMessageAdaptor {
   def main(args: Array[String]): Unit = {

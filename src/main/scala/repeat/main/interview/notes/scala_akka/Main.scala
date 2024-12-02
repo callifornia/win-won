@@ -1,4 +1,4 @@
-package repeat.main.scala_akka
+package repeat.main.interview.notes.scala_akka
 
 object Main {
   def main(args: Array[String]): Unit = {
@@ -161,8 +161,8 @@ object Main {
 
 
      What happens to the mailbox
-        - If an exception is thrown while a message is being processed, nothing happens to the mailbox. If the actor is restarted,
-          the same mailbox will be there. So all messages on that mailbox will be there as well
+        - If an exception is thrown while a message is being processed, nothing happens to the mailbox. If the
+          actor is restarted, the same mailbox will be there. So all messages on that mailbox will be there as well
 
 
      What happens to the actor
