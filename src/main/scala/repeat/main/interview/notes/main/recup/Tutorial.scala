@@ -10,6 +10,10 @@ object Tutorial {
 
   //  Monad intro
 
+  /*
+  *   Monad it's a power full concept котре дозволяють покращити data structure with for comprehension
+  *   
+  * */
   /* Monad Option */
   import cats.Monad
 //  import cats.instances.option._
