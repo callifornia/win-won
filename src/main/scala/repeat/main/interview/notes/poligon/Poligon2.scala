@@ -2,6 +2,7 @@ package repeat.main.interview.notes.poligon
 
 import scala.util.Try
 
+
 object Poligon2 {
   def main(args: Array[String]): Unit = {
 
