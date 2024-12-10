@@ -17,10 +17,45 @@ import scala.concurrent.ExecutionContext.Implicits.global
 * */
 
 
-object MainTutorial {
+object Tutorial {
   def main(args: Array[String]): Unit = {
     println("Is everything ok ???????")
   }
+
+
+  // OOP vs Functional programing
+  /*
+    https://doc.akka.io/libraries/akka-core/2.6/typed/guide/actors-motivation.html#the-challenge-of-encapsulation
+   In Object Oriented languages we rarely think about threads or linear execution paths in general.
+   We often envision a system as a network of object instances that react to method calls, modify their internal state,
+   then communicate with each other via method calls driving the whole application state forward:
+
+   -  CPUs are writing to cache lines instead of writing to memory directly
+   -  Most of these caches are local to the CPU core
+   -  writes by one core are not visible by another
+   -  cache line needs to be shipped to the other core’s cache
+   -  On the JVM, to be shared across threads   using volatile or Atomic wrappers
+   -  shipping cache lines across cores is a very costly operation
+   -  an important difference between passing messages and calling methods is that messages have no return value
+   -  actor system can process as many messages simultaneously as the hardware will support.
+   */
+
+
+
+  /*  Some interesting point around initialization  */
+  App.foo                     // in run we are "OK"
+  App.foo.bar.someMethod()    // in run "NullPointerException"
+
+  case class Bar() { def someMethod(): String = "hi there ..." }
+  case class Baz()
+  case class Foo(bar: Bar, baz: Baz)
+
+  object App {
+    val foo = Foo(bar, baz)
+    val bar = Bar()
+    val baz = Baz()
+  }
+
 
 
   // referential transparency
@@ -43,6 +78,8 @@ object MainTutorial {
     def showTime(): Long = System.currentTimeMillis()
 
   }
+
+
 
   // unapply
   {
