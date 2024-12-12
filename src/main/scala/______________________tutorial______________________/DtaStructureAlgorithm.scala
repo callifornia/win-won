@@ -23,6 +23,7 @@ object DtaStructureAlgorithm {
           |_______________________________
 
 
+
       space
 
           |                O(n)
