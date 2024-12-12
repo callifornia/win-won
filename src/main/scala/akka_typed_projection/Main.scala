@@ -31,9 +31,9 @@ object Main {
       Behaviors.setup[String] { context =>
         val system = context.system
         val provider = sourceProvider(system)
-        val projection = cassandraProjection(system, provider)
+//        val projection = cassandraProjection(system, provider)
 
-        context.spawn(ProjectionBehavior.apply(projection), projection.projectionId.id)
+//        context.spawn(ProjectionBehavior.apply(projection), projection.projectionId.id)
         Behaviors.empty
       },
       "ShoppingCartApp",
@@ -41,24 +41,24 @@ object Main {
   }
 
 
-  def cassandraProjection[T](system: ActorSystem[T],
-                             provider: SourceProvider[Offset, EventEnvelope[ShoppingCartEvent]]) =
-    CassandraProjection.atLeastOnce(
-      projectionId = ProjectionId.apply("shopping-carts", ShoppingCartTags.single),
-      sourceProvider = provider,
-      handler = () =>
-        new ItemPopularityProjectionHandler(
-          ShoppingCartTags.single,
-          system,
-          new ItemPopularityProjectionRepositoryImpl(
-            CassandraSessionRegistry(system).sessionFor("akka.projection.cassandra.session-config"))(system.executionContext)))
+//  def cassandraProjection[T](system: ActorSystem[T],
+//                             provider: SourceProvider[Offset, EventEnvelope[ShoppingCartEvent]]) =
+//    CassandraProjection.atLeastOnce(
+//      projectionId = ProjectionId.apply("shopping-carts", ShoppingCartTags.single),
+//      sourceProvider = provider,
+//      handler = () =>
+//        new ItemPopularityProjectionHandler(
+//          ShoppingCartTags.single,
+//          system,
+//          new ItemPopularityProjectionRepositoryImpl(
+//            CassandraSessionRegistry(system).sessionFor("akka.projection.cassandra.session-config"))(system.executionContext)))
 
 
-
-  def sourceProvider[T](system: ActorSystem[T]): SourceProvider[Offset, EventEnvelope[ShoppingCartEvent]] =
-    EventSourcedProvider
-      .eventsByTag[ShoppingCartEvent](
-        system,
-        readJournalPluginId = CassandraReadJournal.Identifier,
-        tag = ShoppingCartTags.single)
+//
+//  def sourceProvider[T](system: ActorSystem[T]): SourceProvider[Offset, EventEnvelope[ShoppingCartEvent]] =
+//    EventSourcedProvider
+//      .eventsByTag[ShoppingCartEvent](
+//        system,
+//        readJournalPluginId = CassandraReadJournal.Identifier,
+//        tag = ShoppingCartTags.single)
 }

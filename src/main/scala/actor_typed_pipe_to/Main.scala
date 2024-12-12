@@ -67,7 +67,7 @@ object Main {
     }
   }
 
-  @main def run(): Unit = {
+  def run(): Unit = {
     val blahActor = ActorSystem(someActor2(0, 0), "asd")
 
     1 to 10 foreach { counter =>

@@ -1,3 +1,0 @@
-
-UUID.randomUUID()
-UUID

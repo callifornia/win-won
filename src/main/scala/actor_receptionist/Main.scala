@@ -47,7 +47,7 @@ import akka.actor.typed.receptionist.ServiceKey
 
 
 object Main {
-  @main def run(): Unit = {
+  def run(): Unit = {
 
   }
 }

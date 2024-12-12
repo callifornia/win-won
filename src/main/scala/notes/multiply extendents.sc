@@ -44,6 +44,6 @@ def check(acd: String): Unit = {
   val a = str match {
     case "asd" => 123
     case "123" =>  321
-    case _ => 000
+    case _ => 0
   }
 }

@@ -6,11 +6,11 @@ object Main {
 
 
 
-    trait Foo {
+    trait Foo2 {
       def sign(): Unit
     }
 
-    trait Bar { self: Foo =>
+    trait Bar { self: Foo2 =>
       def song(): Unit = self.sign()
 
     }

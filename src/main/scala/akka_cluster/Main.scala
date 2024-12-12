@@ -3,7 +3,6 @@ package akka_cluster
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.Behavior
 import akka.actor.typed.{ActorRef, ActorSystem, scaladsl}
-import akka.cluster.sharding.typed.scaladsl.Entity
 import akka_cluster.Counter.Increment
 import com.typesafe.config.ConfigFactory
 
@@ -109,11 +108,6 @@ object Main {
   *  https://blog.knoldus.com/introduction-to-akka-cluster-sharding/
   * */
 
-
-  import akka.cluster.sharding.typed.ShardingEnvelope
-  import akka.cluster.sharding.typed.scaladsl.ClusterSharding
-  import akka.cluster.sharding.typed.scaladsl.EntityTypeKey
-  import akka.cluster.sharding.typed.scaladsl.EntityRef
 
   def main(args: Array[String]): Unit = {
     //    val actorSystem = ActorSystem(scaladsl.Behaviors.empty, "Fooo")

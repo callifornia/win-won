@@ -1,11 +1,14 @@
 package actor_typed_example
-import akka.actor.typed.ActorSystem
-import akka.actor.typed.Behavior
+import akka.actor.typed.{ActorRef, ActorSystem, Behavior}
 import akka.actor.typed.scaladsl.Behaviors
 import Configuration._
 import Processor._
+import actor_typed_example.PaymentHandling.{Money, UserId}
 import akka.actor.typed.receptionist.ServiceKey
 import akka.actor.typed.receptionist.Receptionist
+import akka.util.Timeout
+
+import scala.util.{Failure, Success}
 
 object Configuration {
   case class MerchantId(id: String) extends AnyVal
@@ -25,7 +28,7 @@ object Configuration {
 
 object Processor {
   sealed trait ProcessorRequest
-  case class Process(amount: Money, merchantConfiguration: Configuration, userId: UserId) extends ProcessorRequest
+  case class Process(amount: Money, userId: UserId) extends ProcessorRequest
 }
 
 
@@ -48,7 +51,7 @@ object PaymentProcessor {
     Behaviors.setup[Nothing] {
       context =>
         println("Typed Payment Processor started")
-        context.spawn(Configuration(), "config")
+        context.spawn(Behaviors.empty, "config")
         Behaviors.empty
     }
 }
@@ -56,6 +59,7 @@ object PaymentProcessor {
 
 object PaymentHandling {
 
+  import scala.concurrent.duration._
   def apply2(configuration: ActorRef[ConfigurationMessage]): Behavior[PaymentHandlingMessage] = {
     Behaviors.setup[PaymentHandlingMessage] { context =>
       Behaviors.receiveMessage {
@@ -66,20 +70,20 @@ object PaymentHandling {
           def buildConfigurationRequest(replyTo: ActorRef[ConfigurationResponse]) =
             RetrieveConfiguration(paymentRequest.merchantId, replyTo)
 
-          context.ask(configuration)(buildConfigurationRequest) {
+          context.ask(configuration, buildConfigurationRequest) {
             case Success(response: ConfigurationResponse) => AdaptedConfigurationResponse(response, paymentRequest)
             case Failure(exception) => ConfigurationFailure(exception)
           }
 
           Behaviors.same
         case AdaptedConfigurationResponse(ConfigurationNotFound(merchantId), _) =>
-          context.log.warning("Cannot handle request since no configuration was found for merchant", merchantId.id)
+          context.log.warn("Cannot handle request since no configuration was found for merchant", merchantId.id)
           Behaviors.same
         case AdaptedConfigurationResponse(ConfigurationFound(merchantId, merchantConfiguration), request) =>
           // TODO relay the request to the proper payment processor
           Behaviors.unhandled
         case ConfigurationFailure(exception) =>
-          context.log.warning(exception, "Could not retrieve configuration")
+          context.log.warn(s"Could not retrieve configuration: $exception")
           Behaviors.same
       }
     }
@@ -99,7 +103,7 @@ object PaymentHandling {
             case wrapped: WrappedConfigurationResponse =>
               wrapped.response match {
                 case ConfigurationNotFound(merchantId) =>
-                  context.log.warning("Cannot handle request since no configuration was found for merchant", merchantId.id)
+                  context.log.warn("Cannot handle request since no configuration was found for merchant", merchantId.id)
                   Behaviors.same
                 case ConfigurationFound(merchantId, merchantConfiguration) =>
                   requests.get(merchantId) match {
@@ -107,7 +111,7 @@ object PaymentHandling {
                       // TODO relay the request to the proper payment processor
                       Behaviors.same
                     case None =>
-                      context.log.warning("Could not find payment request for merchant id {}", merchantId.id)
+                      context.log.warn("Could not find payment request for merchant id {}", merchantId.id)
                       Behaviors.same
                   }
               }
@@ -127,11 +131,15 @@ object PaymentHandling {
   case class HandlePayment(amount: Money,
                            merchantId: MerchantId,
                            userId: UserId) extends PaymentHandlingMessage
+                           
+  case class Money(value: Int)
+  case class UserId(value: Int)
+  
 }
 
 
 object Main {
-  @main def run(): Unit = {
+  def run(): Unit = {
     ActorSystem[Nothing](PaymentProcessor(), "typed-payment-processor")
   }
 }
