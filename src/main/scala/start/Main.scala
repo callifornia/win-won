@@ -1,7 +1,6 @@
 package start
 
 import ops.StringOps._
-import CheckOne._
 import scala.util.Try
 object Main {
 

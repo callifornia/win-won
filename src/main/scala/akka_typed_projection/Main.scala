@@ -1,14 +1,6 @@
 package akka_typed_projection
 import akka.actor.typed.ActorSystem
 import akka.actor.typed.scaladsl.Behaviors
-import akka.persistence.cassandra.query.scaladsl.CassandraReadJournal
-import akka.persistence.query.Offset
-import akka.projection.{ProjectionBehavior, ProjectionId}
-import akka.projection.cassandra.scaladsl.CassandraProjection
-import akka.projection.eventsourced.scaladsl.EventSourcedProvider
-import akka.projection.scaladsl.SourceProvider
-import akka.projection.eventsourced.EventEnvelope
-import akka.stream.alpakka.cassandra.scaladsl.CassandraSessionRegistry
 import com.typesafe.config.ConfigFactory
 
 
@@ -30,7 +22,7 @@ object Main {
     ActorSystem(
       Behaviors.setup[String] { context =>
         val system = context.system
-        val provider = sourceProvider(system)
+//        val provider = sourceProvider(system)
 //        val projection = cassandraProjection(system, provider)
 
 //        context.spawn(ProjectionBehavior.apply(projection), projection.projectionId.id)

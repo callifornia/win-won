@@ -1,7 +1,6 @@
 package actor_streaming
 
 import akka.NotUsed
-import akka.stream.scaladsl.Flow
 
 object Main {
   def main(args: Array[String]): Unit = {

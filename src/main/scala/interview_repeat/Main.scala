@@ -2,16 +2,12 @@ package interview_repeat
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.Behavior
 import akka.util.Timeout
-import akka.persistence.typed.PersistenceId
 import scala.concurrent.duration.DurationInt
 import akka.actor.typed.ActorSystem
 import akka.actor.typed.ActorRef
-import akka.persistence.typed.scaladsl.Effect
-import akka.cluster.sharding.typed.scaladsl.EntityTypeKey
 import akka.actor.typed.scaladsl.AskPattern._
 import akka.actor.typed.receptionist.Receptionist.{Find, Listing, Register}
 import akka.actor.typed.receptionist.ServiceKey
-import akka.persistence.typed.scaladsl.EventSourcedBehavior
 
 
 object Main {
@@ -600,24 +596,24 @@ object toJsonWrapper {
     def -(newAmount: Int): Account = Account(amount - newAmount)
   }
 
-  object Account {
-    val entityTypeKey = EntityTypeKey[Account]("Account")
-    val empty: Account = Account(0)
-    val commandHandler: (Account, Command) => Effect[Event, Account] =
-      (account, command) =>
-        command match {
-          case Deposit(amount) => Effect.persist(Deposited(amount))
-          case Withdraw(amount) => Effect.persist(Withrawed(amount))
-          case GetBalance(replyTo) => Effect.reply(replyTo)(CurrentBalance(account.amount))
-        }
-
-    val eventHandler: (Account, Event) => Account =
-      (account, event) =>
-        event match {
-          case Deposited(amount) => account + amount
-          case Withrawed(amount) => account - amount
-        }
-  }
+//  object Account {
+//    val entityTypeKey = EntityTypeKey[Account]("Account")
+//    val empty: Account = Account(0)
+//    val commandHandler: (Account, Command) => Effect[Event, Account] =
+//      (account, command) =>
+//        command match {
+//          case Deposit(amount) => Effect.persist(Deposited(amount))
+//          case Withdraw(amount) => Effect.persist(Withrawed(amount))
+//          case GetBalance(replyTo) => Effect.reply(replyTo)(CurrentBalance(account.amount))
+//        }
+//
+//    val eventHandler: (Account, Event) => Account =
+//      (account, event) =>
+//        event match {
+//          case Deposited(amount) => account + amount
+//          case Withrawed(amount) => account - amount
+//        }
+//  }
 
   sealed trait Command extends MySerializer
   case class Deposit(amount: Int) extends Command
@@ -628,15 +624,15 @@ object toJsonWrapper {
   case class Deposited(amount: Int) extends Event
   case class Withrawed(amount: Int) extends Event
 
-  object EventHandler {
-    def apply(id: Int): EventSourcedBehavior[Command, Event, Account] =
-      EventSourcedBehavior.apply(
-        persistenceId = PersistenceId.apply(Account.entityTypeKey.name, id.toString),
-        emptyState = Account.empty,
-        commandHandler = Account.commandHandler,
-        eventHandler = Account.eventHandler
-      )
-  }
+//  object EventHandler {
+//    def apply(id: Int): EventSourcedBehavior[Command, Event, Account] =
+//      EventSourcedBehavior.apply(
+//        persistenceId = PersistenceId.apply(Account.entityTypeKey.name, id.toString),
+//        emptyState = Account.empty,
+//        commandHandler = Account.commandHandler,
+//        eventHandler = Account.eventHandler
+//      )
+//  }
 
 
 

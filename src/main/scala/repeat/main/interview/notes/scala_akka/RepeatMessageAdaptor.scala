@@ -8,8 +8,8 @@ import Receiver.GetData
 object RepeatMessageAdaptor {
   def main(args: Array[String]): Unit = {
 
-    val system = ActorSystem(rootBehavior(), "actor-system")
-    system ! "start"
+//    val system = ActorSystem(rootBehavior(), "actor-system")
+//    system ! "start"
   }
 
   object Customer {

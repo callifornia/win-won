@@ -5,10 +5,6 @@ import akka.actor.typed.ActorSystem
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.AskPattern._
-import akka.cluster.sharding.typed.scaladsl.EntityTypeKey
-import akka.persistence.typed.PersistenceId
-import akka.persistence.typed.scaladsl.Effect
-import akka.persistence.typed.scaladsl.EventSourcedBehavior
 import akka.util.Timeout
 
 import scala.concurrent.duration.DurationInt

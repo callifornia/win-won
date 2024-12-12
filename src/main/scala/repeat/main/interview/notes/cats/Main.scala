@@ -112,7 +112,7 @@ object Main {
 
   def f1: Option[Int] = ???
   def f2(v: Int): Future[Option[Int]] = ???
-  def f3: Future[Option[Option[Int]]] = f1.flatTraverse(f2)
+//  def f3: Future[Option[Option[Int]]] = f1.flatTraverse(f2)
 
 
 
