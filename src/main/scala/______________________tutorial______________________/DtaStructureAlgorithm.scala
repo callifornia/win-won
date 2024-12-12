@@ -13,14 +13,28 @@ object DtaStructureAlgorithm {
    Big O notation
 
           |   O(n^2)   O(n^2)
-          |     .      .               O (n log(n))          O(n^2)
-          |     .     .                 - quickSort            - insertSort
-          |     .    .                  - mergeSort            - selectionSor
-          |     .   .                   - heapSort             - bubbleSort
+          |     .      .               O (n log n)            O(n^2)
+          |     .     .                   - quickSort            - insertSort
+          |     .    .                    - mergeSort            - selectionSor
+          |     .   .                     - heapSort             - bubbleSort
           |    .  .
           |   . .
           |  .
-          |_______________________
+          |_______________________________
+
+
+      space
+
+          |                O(n)
+          |                .                         O(n)             O(n log(n))           O(1)
+          |              .                             - mergeSort       - quickSort          - insertSort
+          |            .                                                                      - selectionSort
+          |          .        .     .   O(log n)                                              - bubbleSort
+          |        .     .
+          |      .   .
+          |    .  .
+          |  ......................  O (1)
+          |_______________________________
 
 
 
@@ -30,6 +44,10 @@ object DtaStructureAlgorithm {
 
 
 
-  * */
 
+
+
+
+          
+   */
 }
