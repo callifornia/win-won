@@ -1,13 +1,17 @@
 package ______________________tutorial______________________.poligon
 
 import scala.collection.mutable.ArrayBuffer
+import scala.util.Random
 
 object Poligon {
+
+  // QuickSort
   def main(args: Array[String]): Unit = {
-    //    val array: ArrayBuffer[Int] = Random.shuffle(ArrayBuffer(1,2,3,4,5,6,7,8,9,10))
-    val array: ArrayBuffer[Int] = ArrayBuffer(8, 2, 4, 7, 1, 3, 9, 6, 5)
-    println("Init array: " + array)
-    println(quickSort(array))
+    val array: ArrayBuffer[Int] = Random.shuffle(ArrayBuffer.from((1 to 9)))
+    println("Init  : " + array.mkString(" "))
+    quickSort3(array, start = 0, end = array.length - 1)
+    println("Result: " + array.mkString(" "))
+    assert(array == ArrayBuffer(1,2,3,4,5,6,7,8,9))
   }
 
 
@@ -34,4 +38,82 @@ object Poligon {
 
     array
   }
+
+
+
+  def quickSort3(array: ArrayBuffer[Int], start: Int, end: Int): Unit =
+    if (start <= end ) {
+      val pivot = partition3(array, start, end)
+      quickSort3(array, start, pivot - 1)
+      quickSort3(array, pivot + 1, end)
+    }
+
+
+  def partition3(array: ArrayBuffer[Int], start: Int, end: Int): Int = {
+    val pivot = array(end)
+    var i = start - 1
+    (start to end - 1).foreach { j =>
+      if (array(j) < pivot) {
+        i = i + 1
+        val tmp = array(i)
+        array.update(i, array(j))
+        array.update(j, tmp)
+      }
+    }
+    i = i + 1
+    val tmp = array(i)
+    array.update(i, array(end))
+    array.update(end, tmp)
+    i
+  }
+
+
+  def quickSort2(array: ArrayBuffer[Int], start: Int, end: Int): Unit =
+    if (start <= end) {
+      val pivot = partition2(array, start, end)
+
+      quickSort2(array, start, pivot - 1)
+      quickSort2(array, pivot + 1, end)
+    }
+
+
+  def partition2(array: ArrayBuffer[Int], start: Int, end: Int): Int = {
+    val pivot = array(end)
+    var i = start - 1
+    (start to end - 1).foreach { j =>
+      if (array(j) <= pivot) {
+        i = i + 1
+        val tmp = array(i)
+        array.update(i, array(j))
+        array.update(j, tmp)
+      }
+    }
+    i = i + 1
+    val tmp = array(i)
+    array.update(i, array(end))
+    array.update(end, tmp)
+    i
+  }
+
+
+
+  def partition(array: ArrayBuffer[Int], start: Int, end: Int): Int = {
+    val pivot = array(end)
+    var i = start - 1
+    (start to end - 1).foreach { j =>
+      if (array(j) < pivot) {
+        i = i + 1
+        val tmp = array(i)
+        array.update(i, array(j))
+        array.update(j, tmp)
+      }
+    }
+    i = i + 1
+    val tmp = array(i)
+    array.update(i, array(end))
+    array.update(end, tmp)
+    i
+  }
+
+
 }
