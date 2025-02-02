@@ -1,6 +1,6 @@
 package repeat.main.interview.notes.scala_akka
 
-object Main {
+object Tutorial {
   def main(args: Array[String]): Unit = {
     println("Hello world ... here is will be akka ...")
 

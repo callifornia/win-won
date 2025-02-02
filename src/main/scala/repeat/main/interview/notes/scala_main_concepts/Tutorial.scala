@@ -31,11 +31,11 @@ object Tutorial {
    then communicate with each other via method calls driving the whole application state forward:
 
    -  CPUs are writing to cache lines instead of writing to memory directly
+   -  shipping cache lines across cores is a very costly operation
    -  Most of these caches are local to the CPU core
-   -  writes by one core are not visible by another
+   -  writes by one core are not visible by another core
    -  cache line needs to be shipped to the other core’s cache
    -  On the JVM, to be shared across threads   using volatile or Atomic wrappers
-   -  shipping cache lines across cores is a very costly operation
    -  an important difference between passing messages and calling methods is that messages have no return value
    -  actor system can process as many messages simultaneously as the hardware will support.
    */
@@ -98,7 +98,6 @@ object Tutorial {
           case false => Some("One")
         }
     }
-
 
     Pet(13, "Billy") match {
       case Pet(age, status) => println(age, status) /* (10,...) */
@@ -890,6 +889,9 @@ object Tutorial {
     */
 
 
+
+
+
   //                          **********      Patterns        **********
 
   //  Type classes
@@ -924,6 +926,8 @@ object Tutorial {
 
       The behavior of that method is 'ad-hoc' because of: implicit convertor: Convertor[T] where in the code we have capability to call
     convert method on convertor only when convertor is supplied. That is the part of ad-hoc
+
+    ad-hoc - capability to call convert method on convertor only when convertor is supplied.
 
 
                    implicit convertor: Convertor[T] <- ad-hoc
@@ -1072,9 +1076,9 @@ object Tutorial {
   {
     case class Session(url: String, isAlive: Boolean)
 
-    def builder(handle: Session => Unit): Unit = {
+    def builder(handle: Session => Unit): Unit =
       handle(Session("www.trump.ua", true))
-    }
+
 
     builder { session =>
       println(session.url)
@@ -1099,6 +1103,8 @@ object Tutorial {
   object Kid { private val privateField = 123 }
 
 
+
+
   //Semigroup
   trait Semigroup[T] {
     def combine(a: T, b: T): T
@@ -1117,6 +1123,7 @@ object Tutorial {
   }
 
   2 |+| 3 |+| 5
+
 
 
   // monoid
@@ -1140,16 +1147,8 @@ object Tutorial {
 
       Monad(x).flatMap(x => Monad(x))   == Monad(x)                                 right identity
       Monad(x).flatMap(f)               == f(x)                                     left identity
+
       Monad(x).flatMap(f).flatMap(g)    == Monad(x).flatMap(x => f(x).flatMap(g))   composition, associativity (ETW -> ETW -> ETW)
 
  */
-
-
-
 }
-
-
-
-
-
-

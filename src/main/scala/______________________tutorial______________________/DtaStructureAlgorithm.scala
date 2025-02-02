@@ -9,7 +9,10 @@ object DtaStructureAlgorithm {
   def main(args: Array[String]): Unit = {
 //    priorityQueue()
 //    arraylist()
-    println(binarySearch2((1 to 19).sorted.toList, 92))
+//    println(binarySearch2((1 to 19).sorted.toList, 92))
+//    println(linearSearch((10 to 20).toList, 12))
+    println(interpolationSearch((1 to 200).toList.sorted, 195))
+    println((1 to 200).toList.sorted.apply(195))
   }
 
 
@@ -140,12 +143,16 @@ object DtaStructureAlgorithm {
 
 
 
+
     // linear search
     /*
           - iterate through the collection
           - runtime complexity O(n)
           - good for small medium data sets
     * */
+  def linearSearch(list: List[Int], target: Int): Option[Int] =
+    list.zipWithIndex.find(_._1 == target).map(_._2)
+
 
 
 
@@ -153,36 +160,84 @@ object DtaStructureAlgorithm {
     // binary search
     /*
       Time complexity is -> O(log n)
-
       Search algorithm that finds the position of a target value  within a sorted array.
       Half of the array is eliminated during each "step"
     * */
   def binarySearch2(list: List[Int], target: Int): Option[Int] = {
     def recursive(low: Int, high: Int): Option[Int] =
       (low + high) / 2 match {
-        case _ if high < low => None
+        case _ if high < low           => None
         case mid if list(mid) > target => recursive(low, mid - 1)
         case mid if list(mid) < target => recursive(mid + 1, high)
-        case mid => Some(mid)
+        case mid                       => Some(mid)
       }
     recursive(0, list.length - 1)
   }
 
 
-//    (10 to 20).toVector.sorted.zipWithIndex.foreach {
-//      case (value, index) => print(s"[$index, $value] ")
-//    }
+
+
+  // interpolationSearch
+
+  /*
+    interpolationSearch - improvement over binary search
+                        - guess where a value might be based on calculation probe result
+                        - probe are going to be calculated on each iteration
+                        - average case O(log(log(n)))
+                        - O(n)
+  * */
+  def interpolationSearch(list: List[Int], target: Int): Option[Int] = {
+    var low = 0
+    var high = list.length - 1
+
+    while (target >= list(low) && target <= list(high) && low <= high) {
+      val probe = low + (high - low) * (target - list(low)) / (list(high) - list(low))
+      println("probe: " + probe)
+      (list(probe), target) match {
+        case (p, t) if p == t   => return Some(probe)
+        case (p, t) if p < t    => low = probe + 1
+        case _                  => high = probe - 1
+      }
+    }
+    None
+  }
 
 
 
+  /*
+  * bubble sort - найбільший елемент переставляється в край списку O(n^2)
+  *
+  * */
+  def bubbleSort(array: ArrayBuffer[Int]): Unit =
+    (0 to array.length).foreach { i =>
+      (0 to array.length - 2 - i).foreach { j =>
+        if (array(j) > array(j + 1)) {
+          val tmp = array(j)
+          array.update(j, array(j + 1))
+          array.update(j + 1, tmp)
+        }
+      }
+    }
 
 
 
-
-
-
-
-
+  /*
+  * selection sort - проходить через весь масив та знаходить мінімальний елемент. В кінці ітерації пхає його наперед
+  *                - O(n^2)
+  *
+  * */
+  def selectionSort(array: ArrayBuffer[Int]): Unit =
+    (0 until array.length - 1).foreach { i =>
+      var indexMin = i
+      (i to array.length - 1).foreach { j =>
+        if (array(j) < array(indexMin)) {
+          indexMin = j
+        }
+      }
+      val tmp = array(i)
+      array.update(i, array(indexMin))
+      array.update(indexMin, tmp)
+    }
 
 
 

@@ -281,7 +281,7 @@ object toJsonWrapper {
 *
 * We do have:
 *   f: Int => String
-*   g: String => Double
+*   g: String => Double`
 * So we can compose both functions in a way: "f andThen g"
 *
 *   h: String => Option[Int]
