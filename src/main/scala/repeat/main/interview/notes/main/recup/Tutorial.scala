@@ -58,67 +58,6 @@ object Tutorial {
 
 
 
-
-
-
-  //  Semigroup & Monoid
-
-  /*  Type class itself declaration   */
-  trait Semigroup[T] {
-    def combine(a: T, b: T): T
-  }
-
-  /*  Interface   */
-  object Semigroup {
-    def apply[T](implicit sum: Semigroup[T]): Semigroup[T] = sum
-  }
-
-  object SemigroupMonoidSyntaxt {
-    implicit class MonoidSyntaxtOps[A](value: A) {
-      def |+|(other: A)(implicit sum: Semigroup[A]): A = sum.combine(value, other)
-    }
-  }
-
-
-
-  /*  Type class itself declaration   */
-  trait Monoid[T] extends Semigroup [T] {
-    def empty: T
-  }
-
-
-  /*  Interface   */
-  object Monoid {
-    def apply[T](implicit m: Monoid[T]): Monoid[T] = m
-  }
-
-
-
-  object IntImplicits {
-    implicit object IntSemigroup extends Semigroup[Int] {
-      override def combine(a: Int, b: Int): Int = a + b
-    }
-  }
-
-
-  object StringImplicits {
-    implicit object MonoidString extends Monoid[String] {
-      override def empty: String = ""
-      override def combine(a: String, b: String): String = StringSemigroup.combine(a, b)
-    }
-
-    implicit object StringSemigroup extends Semigroup[String] {
-      override def combine(a: String, b: String): String = a + b
-    }
-  }
-
-
-
-
-
-
-
-
   // Type classes variants
   object TypeClassesVariance {
     /*

@@ -254,6 +254,7 @@ object Tutorial {
       Functor
         - provides the ability for its values to be "mapped over"
         - function that transforms inside a value while remembering its shape
+        - fundamental method is a "map"
       Example, modify every element of a collection without dropping or adding elements
 
       Laws:
@@ -314,6 +315,19 @@ object Tutorial {
   // Monad
   {
     /*
+    Just for smile:
+      Monads are Monoids in the category of Endofunctor
+
+    Monad a higher kinder type which provide ability to transform values in a chain way:
+      - to do some calculations on those things which are inside
+      - and in the end have the same type
+      - extends a Functor in cats lib
+      - to be able write the for-comprehension we do need to have "map" and "flatMap"
+
+
+    - for-comprehensions transform by compiler into the "map" and "flatMap"
+
+
     Extract -> Transform -> Wrap
 
       Monad has two fundamental operation
@@ -325,7 +339,9 @@ object Tutorial {
 
       Monad(x).flatMap(f).flatMap(g)    == Monad(x).flatMap(x => f(x).flatMap(g))   composition, associativity (ETW -> ETW -> ETW)
 
- */
+
+
+    */
 
   }
 
