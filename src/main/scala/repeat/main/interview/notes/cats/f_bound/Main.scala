@@ -1,4 +1,4 @@
-package cats.f_bound
+package repeat.main.interview.notes.cats.f_bound
 
 object Main {
   def main(array: Array[String]): Unit = {

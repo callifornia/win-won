@@ -1,4 +1,5 @@
-package cats.kleysli
+package repeat.main.interview.notes.cats.kleysli
+
 import cats.FlatMap
 import cats.Functor
 import cats.implicits._

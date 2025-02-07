@@ -1,4 +1,4 @@
-package cats.terminologi
+package repeat.main.interview.notes.cats.terminologi
 
 object Main {
   def main(arr: Array[String]): Unit = {

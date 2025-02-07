@@ -1,4 +1,5 @@
-package cats.type_class_pet
+package repeat.main.interview.notes.cats.type_class_pet
+
 import Pet._
 
 trait Pet[A] {

@@ -1,4 +1,5 @@
-package cats.effect
+package repeat.main.interview.notes.cats.effect
+
 import cats.effect._
 import cats.effect.implicits._
 

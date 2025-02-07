@@ -894,53 +894,8 @@ object Tutorial {
 
   //                          **********      Patterns        **********
 
-  //  Type classes
-  {
-    /*
-
-                  - is a data structure which support ad hoc polymorphism
-                  - we can ADD NEW METHOD or NEW DATA without changing existing code
-                  There are three important point about type classes:
-                      - type class itself
-                      - instances for particular type
-                      - interface method that we exposed to user
-
-  */
-
-    trait Convertor[T] {
-      def convert(list: List[T]): T
-    }
-
-    object Convertor {
-      implicit object IntSummup extends Convertor[Int] {
-        override def convert(list: List[Int]): Int = list.sum
-      }
-
-      implicit object StrSummup extends Convertor[String] {
-        override def convert(list: List[String]): String = list.mkString(", ")
-      }
-    }
 
 
-    /*
-
-      The behavior of that method is 'ad-hoc' because of: implicit convertor: Convertor[T] where in the code we have capability to call
-    convert method on convertor only when convertor is supplied. That is the part of ad-hoc
-
-    ad-hoc - capability to call convert method on convertor only when convertor is supplied.
-
-
-                   implicit convertor: Convertor[T] <- ad-hoc
-                   [T]                              <- polymorphism, where for any specific type we must have it's own implementation
-
-  */
-
-    def summup[T](list: List[T])(implicit convertor: Convertor[T]): T = /* ad-hoc polymorphism */
-      convertor.convert(list)
-
-    summup(List(1, 2, 3))
-    summup("asd" :: "123" :: Nil)
-  }
 
 
 
@@ -1016,61 +971,6 @@ object Tutorial {
 
 
 
-  // Functor
-  {
-  /*
-        Functor
-          - provides the ability for its values to be "mapped over"
-          - function that transforms inside a value while remembering its shape
-            Example, modify every element of a collection without dropping or adding elements
-
-   Laws:
-     identity:               fa.map(x => x)    ==  fa
-     composition:            fa.map(f).map(g)  ==  fa.map(x => f(x) andThen g(x))
-
-   */
-
-    trait Functor[C[_]] {
-      def map[A, B](container: C[A])(function: A => B): C[B]
-    }
-
-
-    object Functor {
-
-      implicit object ListFunctor extends Functor[List] {
-        override def map[A, B](container: List[A])(function: A => B): List[B] = container.map(function)
-      }
-
-      implicit object OptionFunctor extends Functor[Option] {
-        override def map[A, B](container: Option[A])(function: A => B): Option[B] = container.map(function)
-      }
-
-      implicit object TreeFunctor extends Functor[Tree] {
-        override def map[A, B](container: Tree[A])(function: A => B): Tree[B] = container match {
-          case Leaf(value) => Leaf(function(value))
-          case Branch(value, left, right) => Branch(function(value), map(left)(function), map(right)(function))
-        }
-      }
-    }
-
-
-    trait Tree[+T]
-    object Tree {
-      def leaf[T](value: T): Tree[T] = Leaf(value)
-      def branch[T](value: T, left: Tree[T], right: Tree[T]): Tree[T] = Branch(value, left, right)
-    }
-
-    case class Leaf[+T](value: T) extends Tree[T]
-    case class Branch[+T](value: T, left: Tree[T], right: Tree[T]) extends Tree[T]
-
-    def devx10[C[_]](container: C[Int])(implicit functor: Functor[C]) = {
-      functor.map(container)(_ * 10)
-    }
-
-  }
-
-
-
 
   // Loan - pattern
   {
@@ -1102,53 +1002,4 @@ object Tutorial {
 
   object Kid { private val privateField = 123 }
 
-
-
-
-  //Semigroup
-  trait Semigroup[T] {
-    def combine(a: T, b: T): T
-  }
-
-  def combine[T](a: T, b: T)(implicit semigroup: Semigroup[T]): T = semigroup.combine(a, b)
-
-  object Semigroup {
-    implicit val intSemigroup = new Semigroup[Int] {
-      override def combine(a: Int, b: Int): Int = a + b
-    }
-  }
-
-  implicit class IntOps[T](value: T) {
-    def |+|(otherValue: T)(implicit semigroup: Semigroup[T]): T = semigroup.combine(value, otherValue)
-  }
-
-  2 |+| 3 |+| 5
-
-
-
-  // monoid
-  /*
-    law:
-      empty + x == x  | for all x
-  * */
-  trait Monoid[T] extends Semigroup[T] {
-    def empty: T
-  }
-
-
-  /*
-
-
-    Extract -> Transform -> Wrap
-
-      Monad has two fundamental operation
-          Wrap a value: class `CustomMonad` wrap `value`. In functional world it's named as a `pure` or `unit`
-          Transform a value by the given function, in our case it's a `flatMap`: T => CustomMonad[S]
-
-      Monad(x).flatMap(x => Monad(x))   == Monad(x)                                 right identity
-      Monad(x).flatMap(f)               == f(x)                                     left identity
-
-      Monad(x).flatMap(f).flatMap(g)    == Monad(x).flatMap(x => f(x).flatMap(g))   composition, associativity (ETW -> ETW -> ETW)
-
- */
 }

@@ -1,4 +1,4 @@
-package cats.read_write_io
+package repeat.main.interview.notes.cats.read_write_io
 
 import cats.effect._
 import java.io.{File, FileInputStream, FileOutputStream}
