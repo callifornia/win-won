@@ -261,6 +261,27 @@ object Tutorial {
         identity:               fa.map(x => x)    ==  fa
         composition:            fa.map(f).map(g)  ==  fa.map(x => f(x) andThen g(x))
 
+
+      In mathematical concept:
+        Functor - defines transformations between categories. In Scala - defines transformations between Scala types
+        EndoFunctors - defines transformations between same categories
+
+
+      Functor natural transformation is about:
+                  List => Option
+
+      as an example:
+        trait FunctorTrans[-F[_], +G[_]] {
+          def apply[A](v: F[A]): G[A]
+        }
+
+        object FunctorTrans extends FunctorTrans[List, Option] {
+          def apply[A](v: List[A]): Option[A] = v.headOption
+        }
+
+      all the next methods work in that way which are basically transformations between Functors:
+        .toList, .toSeq, .toOption, .toEither, .toTry and so on ...
+
     */
 
 
@@ -285,7 +306,17 @@ object Tutorial {
             case Branch(value, left, right) => Branch(function(value), map(left)(function), map(right)(function))
         }
       }
+
+      type Id[A] = A
+      implicit object idFunctor extends Functor[Id] {
+        def map[A, B](container: A)(function: A => B): B = function.apply(container)
+      }
     }
+
+    // small cats magic
+
+
+
 
 
     object FunctorSyntax{
@@ -315,8 +346,6 @@ object Tutorial {
   // Monad
   {
     /*
-    Just for smile:
-      Monads are Monoids in the category of Endofunctor
 
     Monad a higher kinder type which provide ability to transform values in a chain way:
       - to do some calculations on those things which are inside
