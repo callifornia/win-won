@@ -412,6 +412,9 @@ object Tutorial {
 
 
 
+  
+  // Validated
+
   /*
      Let say we do have a bunch of conditions to check
        - return error list with all possible errors
