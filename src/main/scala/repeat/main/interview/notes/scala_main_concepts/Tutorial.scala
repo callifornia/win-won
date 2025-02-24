@@ -38,6 +38,21 @@ object Tutorial {
    -  On the JVM, to be shared across threads   using volatile or Atomic wrappers
    -  an important difference between passing messages and calling methods is that messages have no return value
    -  actor system can process as many messages simultaneously as the hardware will support.
+
+
+
+    - functional programming    => work with a function as we work with a value
+    - function value            => can be passed around return as a result
+    - high order function       => take another function as an argument, return another function
+    - pattern matching          => decomposition of an element
+    - partial function          => in other words it's pattern matching
+    - highter kinder types      => when one type accept another type
+    - highter order function    => when one function accept another function
+    - instruction vs expression =>
+              val unit = println("something...") -> instruction
+    - inheritance model         => extends 1 clsas but lots of traits
+    - method notation           => 1 + 2
+
    */
 
 
@@ -768,6 +783,17 @@ object Tutorial {
      */
   }
 
+
+
+  // SOLID
+    /*
+       Single responsibility  -> каждий клас должен иметь одну и только одну причину для изменения
+       Open closed            -> открит для розширения, закрит для изменения (только дописивать)
+       Liskov substitution    -> функции которие используют базовий тип должни без изменения использовать
+                                 подтип
+       Interface segregation  -> много интерфейсов лучше чем один большой
+       Dependency inversion   -> зависимость на абстракции нет завимостей на конкретное
+     */
 
 
 

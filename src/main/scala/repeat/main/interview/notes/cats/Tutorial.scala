@@ -1,6 +1,7 @@
 package repeat.main.interview.notes.cats
 
 import akka.actor.TypedActor.dispatcher
+import cats.data.Validated
 
 import scala.concurrent.{ExecutionContext, Future}
 import cats.syntax.all._
@@ -36,13 +37,26 @@ object Tutorial {
           - если две вершины были смежными в первом графе, во втором они тоже должны быть смежными
           - если две вершины не были смежными в первом графе, во втором они тоже не должны быть смежными
 
-      - моно морфизм -
+
+      - моно морфизм - стрелки которие можно сократить слева
+
+             h ->                 g: A -> B        f * h = f * g
+          A        B  f ->  C     h: A -> B            h = g
+             g ->                 f: B -> C
+
+
+      - епи морфизм - стрелки которие можно сократить вправа
+
+                        h ->        h: B -> C      h * f = g * f
+          A   f ->  B          C    g: B -> C          h = g
+                        g ->        f: A -> B
+
 
 
             - эндо морфизм - морфизмы, в которых начало и конец совпадают, является моноидом
             - авто морфизм -
 
-            - епи морфизм -
+
             - би морфизм — это морфизм, являющийся одновременно мономорфизмом и эпиморфизмом
 
       Cats is a library which provides abstractions for functional programming in the Scala programming language
@@ -51,7 +65,10 @@ object Tutorial {
 
       GENERAL FLOW FOR CATS:
         import cats.Eq
+        import cats.instances.int._
         import cats.syntax.eq._
+
+        import cats.implicits._
   */
 
 
@@ -346,7 +363,7 @@ object Tutorial {
   // Monad
   {
     /*
-
+    Monad -> data structure with sequential capabilities
     Monad a higher kinder type which provide ability to transform values in a chain way:
       - to do some calculations on those things which are inside
       - and in the end have the same type
@@ -375,6 +392,65 @@ object Tutorial {
   }
 
 
+  // Free Monad
+
+  /*
+
+  regular Monad:
+    trait Monad[M[_]] {
+      def pure[A](value: A): M[A]
+      def flatMap[A, B](ma: M[A])(f: A => M[B]): M[B]
+    }
+
+  free Monad:
+  trait Free[M[_], A] {
+    def pure(v: A): Free[M, A]
+    def flatMap[B](f: A => Free[M, B]): Free[M, B]
+  }
+  * */
+
+
+
+
+  /*
+     Let say we do have a bunch of conditions to check
+       - return error list with all possible errors
+       - in case no errors return an int
+   * */
+
+  // regular solutions
+  def testNumber(n: Int): Either[List[String], Int] =
+    List(
+      (x: Int) => if (x < 120) Right(x)   else Left(s"$n - must be less than 120"),
+      (x: Int) => if (x > 0)   Right(x)   else Left(s"$n - must be non negative"),
+      (x: Int) => if (x < 100) Right(x)   else Left(s"$n - must be <= 100"))
+      .map(_.apply(n))
+      .foldLeft(Right.apply[List[String], Int](n): Either[List[String], Int]) { (acc, el) =>
+        el match {
+          case Right(_)  => acc
+          case Left(str) => acc match {
+            case Right(_)     => Left.apply[List[String], Int](str :: Nil)
+            case Left(errors) => Left.apply[List[String], Int](errors :+ str)
+          }
+        }
+      }
+
+
+  // cats solutions
+  def validateNumber(x: Int): Validated[List[String], Int] =
+    Validated.cond(x < 120, x, List(s"$x - must be less than 120"))
+      .combine(Validated.cond(x > 0, x, List(s"$x - must be non negative")))
+      .combine(Validated.cond(x < 100, x, List(s"$x - must be <= 100")))
+
+
+  println(testNumber(121))
+  println(validateNumber(121))
+
+  /*
+    Output:
+        Left(   List(121 - must be less than 120, 121 - must be <= 100))
+        Invalid(List(121 - must be less than 120, 121 - must be <= 100))
+   */
 
 
 
