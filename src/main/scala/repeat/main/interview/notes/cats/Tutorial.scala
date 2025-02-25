@@ -1,7 +1,7 @@
 package repeat.main.interview.notes.cats
 
 import akka.actor.TypedActor.dispatcher
-import cats.data.Validated
+import cats.data.{State, Validated}
 
 import scala.concurrent.{ExecutionContext, Future}
 import cats.syntax.all._
@@ -330,11 +330,9 @@ object Tutorial {
       }
     }
 
+
+
     // small cats magic
-
-
-
-
 
     object FunctorSyntax{
       implicit class FunctorOps[A, F[_]](value: F[A]) {
@@ -387,6 +385,12 @@ object Tutorial {
 
 
 
+                  List(x).flatMap(f)        ==  f(x)
+                  xs.flatMap(x => List(x))  ==  xs
+                  xs.flatMap(f).flatMap(g)  ==  xs.flatMap(x => f(x).flatMap(g))
+
+
+
     */
 
   }
@@ -412,7 +416,7 @@ object Tutorial {
 
 
 
-  
+
   // Validated
 
   /*
@@ -439,6 +443,7 @@ object Tutorial {
       }
 
 
+
   // cats solutions
   def validateNumber(x: Int): Validated[List[String], Int] =
     Validated.cond(x < 120, x, List(s"$x - must be less than 120"))
@@ -457,5 +462,94 @@ object Tutorial {
 
 
 
+  // State
+  /*
+
+     State - is a structure that provides a functional approach to handling application state
+     State[S, A]   -   S => (S, A)
+      S - type that represents your state
+      A - is the result the function produces
+
+  * */
+
+  /*    just a container    */
+  case class Seed(value: Int) {
+    def next(): Seed = Seed(value + 1)
+  }
+
+
+  /*    state representation  */
+  val nextSeed: State[Seed, Int] = State { seed: Seed =>
+    val newState = seed.next()
+    (newState, newState.value)
+  }
+
+
+  println(
+    nextSeed          /*  (Seed(1), 1)    */
+      .map(_ * 10)    /*  (Seed(1), 10)   */
+      .map(_ + 20)    /*  (Seed(1), 30)   */
+      .run(Seed(0))
+      .value)         /*  (Seed(1), 30)   */
+
+
+  println(
+    (for {
+      a <- nextSeed   /*   a = 1   */
+      b <- nextSeed   /*   b = 2   */
+      c <- nextSeed   /*   c = 3   */
+    } yield (a + b + c) * 10)
+      .run(Seed(0))
+      .value)         /*  Seed(3, 60)  */
+
+
+  // Reader Monad
+
+  /* Reader monad - ability to chain computation with an ability to set in apply method start point.
+     Start point can be anything as a simple number or interface to use:
+      - which encapsulate just a function
+      - map and flatMap - for comprehension
+    */
+  case class Reader[A, B](run: A => B) {
+    def apply(x: A): B = run(x)
+    def map[C](f: B => C): Reader[A, C] = Reader[A, C](x => run.andThen(f).apply(x))
+    def flatMap[C](f: B => Reader[A, C]): Reader[A, C] = Reader[A, C](x => map(f).apply(x).apply(x))
+  }
+
+  /* some logic which can be encapsulated into the Reader monad */
+  trait UserRepository {
+    def create(x: String): Option[Boolean]         = Some(true)
+    def update(x: String): Either[String, Boolean] = Right(true)
+    def delete(x: String): Either[String, Int]     = Right(3)
+  }
+
+  /* example of using Reader monad encapsulation */
+  val result =
+    for {
+      created <- Reader[UserRepository, Option[Boolean]](_.create("foo"))
+      updated <- Reader[UserRepository, Either[String, Boolean]](_.update("bar"))
+      deleted <- Reader[UserRepository, Either[String, Int]](_.delete("bar"))
+    } yield (created, updated, deleted)
+
+  /* running by using */
+  result.apply(new UserRepository {})
+
+
+  /* another way to use that with an identity function */
+  val userRepository = Reader[UserRepository, UserRepository](identity)
+  val result2 =
+    for {
+      a <- userRepository.map(_.create("foo"))
+      b <- userRepository.map(_.update("bar"))
+      c <- userRepository.map(_.delete("baz"))
+    } yield (a, b, c)
+
+  result2.apply(new UserRepository {})
+  
+
 
 }
+
+
+
+
