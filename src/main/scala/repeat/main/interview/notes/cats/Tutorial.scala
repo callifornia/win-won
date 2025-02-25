@@ -545,11 +545,7 @@ object Tutorial {
     } yield (a, b, c)
 
   result2.apply(new UserRepository {})
-  
-
 
 }
-
-
 
 
