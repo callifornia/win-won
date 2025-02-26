@@ -361,21 +361,21 @@ object Tutorial {
   // Monad
   {
     /*
-    Monad -> data structure with sequential capabilities
-    Monad a higher kinder type which provide ability to transform values in a chain way:
-      - to do some calculations on those things which are inside
-      - and in the end have the same type
-      - extends a Functor in cats lib
+    Monads:
+      - one of the most important building blocks of functional programming.
+        They help us to compose various computations in a better way by structuring the program generically and avoiding
+        boilerplate code
+      - data structure with sequential capabilities
+      - ability to transform values in a chain way:
+      - in the end have the same type
       - to be able write the for-comprehension we do need to have "map" and "flatMap"
-
-
-    - for-comprehensions transform by compiler into the "map" and "flatMap"
+      - for-comprehensions transform by compiler into the "map" and "flatMap"
 
 
     Extract -> Transform -> Wrap
 
       Monad has two fundamental operation
-          Wrap a value: class `CustomMonad` wrap `value`. In functional world it's named as a `pure` or `unit`
+          Wrap a value: class `CustomMonad` wrap `value` In functional world it's named as a `pure` or `unit`
           Transform a value by the given function, in our case it's a `flatMap`: T => CustomMonad[S]
 
       Monad(x).flatMap(x => Monad(x))   == Monad(x)                                 right identity
@@ -546,6 +546,22 @@ object Tutorial {
 
   result2.apply(new UserRepository {})
 
-}
 
+
+
+  // Writer Monad
+
+   /* The Writer monad represents a computation that produces a value along with a description of the computation */
+  import cats.data.Writer
+  val writer = Writer("Scala", 1 + 2)
+
+  println(writer.value)           // 3
+  println(writer.tell(" Foo"))    // (Scala Foo, 3)
+  println(writer.map(_ + 10).run) // (Scala, 13)
+  println(writer.swap)            // (3, Scala)
+
+  val (log, r) = writer.run
+  println(log)                    // Scala
+  println(r)                      // 3
+}
 
