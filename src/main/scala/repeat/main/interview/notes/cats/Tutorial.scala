@@ -241,13 +241,11 @@ object Tutorial {
     object MonoidInstances {
       implicit object IntMonoid extends Monoid[Int] {
         override def empty(): Int = 0
-
         override def combine(a: Int, b: Int): Int = a + b
       }
 
       implicit object StrMonoid extends Monoid[String] {
         override def empty(): String = ""
-
         override def combine(a: String, b: String): String = a + b
       }
     }
@@ -501,6 +499,8 @@ object Tutorial {
     } yield (a + b + c) * 10)
       .run(Seed(0))
       .value)         /*  Seed(3, 60)  */
+
+
 
 
   // Reader Monad
