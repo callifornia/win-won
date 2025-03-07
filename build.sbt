@@ -2,7 +2,7 @@ val AkkaVersion = "2.6.5"
 val KafkaVersion = "2.8.0"
 val ZioVersion = "1.0.12"
 val CatsEffectVersion = "3.3.12"
-
+val sparkVersion = "3.5.5"
 scalaVersion := "2.13.8"
 libraryDependencies ++= List(
   "org.scalatest" %% "scalatest" % "3.2.19" % "test",
@@ -14,6 +14,9 @@ libraryDependencies ++= List(
   "org.typelevel" %% "cats-effect" % CatsEffectVersion,
   "org.typelevel" %% "cats-core" % "2.8.0",
   "org.typelevel" %% "cats-free" % "2.8.0",
+  "org.apache.spark" %% "spark-core" % sparkVersion,
+  "org.apache.spark" %% "spark-sql" % sparkVersion,
+  "io.delta" %% "delta-spark" % "3.3.0",
 
   "com.typesafe.akka" %% "akka-actor-typed" % AkkaVersion
 //  "com.typesafe.akka" %% "akka-cluster-typed" % AkkaVersion,
