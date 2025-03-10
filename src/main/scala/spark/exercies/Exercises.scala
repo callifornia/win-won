@@ -16,6 +16,8 @@ object Exercises {
     writeToDB(movies)
   }
 
+
+
   /*
   * Exercises:
   *   - read the movies DF, then write it as:
@@ -23,6 +25,14 @@ object Exercises {
   *     - parquet -> snappy Parquet
   *     - db      -> table "public.movies" in the Postgres DB
   * */
+  def exercises_1()(implicit spark: SparkSession): Unit = {
+    val movies = readMovies()
+    writeCsv(movies)
+    writeParquet(movies)
+    writeToDB(movies)
+  }
+
+
 
   def readMovies()(implicit spark: SparkSession): DataFrame = {
     val moviewSchema = StructType(
@@ -52,6 +62,7 @@ object Exercises {
   }
 
 
+
   def writeToDB(df: DataFrame)(implicit spark: SparkSession): Unit =
     df
       .write
@@ -65,6 +76,7 @@ object Exercises {
       .save()
 
 
+
   def writeParquet(df: DataFrame)(implicit spark: SparkSession): Unit =
     df
       .write
@@ -74,6 +86,7 @@ object Exercises {
   // the same as ".parquet("src/...." because by default DataFrame is saved as parquet file
   //      .save("src/main/resources/essential/exercises/movies/parquet")
 
+  
 
   def writeCsv(df: DataFrame)(implicit spark: SparkSession): Unit =
     df

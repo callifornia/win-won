@@ -182,6 +182,4 @@ object ReadData {
       .option("path", "src/main/resources/essential/movies.json")
       .load
   }
-
-
 }
