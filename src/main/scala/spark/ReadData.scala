@@ -1,7 +1,7 @@
-package spark.essential
+package spark
 
+import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, SaveMode, SparkSession}
-import org.apache.spark.sql.types.{DateType, DoubleType, IntegerType, LongType, StringType, StructField, StructType}
 import spark.InitSparkSession._
 
 
