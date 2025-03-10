@@ -13,6 +13,7 @@ object Exercises {
     val movies = readMovies()
     writeCsv(movies)
     writeParquet(movies)
+    writeToDB(movies)
   }
 
   /*
@@ -51,18 +52,34 @@ object Exercises {
   }
 
 
+  def writeToDB(df: DataFrame)(implicit spark: SparkSession): Unit =
+    df
+      .write
+      .format("jdbc")
+      .mode(SaveMode.Overwrite)
+      .option("driver", "org.postgresql.Driver")
+      .option("url", "jdbc:postgresql://localhost:5432/test")
+      .option("user", "postgres")
+      .option("password", "admin")
+      .option("dbtable", "records.movies")
+      .save()
+
+
   def writeParquet(df: DataFrame)(implicit spark: SparkSession): Unit =
     df
       .write
       .mode(SaveMode.Overwrite)
       .parquet("src/main/resources/essential/exercises/movies/parquet")
 
+  // the same as ".parquet("src/...." because by default DataFrame is saved as parquet file
+  //      .save("src/main/resources/essential/exercises/movies/parquet")
+
 
   def writeCsv(df: DataFrame)(implicit spark: SparkSession): Unit =
     df
       .write
       .mode(SaveMode.Overwrite)
-      .option("delimiter", "|")
+      .option("delimiter", "\t")
       .option("header", "true")
       .csv("src/main/resources/essential/exercises/movies/csv")
 
