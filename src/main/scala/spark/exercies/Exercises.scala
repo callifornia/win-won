@@ -86,7 +86,7 @@ object Exercises {
   // the same as ".parquet("src/...." because by default DataFrame is saved as parquet file
   //      .save("src/main/resources/essential/exercises/movies/parquet")
 
-  
+
 
   def writeCsv(df: DataFrame)(implicit spark: SparkSession): Unit =
     df
