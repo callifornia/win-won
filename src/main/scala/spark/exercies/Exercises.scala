@@ -1,8 +1,10 @@
 package spark.exercies
 
+import org.apache.spark.sql.functions.{col, column, expr}
 import org.apache.spark.sql.types.{IntegerType, StringType, StructField, StructType}
-import org.apache.spark.sql.{DataFrame, SaveMode, SparkSession}
+import org.apache.spark.sql.{Column, DataFrame, SaveMode, SparkSession}
 import spark.InitSparkSession._
+import spark.implicits._
 
 
 
@@ -10,11 +12,56 @@ object Exercises {
 
 
   def main(args: Array[String]): Unit = {
-    val movies = readMovies()
-    writeCsv(movies)
-    writeParquet(movies)
-    writeToDB(movies)
+    exercise_2()
+
   }
+
+
+  /*
+  * Exercises:
+  *   - read the movies DF and select 2 columns of your choice
+  *   - Create another column summing up the total profit of the: US_Gross, Worldwide_Gross, DVD_sells
+  *   - Select all COMEDY movies with IMDB_Rating > 6
+  *
+  *   Use as many versions as possible
+  * */
+  def exercise_2()(implicit spark: SparkSession): Unit = {
+    val movies = spark.read.option("inferSchema", "true").json("src/main/resources/essential/movies.json").distinct()
+//    readColumnsAllWays(movies)
+//    sumColumns(movies)
+    commedyMovies(movies)
+
+  }
+
+  def commedyMovies(movies: DataFrame): Unit = {
+    movies.filter("IMDB_Rating > 6").show()
+  }
+
+
+  def sumColumns(movies: DataFrame): Unit = {
+    val sumColumn: Column = movies.col("US_Gross") + movies.col("Worldwide_Gross") + movies.col("US_DVD_Sales")
+    val sumColumn2: Column = expr("US_Gross + Worldwide_Gross + US_DVD_Sales")
+    movies.withColumn("sum column", sumColumn)
+    movies.withColumn("sum column", sumColumn2).show()
+  }
+
+
+
+  def readColumnsAllWays(movies: DataFrame): Unit = {
+    movies.select("Title", "US_Gross").show()
+    movies.select(col("Title"), col("US_Gross")).show()
+    movies.select($"Title", $"US_Gross").show()
+    movies.select(expr("Title"), expr("US_Gross")).show()
+    movies.select(column("Title"), column("US_Gross")).show()
+    movies.select('Title, 'US_Gross).show()
+    movies.select(movies.col("Title"), movies.col("US_Gross")).show()
+  }
+
+
+
+
+
+
 
 
 
