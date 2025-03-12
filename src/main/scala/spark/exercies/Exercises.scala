@@ -27,40 +27,43 @@ object Exercises {
   * */
   def exercise_2()(implicit spark: SparkSession): Unit = {
     val movies = spark.read.option("inferSchema", "true").json("src/main/resources/essential/movies.json").distinct()
-//    readColumnsAllWays(movies)
-//    sumColumns(movies)
+    readColumnsAllWays(movies)
+    sumColumns(movies)
     commedyMovies(movies)
-
   }
 
+
   def commedyMovies(movies: DataFrame): Unit = {
-    movies.filter("IMDB_Rating > 6").show()
+    movies.filter("IMDB_Rating > 6")
+    movies.where("IMDB_Rating > 6")
+    movies.filter(col("IMDB_Rating") > 6)
+    movies.filter(col("Major_Genre") === "Comedy" and col("IMDB_Rating") > 6).show()
+    movies
+      .where(col("Major_Genre") === "Comedy")
+      .where(col("IMDB_Rating") > 6)
+      .show()
   }
 
 
   def sumColumns(movies: DataFrame): Unit = {
-    val sumColumn: Column = movies.col("US_Gross") + movies.col("Worldwide_Gross") + movies.col("US_DVD_Sales")
+    val sumColumn: Column  = movies.col("US_Gross") + movies.col("Worldwide_Gross") + movies.col("US_DVD_Sales")
     val sumColumn2: Column = expr("US_Gross + Worldwide_Gross + US_DVD_Sales")
     movies.withColumn("sum column", sumColumn)
-    movies.withColumn("sum column", sumColumn2).show()
-  }
+    movies.withColumn("sum column", col("US_Gross") + col("Worldwide_Gross") + col("US_DVD_Sales")).show()
 
+//    movies.withColumn("sum column", sumColumn2).show()
+  }
 
 
   def readColumnsAllWays(movies: DataFrame): Unit = {
     movies.select("Title", "US_Gross").show()
-    movies.select(col("Title"), col("US_Gross")).show()
     movies.select($"Title", $"US_Gross").show()
-    movies.select(expr("Title"), expr("US_Gross")).show()
+    movies.select(col("Title"), col("US_Gross")).show()
     movies.select(column("Title"), column("US_Gross")).show()
     movies.select('Title, 'US_Gross).show()
+    movies.select(expr("Title"), expr("US_Gross")).show()
     movies.select(movies.col("Title"), movies.col("US_Gross")).show()
   }
-
-
-
-
-
 
 
 
