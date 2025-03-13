@@ -1,7 +1,7 @@
 package spark.exercies
 
 import org.apache.spark.sql.expressions.UserDefinedFunction
-import org.apache.spark.sql.functions.{col, column, expr, lit, udf}
+import org.apache.spark.sql.functions.{col, column, expr, lit, trunc, udf}
 import org.apache.spark.sql.types.{IntegerType, StringType, StructField, StructType}
 import org.apache.spark.sql.{Column, DataFrame, SaveMode, SparkSession}
 import spark.InitSparkSession._
@@ -26,22 +26,78 @@ object Exercises {
   // Adding the new UUID column
 //  val dfWithUUID = df.withColumn("uuid", randomUUID())
 
+  /*
+  *
+
+val matchedNormilized   = normilized.where($"isMatch" === "true")
+val matchedNoNormilized = noNormilized.where($"isMatch === true")
+	.select(
+		movies.columns.map {
+		case "originalId" => col("originalId")
+		case name => col(name).as("non_" + name)
+	})
+
+val mergedData = matchedNormilized.join(matchedNoNormilized, "originalId")
+
+
+val withDifferentData = mergedData.where(
+	col("")
+)
+*/
 
   def checkOneTwo()(implicit spark: SparkSession): Unit = {
-    spark
-      .read
-      .option("inferSchema", "true")
-      .json("src/main/resources/essential/movies.json")
-      .distinct()
-      .withColumn("id", lit("").cast(StringType))
-      .withColumn("id", randomUUID($"id"))
-      .write
-      .mode(SaveMode.Overwrite)
-      .json("src/main/resources/essential/movies_with_id.json")
+//    spark
+//      .read
+//      .option("inferSchema", "true")
+//      .json("src/main/resources/essential/movies.json")
+//      .distinct()
+//      .withColumn("id", lit("").cast(StringType))
+//      .withColumn("id", randomUUID($"id"))
+//      .write
+//      .mode(SaveMode.Overwrite)
+//      .json("src/main/resources/essential/movies_with_id.json")
 
-    val movies = spark.read.option("inferSchema", "true").json("src/main/resources/essential/movies_with_id.json").distinct()
-    movies.show(20, truncate = false)
+
+    val moviesOldOne: DataFrame = spark.read.option("inferSchema", "true").json("src/main/resources/essential/movies_with_id.json").distinct()
+    val moviesWithNewColumns = moviesOldOne.select(
+      moviesOldOne.columns.map {
+        case "id" => col("id")
+        case name => col(name).as("non_" + name)
+      }:_*)
+
+//    moviesWithNewColumns.write.mode(SaveMode.Overwrite).json("src/main/resources/essential/movies_with_id_column_renamed.json")
+
+    val moviesNewOne = spark.read.option("inferSchema", "true").json("src/main/resources/essential/movies_with_id_column_renamed.json")
+
+    /*  -----   */
+    moviesNewOne.show(20, truncate = false)
+    moviesOldOne.show(20, truncate = false)
+
+
+    val mergedData = moviesOldOne.join(moviesNewOne, "id")
+    mergedData.show()
+    val moviesNotEquals = mergedData.where(
+      $"non_Creative_Type" =!= $"Creative_Type" &&
+        $"non_Director" =!= $"Director")
+
+
+    val moviewClean = moviesNotEquals.select(moviesNotEquals.columns.filter{
+      case "id" => true
+      case other if other.startsWith("non_") => false
+      case _ => true
+    }.map(str => col(str)):_*)
+
+
+    val moviewNormilized = moviesNotEquals.select(moviesNotEquals.columns.filter{
+      case "id" => true
+      case other if other.startsWith("non_") => true
+      case _ => false
+    }.map(str => col(str)):_*)
+
+    moviewClean.union(moviewNormilized).orderBy("id").show(truncate = false)
+
   }
+
 
 
 
