@@ -1,10 +1,13 @@
 package spark.exercies
 
-import org.apache.spark.sql.functions.{col, column, expr}
+import org.apache.spark.sql.expressions.UserDefinedFunction
+import org.apache.spark.sql.functions.{col, column, expr, lit, udf}
 import org.apache.spark.sql.types.{IntegerType, StringType, StructField, StructType}
 import org.apache.spark.sql.{Column, DataFrame, SaveMode, SparkSession}
 import spark.InitSparkSession._
 import spark.implicits._
+
+import java.util.UUID
 
 
 
@@ -12,9 +15,34 @@ object Exercises {
 
 
   def main(args: Array[String]): Unit = {
-    exercise_2()
+    checkOneTwo()
 
   }
+
+  def genUUID(): String = UUID.randomUUID().toString
+
+  val randomUUID: UserDefinedFunction = udf((name: String) => UUID.randomUUID().toString)
+
+  // Adding the new UUID column
+//  val dfWithUUID = df.withColumn("uuid", randomUUID())
+
+
+  def checkOneTwo()(implicit spark: SparkSession): Unit = {
+    spark
+      .read
+      .option("inferSchema", "true")
+      .json("src/main/resources/essential/movies.json")
+      .distinct()
+      .withColumn("id", lit("").cast(StringType))
+      .withColumn("id", randomUUID($"id"))
+      .write
+      .mode(SaveMode.Overwrite)
+      .json("src/main/resources/essential/movies_with_id.json")
+
+    val movies = spark.read.option("inferSchema", "true").json("src/main/resources/essential/movies_with_id.json").distinct()
+    movies.show(20, truncate = false)
+  }
+
 
 
   /*
@@ -27,9 +55,37 @@ object Exercises {
   * */
   def exercise_2()(implicit spark: SparkSession): Unit = {
     val movies = spark.read.option("inferSchema", "true").json("src/main/resources/essential/movies.json").distinct()
-    readColumnsAllWays(movies)
-    sumColumns(movies)
-    commedyMovies(movies)
+    val movies2 = spark.read.option("inferSchema", "true").json("src/main/resources/essential/movies.json").distinct()
+
+//    val moviesRenamed: Array[Column] = movies
+//      .columns
+//      .map {
+//        case "Creative_Type" => col("Creative_Type")
+//        case name =>
+//          println("Column name: " + name)
+//          col(name).as("foo_" + name)
+//      }
+
+//    val moviesWithRenamedColumns =
+
+//    movies.select(
+//      movies.columns.map {
+//        case "Creative_Type" => col("Creative_Type")
+//        case name => col(name).as("non_" + name)
+//      }:_*).select(movies.columns.filter{
+//      case
+//    }).show()
+
+//    movies.select(moviesRenamed:_*).show()
+
+//    movies.show(truncate = false)
+//    movies
+//      .where($"IMDB_Votes" === "18964" || $"IMDB_Votes" === "178742" ||  $"IMDB_Votes" === "34785")
+//      .show(truncate = false)
+
+//    readColumnsAllWays(movies)
+//    sumColumns(movies)
+//    commedyMovies(movies)
   }
 
 
@@ -39,6 +95,7 @@ object Exercises {
     movies.filter(col("IMDB_Rating") > 6)
     movies.filter(col("Major_Genre") === "Comedy" and col("IMDB_Rating") > 6).show()
     movies
+      .where(col("Major_Genre") isin(List(1,2,3)))
       .where(col("Major_Genre") === "Comedy")
       .where(col("IMDB_Rating") > 6)
       .show()
@@ -48,6 +105,7 @@ object Exercises {
   def sumColumns(movies: DataFrame): Unit = {
     val sumColumn: Column  = movies.col("US_Gross") + movies.col("Worldwide_Gross") + movies.col("US_DVD_Sales")
     val sumColumn2: Column = expr("US_Gross + Worldwide_Gross + US_DVD_Sales")
+
     movies.withColumn("sum column", sumColumn)
     movies.withColumn("sum column", col("US_Gross") + col("Worldwide_Gross") + col("US_DVD_Sales")).show()
 
