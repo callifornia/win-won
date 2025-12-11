@@ -344,6 +344,7 @@ object Tutorial {
     trait Builder {
       def build(v: String): Boolean = true
     }
+
     trait Hospital {
       selfType: Builder =>
       def makeNewHospital(value: Int): Boolean = selfType.build(value.toString)
@@ -671,6 +672,29 @@ object Tutorial {
     }
 
     function_4(list_2.sorted.reverse)
+
+    def selectSorting(l: List[Int]): MutableArray[Int] = {
+      val array = MutableArray.from(l)
+      var minIndex = array(0)
+
+      (0 until array.length - 1).foreach { i =>
+        minIndex = i
+        (i + 1 until array.length).foreach { j =>
+          if (array(j) < array(i)) {
+            minIndex = j
+          }
+        }
+
+        if (array(minIndex) != array(i))  {
+          val minElement = array(minIndex)
+          val maxElement = array(i)
+          array(minIndex) = maxElement
+          array(i) = minElement
+        }
+      }
+      array
+    }
+
 
 
     /*

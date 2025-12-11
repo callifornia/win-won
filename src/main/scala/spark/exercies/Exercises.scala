@@ -19,12 +19,7 @@ object Exercises {
 
   }
 
-  def genUUID(): String = UUID.randomUUID().toString
-
   val randomUUID: UserDefinedFunction = udf((name: String) => UUID.randomUUID().toString)
-
-  // Adding the new UUID column
-//  val dfWithUUID = df.withColumn("uuid", randomUUID())
 
   /*
   *
@@ -78,7 +73,7 @@ val withDifferentData = mergedData.where(
     mergedData.show()
     val moviesNotEquals = mergedData.where(
       $"non_Creative_Type" =!= $"Creative_Type" &&
-        $"non_Director" =!= $"Director")
+        $"non_Director".isNotNull)
 
 
     val moviewClean = moviesNotEquals.select(moviesNotEquals.columns.filter{

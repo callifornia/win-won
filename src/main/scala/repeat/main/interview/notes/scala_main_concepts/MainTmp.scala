@@ -5,90 +5,32 @@ import scala.collection.mutable.{ArraySeq => MutableArray}
 
 object MainTmp {
 
-  val list = 1 :: 4 :: 0 :: 2 :: 5 :: 6 :: 3 :: Nil
+  val list = 1 :: 4 :: 0 :: Nil
 
   def main(args: Array[String]): Unit = {
-    println(quickSort(MutableArray.from(list)))
+    println(selectSorting(list))
   }
 
 
+  def selectSorting(l: List[Int]): MutableArray[Int] = {
+    val array = MutableArray.from(l)
+    var minIndex = array(0)
 
-  /*
-  * ............
-  *
-  * */
-  def splitAndSort(list: List[Int]) = list match {
-    case  Nil => list
-    case x :: y :: xs =>
-    case _ =>
-//      val (listOne, listTwo) = splitAndSort(list.splitAt(list.length / 2))
-      ???
-  }
-
-
-
-
-
-
-  def quickSort(array: MutableArray[Int]): MutableArray[Int] = {
-    val pivot = array(array.length - 1)
-    var swapMarker = 0
-    (0 until array.length).foreach { currentIndex =>
-      val currentElement = array(currentIndex)
-      if (currentElement < pivot) {
-        if (swapMarker <= currentIndex) {
-          val currentElement = array(currentIndex)
-          val swapElement = array(swapMarker)
-          array(currentIndex) = swapElement
-          array(swapMarker) = currentElement
-          swapMarker = swapMarker + 1
+    (0 until array.length - 1).foreach { i =>
+      minIndex = i
+      (i + 1 until array.length).foreach { j =>
+        if (array(j) < array(i)) {
+          minIndex = j
         }
-      } else if (currentElement == pivot) {
-        val currentElement = array(currentIndex)
-        val swapElement = array(swapMarker)
-        array(swapMarker) = currentElement
-        array(currentIndex) = swapElement
+      }
+
+      if (array(minIndex) != array(i))  {
+        val minElement = array(minIndex)
+        val maxElement = array(i)
+        array(minIndex) = maxElement
+        array(i) = minElement
       }
     }
     array
   }
-
-  
 }
-
-
-/*
-* import scala.collection.mutable.{ArraySeq => MutableArray}
-
-val list = 1 :: 4 :: 2 :: 5 :: 6 :: 3 :: Nil
-
-
-
-val array_1 = MutableArray.from(1 :: 2 :: Nil)
-val array_2 = MutableArray.from(3 :: 4 :: Nil)
-
-
-array_2 ++ array_1
-
-def quickSort(array: MutableArray[Int]): MutableArray[Int] = {
-  val pivot = array(array.length - 1)
-  var swapMarker = 0
-  (0 to array.length).foreach { currentIndex =>
-    if (array(currentIndex) < pivot ) {
-      swapMarker = swapMarker + 1
-    } else {
-      swapMarker = swapMarker + 1
-      val currentElement = array(currentIndex)
-      val swapElement = array(swapMarker)
-      array(currentIndex) = swapElement
-      array(swapMarker) = currentElement
-    }
-  }
-  array
-}
-
-
-quickSort(MutableArray.from(list))
-*
-* */
-
