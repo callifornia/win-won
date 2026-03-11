@@ -42,7 +42,7 @@ object Tutorial {
 
 
     - functional programming    => work with a function as we work with a value
-    - function value            => can be passed around return as a result
+    - function value            => can be passed around or return as a result
     - high order function       => take another function as an argument, return another function
     - pattern matching          => decomposition of an element
     - partial function          => in other words it's pattern matching
@@ -162,7 +162,9 @@ object Tutorial {
       first-class citizens      - we can use functions as values or like normal variables
       default scala imports     - implicitly: java.lang._, scala._, scala.Predef._
 
-      lizerazation - ???
+      lizerazation - This is an important concept in Scala that explains how Scala resolves methods when multiple traits are mixed together.
+                     When a method is called, Scala looks for the implementation from left to right in this order.
+                     This solves the diamond problem found in multiple inheritance.
       */
   }
 

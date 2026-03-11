@@ -1,55 +1,20 @@
-// bubble sort
-import scala.collection.mutable.{ArraySeq => MutableArray}
-val list = 1 :: 3 :: 2 :: 6 :: 0 :: 10 :: Nil
+import java.time.LocalDate
 
 
 
 
+val today = LocalDate.now()
+println("today is: " + today)
+val hireDay = LocalDate.of(2025, 3, 1)
+val endDay = hireDay.plusMonths(8)
 
+println{
+  s"""
+     | start day: $hireDay
+     | end day:   $endDay
+     | endDay
+     |
+     |""".stripMargin
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  def bubbleSort(l: List[Int]): MutableArray[Int] = {
-    val array = MutableArray.from(l)
-    (0 until array.length).foreach { _ =>
-      (0 until array.length - 1).foreach { stepIndex =>
-        val nextIndex = stepIndex + 1
-        val stepElement = array(stepIndex)
-        val nextElement = array(nextIndex)
-        if (nextElement < stepElement) {
-          array(nextIndex) = stepElement
-          array(stepIndex) = nextElement
-        }
-      }
-    }
-    array
-  }
-
-
-
-
-
-
-
-
-bubbleSort(1 :: 0 :: Nil)
+endDay.getMonth
