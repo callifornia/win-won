@@ -465,10 +465,10 @@ Akka вирішує проблеми такі як:
         коли один з учасників є єдиним, хто намагається, операція буде успішною
 
 
+
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
         Actor Systems
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
 
     Актори – це об'єкти, які інкапсулюють стан та поведінку, вони спілкуються виключно шляхом обміну повідомленнями, які розміщуються в поштовій скриньці одержувача.
     У певному сенсі актори є найсуворішою формою об'єктно-орієнтованого програмування, але краще розглядати їх як особистостей: моделюючи рішення за допомогою акторів,
@@ -479,9 +479,9 @@ Akka вирішує проблеми такі як:
 
         Як і в економічній організації, актори природно формують ієрархії. Один актор, який має контролювати певну функцію в програмі, може захотіти розділити своє завдання на менші,
     більш керовані частини. Для цього він запускає дочірні актори.
-        Квінтесенцією акторних систем є те, що завдання розділяються та делегуються, доки вони не стануть достатньо малими для виконання як єдине ціле.
-        При цьому не лише саме завдання чітко структурується, але й можна міркувати про результуючих акторів з точки зору того, які повідомлення вони повинні обробляти,
-        як вони повинні реагувати зазвичай і як слід обробляти невдачі.
+    Квінтесенцією акторних систем є те, що завдання розділяються та делегуються, доки вони не стануть достатньо малими для виконання як єдине ціле.
+    При цьому не лише саме завдання чітко структурується, але й можна міркувати про результуючих акторів з точки зору того, які повідомлення вони повинні обробляти,
+    як вони повинні реагувати зазвичай і як слід обробляти невдачі.
 
         Порівняйте це з багаторівневим проектуванням програмного забезпечення, яке легко перетворюється на захисне програмування з метою не розголошувати жодної помилки: якщо про проблему
     повідомити потрібну людину, можна знайти краще рішення, ніж якби намагалися все приховати.
@@ -619,4 +619,152 @@ Akka вирішує проблеми такі як:
     -   Потім поштова скринька в посиланні актора замінюється системною поштовою скринькою, перенаправляючи всі нові повідомлення до EventStream як DeadLetters.
         Однак це робиться на основі максимальних зусиль, тому не покладайтеся на це для побудови «гарантованої доставки».
 
-::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+::::::: Supervision and Monitoring :::::::
+::::::: What Supervision Means :::::::
+
+    У актора можуть виникнути дві категорії винятків:
+        -   Помилки перевірки вхідних даних, очікувані винятки, які можна обробити за допомогою звичайного try-catch або інших мов програмування та інструментів стандартної бібліотеки.
+        -   Неочікувані збої, наприклад, недоступність мережевого ресурсу, збій запису на диск або, можливо, помилка в логіці програми.
+
+    Нагляд має справу з збоями та має бути відокремлений від бізнес-логіки, тоді як перевірка даних та обробка очікуваних винятків є життєво важливою частиною бізнес-логіки.
+    Тому нагляд додається до актора як декорація, а не як щось, що змішується з логікою обробки повідомлень актора.
+
+    Залежно від характеру роботи, що підлягає контролю, та характеру невдачі, нагляд пропонує такі три стратегії:
+        -   Відновіть актор, зберігаючи його накопичений внутрішній стан
+        -   Перезапустіть актора, очищаючи його накопичений внутрішній стан, з можливою затримкою повторного запуску
+        -   Зупинити актора назавжди
+
+        Оскільки актори є частиною ієрархії, часто має сенс поширювати постійні збої вгору по ієрархії. Якщо всі дочірні об'єкти актора несподівано зупинилися, може мати сенс для самого актора
+    перезапуститися або зупинитися, щоб повернутися до функціонального стану. Цього можна досягти за допомогою поєднання нагляду та спостереження за дочірніми об'єктами, щоб отримувати
+    сповіщення про їхнє завершення роботи. Приклад цього можна знайти у випадку з бульбашковими збоями вгору по ієрархії.
+
+::::::: The Top-Level actors :::::::
+
+An actor system will during its creation start at least two actors.
+
+/user: the user guardian actor
+This is the top level user provided actor, meant to bootstrap the application by spawning subsystems as children.
+When the user guardian stops the entire actor system is shut down.
+
+/system: the system guardian actor
+This special guardian has been introduced in order to achieve an orderly shut-down sequence where logging remains active while all normal actors terminate,
+even though logging itself is implemented using actors.
+This is realized by having the system guardian watch the user guardian and initiate its own shut-down upon having seen the user guardian stop.
+
+
+::::::: What Restarting Means :::::::
+
+When presented with an actor which failed while processing a certain message, causes for the failure fall into three categories:
+    -   Systematic (i.e. programming) error for the specific message received
+    -   (Transient) failure of some external resource used during processing the message
+    -   Corrupt internal state of the actor
+
+
+
+::::::: What Lifecycle Monitoring Means :::::::
+
+    На відміну від особливих відносин між батьком та дочірнім об'єктом, описаних вище, кожен актор може контролювати будь-якого іншого актора.
+Оскільки актори з'являються після створення повністю живими, а перезапуски не видно поза межами відповідних супервізорів, єдиною зміною стану, доступною для моніторингу,
+є перехід від живого до мертвого. Таким чином, моніторинг використовується для зв'язування одного актора з іншим, щоб він міг реагувати на завершення роботи іншого актора,
+на відміну від супервізору, який реагує на невдачу.
+
+    -   ActorContext.watch(targetActorRef)
+    -   ActorContext.unwatch(targetActorRef)
+
+
+
+::::::: Actors and exceptions :::::::
+    Може статися так, що під час обробки повідомлення актором виникає певний виняток, наприклад, виняток бази даних.
+
+    Що відбувається з Повідомленням
+        Якщо під час обробки повідомлення (тобто вилучення з поштової скриньки та передачі поточній поведінці) виникає виняток, це повідомлення буде втрачено.
+    Важливо розуміти, що воно не поміщається назад у поштову скриньку. Тому, якщо ви хочете повторити спробу обробки повідомлення, вам потрібно самостійно впоратися з цим,
+    перехопивши виняток і повторивши спробу виконання. Переконайтеся, що ви встановили обмеження на кількість повторних спроб, оскільки ви не хочете, щоб система зависла
+    (що споживало б багато циклів процесора без досягнення прогресу).
+
+
+    Що відбувається з поштовою скринькою
+        Якщо під час обробки повідомлення виникає виняток, з поштовою скринькою нічого не відбувається. Якщо актор перезапустити, там буде та сама поштова скринька.
+    Тож усі повідомлення в цій поштовій скриньці також будуть там.
+
+    Що відбувається з актором
+        Якщо код всередині актора викидає виняток, цей актор призупиняється, і запускається процес супервізії. Залежно від рішення супервізора, актор відновлюється (ніби нічого не сталося),
+    перезапускається (стираючи свій внутрішній стан і починаючи з нуля) або завершується.
+
+
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+
+::::::: What is an Actor Reference :::::::
+    Actor reference:
+        - subtype of ActorRef, purpose is to support sending messages to the actor it represents
+        - each actor has access to it's canonical (local) reference through the ActorContext.self field
+        - this reference can be included in message to other actors to get replies back
+
+    There are several different types of actor references that are supported depending on the configuration of the actor system:
+        - Purely local actor references             - used by actor systems which are not configured to support networking functions. Will not function if sent across a network connection to a remote JVM
+          "akka://my-sys/user/service-a/worker1"
+
+        - Local actor references                                    - used by actor systems which support networking functions for those references which represent actors within the same JVM
+          "akka://my-sys@host.example.com:5678/user/service-b"        In order to also be reachable when sent to other network nodes, these references include protocol and remote addressing information
+
+        - Remote actor references       - reachable using remote communication, i.e. sending messages to them will serialize the messages transparently and send them
+                                          to the remote JVM
+
+    There are several special types of actor references which behave like local actor references for all practical purposes:
+        - PromiseActorRef    - is the special representation of a Promise for the purpose of being completed by the response from an actor. akka.pattern.ask creates this actor reference
+        - DeadLetterActorRef - is the default implementation of the dead letters service to which Akka routes all messages whose destinations are shut down or non-existent
+        - EmptyLocalActorRef - is what Akka returns when looking up a non-existent local actor path: it is equivalent to a DeadLetterActorRef,
+                               but it retains its path so that Akka can send it over the network and compare it to other existing actor references for that path,
+                               some of which might have been obtained before the actor died
+
+    Actor Path
+    It's unique sequence of actor names and links between child and parent
+    An actor path consists of actor system, root guardian to the designated actor; the path elements are the names of the traversed actors and are separated by slashes.
+
+    What is the Difference Between Actor Reference and Path?
+    An actor reference designates a single actor and the life-cycle of the reference matches that actor’s life-cycle; an actor path represents a name which may or may not be inhabited by
+    an actor and the path itself does not have a life-cycle, it never becomes invalid.
+    You can create an actor path without creating an actor, but you cannot create an actor reference without creating a corresponding actor.
+
+
+    You can create an actor, terminate it, and then create a new actor with the same actor path. The newly created actor is a new incarnation of the actor. It is not the same actor. An actor reference to the old incarnation is not valid for the new incarnation. Messages sent to the old actor reference will not be delivered to the new incarnation even though they have the same path.
+
+    Actor Path Anchors
+    Each actor path has an address component, describing the protocol and location by which the corresponding actor is reachable, followed by the names of the actors in the hierarchy from the root up. Examples are:
+
+    "akka://my-sys/user/service-a/worker1"               // purely local
+    "akka://my-sys@host.example.com:5678/user/service-b" // remote
+    The interpretation of the host and port part (i.e. host.example.com:5678 in the example) depends on the transport mechanism used, but it must abide by the URI structural rules.
+
+    Logical Actor Paths
+    The unique path obtained by following the parental supervision links towards the root guardian is called the logical actor path. This path matches exactly the creation ancestry of an actor, so it is completely deterministic as soon as the actor system’s remoting configuration (and with it the address component of the path) is set.
+
+    Actor path alias or symbolic link?
+    As in some real file-systems you might think of a “path alias” or “symbolic link” for an actor, i.e. one actor may be reachable using more than one path. However, you should note that actor hierarchy is different from file system hierarchy. You cannot freely create actor paths like symbolic links to refer to arbitrary actors.
+
+    How are Actor References obtained?
+    There are two general categories to how actor references may be obtained: by creating actors or by looking them up through the Receptionist.
+
+    Actor Reference and Path Equality
+    Equality of ActorRef match the intention that an ActorRef corresponds to the target actor incarnation. Two actor references are compared equal when they have the same path and point to the same actor incarnation. A reference pointing to a terminated actor does not compare equal to a reference pointing to another (re-created) actor with the same path. Note that a restart of an actor caused by a failure still means that it is the same actor incarnation, i.e. a restart is not visible for the consumer of the ActorRef.
+
+    If you need to keep track of actor references in a collection and do not care about the exact actor incarnation you can use the ActorPath as key, because the identifier of the target actor is not taken into account when comparing actor paths.
+
+    Reusing Actor Paths
+    When an actor is terminated, its reference will point to the dead letter mailbox, DeathWatch will publish its final transition and in general it is not expected to come back to life again (since the actor life cycle does not allow this).
+
+    What is the Address part used for?
+    When sending an actor reference across the network, it is represented by its path. Hence, the path must fully encode all information necessary to send messages to the underlying actor. This is achieved by encoding protocol, host and port in the address part of the path string. When an actor system receives an actor path from a remote node, it checks whether that path’s address matches the address of this actor system, in which case it will be resolved to the actor’s local reference. Otherwise, it will be represented by a remote actor reference.
+
+    Top-Level Scopes for Actor Paths
+    At the root of the path hierarchy resides the root guardian above which all other actors are found; its name is "/". The next level consists of the following:
+
+    "/user" is the guardian actor for all user-created top-level actors; actors created using ActorSystem.actorOf are found below this one.
+    "/system" is the guardian actor for all system-created top-level actors, e.g. logging listeners or actors automatically deployed by configuration at the start of the actor system.
+    "/deadLetters" is the dead letter actor, which is where all messages sent to stopped or non-existing actors are re-routed (on a best-effort basis: messages may be lost even within the local JVM).
+    "/temp" is the guardian for all short-lived system-created actors, e.g. those which are used in the implementation of ActorRef.ask.
+    "/remote" is an artificial path below which all actors reside whose supervisors are remote actor references
+    The need to structure the name space for actors like this arises from a central and very simple design goal: everything in the hierarchy is an actor, and all actors function in the same way.
