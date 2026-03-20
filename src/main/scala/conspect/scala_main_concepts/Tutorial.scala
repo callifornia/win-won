@@ -4,16 +4,13 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
 
-
 /*
 *   TODO:
-*     Functional programing'
+*     Functional programing
 *
 *       Generic - https://www.youtube.com/watch?v=ozcY_K-ij20&list=PLmtsMNDRU0Bzj7INIrLugi3a_WClwQuiS&index=52
 *       Meta    - https://www.youtube.com/watch?v=m3Qh-MmWpbM&list=PLmtsMNDRU0Bzj7INIrLugi3a_WClwQuiS&index=51
-*       https://www.youtube.com/watch?v=Y5rPHZaUakg&list=PLmtsMNDRU0Bzj7INIrLugi3a_WClwQuiS&index=45
-*
-*
+*                 https://www.youtube.com/watch?v=Y5rPHZaUakg&list=PLmtsMNDRU0Bzj7INIrLugi3a_WClwQuiS&index=45
 * */
 
 
