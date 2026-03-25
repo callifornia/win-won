@@ -226,15 +226,15 @@ object DtaStructureAlgorithm {
   *
   * */
   def selectionSort(array: ArrayBuffer[Int]): Unit =
-    (0 until array.length - 1).foreach { i =>
-      var indexMin = i
-      (i to array.length - 1).foreach { j =>
-        if (array(j) < array(indexMin)) {
-          indexMin = j
+    (0 until array.length - 1).foreach { stepIndex =>
+      var indexMin = stepIndex
+      (stepIndex to array.length - 1).foreach { nextIndex =>
+        if (array(nextIndex) < array(indexMin)) {
+          indexMin = nextIndex
         }
       }
-      val tmp = array(i)
-      array.update(i, array(indexMin))
+      val tmp = array(stepIndex)
+      array.update(stepIndex, array(indexMin))
       array.update(indexMin, tmp)
     }
 

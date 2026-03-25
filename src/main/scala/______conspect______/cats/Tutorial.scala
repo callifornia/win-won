@@ -260,8 +260,6 @@ object Tutorial {
 
 
 
-
-
   // Functor
   {
 
@@ -275,7 +273,6 @@ object Tutorial {
       Laws:
         identity:               fa.map(x => x)    ==  fa
         composition:            fa.map(f).map(g)  ==  fa.map(x => f(x) andThen g(x))
-
 
       In mathematical concept:
         Functor - defines transformations between categories. In Scala - defines transformations between Scala types
@@ -354,6 +351,13 @@ object Tutorial {
 
     tree.map(_ + 100)
   }
+
+
+
+
+
+
+
 
 
   // Monad

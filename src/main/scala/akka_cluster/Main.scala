@@ -21,7 +21,7 @@ object Main {
   *  - node -> Defined by a "hostname:port:uid tuple"
   *  - When a new node is started it sends a message to all configured seed-nodes
   *  - then sends a join command to the one that answers first.
-  *     If none of the seed nodes replies (might not be started yet)
+  *      If none of the seed nodes replies (might not be started yet)
   *      it retries this procedure until successful or shutdown.
   *
   *
@@ -34,12 +34,12 @@ object Main {
   * - The role of the leader:
       - is to shift members in and out of the cluster
       - changing joining members to the up state or exiting members to the removed state.
-  * - Currently leader actions are only triggered by receiving a new cluster state with gossip convergence.
+      - Currently leader actions are only triggered by receiving a new cluster state with gossip convergence.
   *
   *
   * SEAD NODES:
-  * - The seed nodes are contact points for new nodes joining the cluster.
-  * - When a new node is started it sends a message to all seed nodes and then sends a join command to the seed node that answers first.
+  * - The seed nodes are contact points for new nodes joining the cluster
+  * - When a new node is started it sends a message to all seed nodes and then sends a join command to the seed node that answers first
   * - The seed nodes configuration value does not have any influence on the running cluster itself,
   *   it helps them to find contact points to send the join command to;
   *   a new member can send this command to any current member of the cluster, not only to the seed nodes.
@@ -54,7 +54,8 @@ object Main {
   *    The reason for the special first seed node is to avoid forming separated islands when starting from an empty cluster.
   *  - As soon as more than two seed nodes have been started, it is no problem to shut down the first seed node.
   *  - If the first seed node is restarted, it will first try to join the other seed nodes in the existing cluster.
-  *  - Note that if you stop all seed nodes at the same time and restart them with the same seed-nodes configuration they will join themselves and form a new cluster, instead of joining remaining nodes of the existing cluster.
+  *  - Note that if you stop all seed nodes at the same time and restart them with the same seed-nodes configuration they will join themselves and form a new cluster,
+  *    instead of joining remaining nodes of the existing cluster.
   *  - That is likely not desired and can be avoided by listing several nodes as seed nodes for redundancy, and don’t stop all of them at the same time.
   *
   *  - The Configuration Compatibility Check feature ensures that all nodes in a cluster have a compatible configuration.
@@ -81,7 +82,7 @@ object Main {
   * - if there already is a singleton manager running - is returned.
 
   * - The proxy will route all messages to the current instance of the singleton, and keep track of the oldest node in
-  *   the cluster and discover the singleton’s ActorRef.
+  *   the cluster and discover the singleton’s ActorRef
   * - singleton is unavailable:
   *   - the proxy will buffer the messages sent to the singleton
   *   - deliver them when the singleton is finally available

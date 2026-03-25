@@ -20,21 +20,22 @@ object Tutorial {
   }
 
 
-  // OOP vs Functional programing
+  // OOP vs Functional Programing
   /*
     https://doc.akka.io/libraries/akka-core/2.6/typed/guide/actors-motivation.html#the-challenge-of-encapsulation
+
    In Object Oriented languages we rarely think about threads or linear execution paths in general
    We often envision a system as a network of object instances that react to method calls, modify their internal state,
    then communicate with each other via method calls driving the whole application state forward:
 
-   -  CPUs are writing to cache lines instead of writing to memory directly
-   -  shipping cache lines across cores is a very costly operation
-   -  Most of these caches are local to the CPU core
-   -  writes by one core are not visible by another core
-   -  cache line needs to be shipped to the other core’s cache
-   -  On the JVM, to be shared across threads   using volatile or Atomic wrappers
-   -  an important difference between passing messages and calling methods is that messages have no return value
-   -  actor system can process as many messages simultaneously as the hardware will support.
+      -  CPUs are writing to cache lines instead of writing to memory directly
+      -  shipping cache lines across cores is a very costly operation
+      -  most of these caches are local to the CPU core
+      -  writes by one core are not visible by another core
+      -  cache line needs to be shipped to the other core’s cache
+      -  on the JVM, to be shared across threads using volatile or Atomic wrappers
+      -  an important difference between passing messages and calling methods is that messages have no return value
+      -  actor system can process as many messages simultaneously as the hardware will support.
 
 
 
@@ -46,7 +47,17 @@ object Tutorial {
     - higher kinder types       => when one type accept another type
     - higher order function     => when one function accept another function
     - instruction vs expression =>
-              val unit = println("something...") -> instruction
+              Expression              → produces a value
+              Instruction (statement) → performs an action (may not produce a meaningful value)
+              Expression example:
+                  val x = 1 + 2
+                  val y = if (x > 2) "big" else "small"
+                  both return value ...
+              Instruction exemple:
+                  println("Hello")
+                  var x = 10
+                  x = x + 1
+
     - inheritance model         => extends 1 class but lots of traits
     - method notation           => 1 + 2
 
@@ -426,7 +437,7 @@ object Tutorial {
   // Eta-Expansion & Partially applied function
   {
     /*
-     - eta-expansion is a transform method into the function
+     - eta-expansion - method => transform  => into the function
      - function can be assigned to a value which can be passed as an argument
      - function is an instance of a function traits family: example: new Function[Int, Int]
      - method depends on a class or object where it defined where function is a plain object
@@ -523,7 +534,7 @@ object Tutorial {
     /*
     * Find all coins which in sum will be equal some number
     * For example:
-    *   coins: 1,5,10
+    *   coins: 1, 5, 10
     *   number: 26
     *   answer: 10, 10, 5, 1
     *
@@ -550,7 +561,7 @@ object Tutorial {
 
     /*
     * Almost the same task but with a small changes
-    * Changes: find more optima solution
+    * Changes: find more optimal solution
     *
     * For example:
     *   coins: 1,5,10,20,25
@@ -790,7 +801,7 @@ object Tutorial {
 
     /*
 
-        1. Illigal states are not representable
+        1. Illegal states are not representable
                 def check(weather: Weather): Unit = ??? <- so we can not put anything else than Weather
         2. highly composable
         3. immutable data structure
@@ -827,7 +838,7 @@ object Tutorial {
     }
 
 
-    class SomeOtherClas extends AnyWordSpec {
+    class SomeOtherClass extends AnyWordSpec {
       "A calculator" should {
         "give bqck 0" in {
           ???

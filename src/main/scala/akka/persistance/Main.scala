@@ -20,6 +20,8 @@ object Main {
 //  object Account {
 //    val entityTypeKey = EntityTypeKey[Account]("Account")
 //    val empty: Account = Account(0)
+
+
 //    val commandHandler: (Account, Command) => Effect[Event, Account] =
 //      (account, command) =>
 //        command match {
@@ -35,6 +37,7 @@ object Main {
 //          case Withrawed(amount) => account - amount
 //        }
 //  }
+
 
 
 //  object EventHandler {
