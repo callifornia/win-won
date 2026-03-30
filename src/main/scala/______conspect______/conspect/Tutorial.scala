@@ -87,22 +87,46 @@ object Tutorial {
     - linearization             → This is an important concept in Scala that explains how Scala resolves methods when multiple traits are mixed
                                   together. When a method is called, Scala looks for the implementation from left to right in this order
                                   This solves the diamond problem found in multiple inheritance
+    - eta-expansion             → перетворення метода у функцію
+                                    val function = someMethod _
+                                    List(1,2,3,4).map(someMethod)
+
+    - function                  → is an instance of a function traits family: example: new Function[Int, Int]
+    - method                    → depends on a class or object where it defined where function is a plain object
+    - referential transparency  → замінити функцію на val до котрої та функція заасайнина
+                    def add(a: Int, b: Int): Int = a + b
+
+                    val five   = add(2, 3)
+                    val _      = five + five
+                    val ten_v1 = add(2, 3) + add(2, 3)
+                    val ten_v2 = 5 + add(2, 3)
+
+                    /* referential transparency is not */
+                    def showTime(): Long = System.currentTimeMillis()
+
+
+     - implicit lookup:
+          Look in current scope
+            - implicit defined in current scope
+            - imports explicit, wildcard
+          Look at associated types in
+            - companion object of a type
+            - companion object OtherClass
+            - companion object B
+            - any superclass of B
+
+
+     - substitution model:
+          sumOfSquares(3, 2 + 2)
+          sumOfSquares(3, 4)
+          square(3) + square(4)
+          3 * 3 + square(4)
+          9 + square(4)
+          9 + 4 * 4
+          9 + 16
+          25
 
    */
-
-
-  // referential transparency → замінити функцію на val до котрої та функція заасайнина
-  {
-    def add(a: Int, b: Int): Int = a + b
-
-    val five   = add(2, 3)
-    val _      = five + five
-    val ten_v1 = add(2, 3) + add(2, 3)
-    val ten_v2 = 5 + add(2, 3)
-
-    /* referential transparency is not */
-    def showTime(): Long = System.currentTimeMillis()
-  }
 
 
   // unapply
@@ -162,30 +186,9 @@ object Tutorial {
 
   /*
 
-  implicit lookup:
 
-        Look in current scope
-            - implicit defined in current scope
-            - imports explicit, wildcard
-          Look at associated types in
-            - companion object of a type
-            - companion object OtherClass
-            - companion object B
-            - any superclass of B
-
-
-  substitution model:
-
-        sumOfSquares(3, 2 + 2)
-        sumOfSquares(3, 4)
-        square(3) + square(4)
-        3 * 3 + square(4)
-        9 + square(4)
-        9 + 4 * 4
-        9 + 16
-        25
                            */
-  
+
 
 
   // call by name
@@ -195,8 +198,8 @@ object Tutorial {
 
 
     def byNameFunction(x: => Int): Int = x + 1
-    byNameFunction(3 + 2) /*  3 + 2 are going to be evaluated when it's going to be used inside that function "byNameFunction".
-                              in other words => call by need */
+    byNameFunction(3 + 2) /*      3 + 2 are going to be evaluated when it's going to be used inside that function "byNameFunction".
+                                        in other words → call by need */
 
     /*    example with reevaluation   */
     def byValue(x: Long): Unit = {
@@ -216,7 +219,7 @@ object Tutorial {
     /*
        example with infinity list where tail or in other words all structure evaluated when it's needed
        that pattern is named as "call by need". It powerful in infinity collections
-       */
+    */
 
     abstract class MyList1[+T] {
       def head: T
@@ -388,23 +391,6 @@ object Tutorial {
 
 
 
-  // Eta-Expansion & Partially applied function
-  {
-    /*
-     - eta-expansion - method => transform  => into the function
-     - function can be assigned to a value which can be passed as an argument
-     - function is an instance of a function traits family: example: new Function[Int, Int]
-     - method depends on a class or object where it defined where function is a plain object
-
-           val something = someMethod _
-
-      example:
-       List(1,2,3,4).map(incrementMethod) <- compiler automatically transform "incrementMethod" into the function
-   */
-  }
-
-
-
 
   //  Blocking | Async | Non-blocking
   {
@@ -490,261 +476,11 @@ object Tutorial {
 
 
 
-
-
-
-  // Algorithm and data structure
-  {
-
-    /*
-    * Find all coins which in sum will be equal some number
-    * For example:
-    *   coins: 1, 5, 10
-    *   number: 26
-    *   answer: 10, 10, 5, 1
-    *
-    *
-    * Solution above:
-    * */
-    val cents = 1 :: 5 :: 10 :: Nil
-    val number = 26
-
-    def function(number: Int, cents: Set[Int], acc_result: List[Int] = Nil): List[Int] =
-      number match {
-        case n if n <= 0 => acc_result
-        case _ if cents.nonEmpty =>
-          number - cents.max match {
-            case 0          => acc_result :+ cents.max
-            case n if n < 0 => function(number, cents - cents.max, acc_result)
-            case n if n > 0 => function(number - cents.max, cents, acc_result :+ cents.max)
-          }
-        case _ => acc_result
-      }
-
-    function(number, cents.toSet)
-
-
-    /*
-    * Almost the same task but with a small changes
-    * Changes: find more optimal solution
-    *
-    * For example:
-    *   coins: 1,5,10,20,25
-    *   number: 41
-    *   answer: 20,20,1
-    *
-    *   Solution: list with a lowest length
-    *
-    * */
-    val cents_1 = 1 :: 5 :: 10 :: 20 :: 25 :: Nil
-    val number_1 = 41
-
-    def function_1(number: Int, cents: Set[Int], result: List[Int] = Nil): List[Int] =
-      number match {
-        case n if n <= 0 => result
-        case _ if cents.nonEmpty =>
-          number - cents.max match {
-            case 0          => result :+ cents.max
-            case n if n < 0 => function(number, cents - cents.max, result)
-            case n if n > 0 => function(number - cents.max, cents, result :+ cents.max)
-          }
-        case _ => result
-      }
-
-    def function_2(number: Int, cents: List[Int]): List[List[Int]] =
-      cents.sorted.inits.foldLeft(List.empty[List[Int]]) {(result, cents) =>
-        result :+ function_1(number, cents.toSet)
-      }
-
-    function_2(number_1, cents_1).mkString("\n")
-    /*
-    * result is:
-    *
-    * List(25, 10, 5, 1)
-    * List(20, 20, 1)                       <---------- this is an optimal solution
-    * List(10, 10, 10, 10, 1)
-    * List(5, 5, 5, 5, 5, 5, 5, 5, 1)
-    * List(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
-    * */
-
-
-    /*
-    * Bubble sort. implemented in а mutable way
-    *
-    * Solution:
-    * */
-    import scala.collection.mutable.{ArraySeq => MutableArray}
-
-    val list = 1 :: 3 :: 2 :: 4 :: 6 :: 5 :: 7 :: Nil
-
-    def function_3(elements: List[Int]): MutableArray[Int] = {
-      val mutableArray = MutableArray.from(elements)
-
-      (1 until elements.length).foreach {_ =>
-        (0 until elements.length - 1).foreach {stepIndex =>
-          val nextIndex = stepIndex + 1
-          val stepElement = mutableArray(stepIndex)
-          val nextElement = mutableArray(nextIndex)
-
-          if (stepElement > nextElement) {
-            mutableArray(nextIndex) = stepElement
-            mutableArray(stepIndex) = nextElement
-          }
-        }
-      }
-      mutableArray
-    }
-
-    function_3(list.reverse)
-
-
-    /*
-    * Select sort
-    * 1. pick up the first element
-    * 2. find the lowest element in an array
-    * 3. compare element in step 1 with an element in step 2
-    * 4. swap elements in case first element is not lowest
-    * 5. pick up second element
-    * 6. then step 2 and so on...until end of an array
-    *
-    * Solution:
-    * */
-
-    val list_2 = 1 :: 3 :: 2 :: 4 :: 6 :: 5 :: 7 :: 0 :: Nil
-
-    def function_4(elements: List[Int]): MutableArray[Int] = {
-
-      val mutableArray = MutableArray.from(elements)
-
-      (0 until mutableArray.length - 1).foreach {index =>
-        val indexWithLowestElem = (index + 1 until mutableArray.length).foldLeft(index) {
-          (indexWithLowestElem, stepIndex) =>
-            mutableArray(indexWithLowestElem) >= mutableArray(stepIndex) match {
-              case true => stepIndex
-              case false => indexWithLowestElem
-            }
-        }
-
-        /* swap if lowest element was found otherwise ignore */
-        if (indexWithLowestElem != index) {
-          val stepElement = mutableArray(index)
-          mutableArray(index) = mutableArray(indexWithLowestElem)
-          mutableArray(indexWithLowestElem) = stepElement
-        }
-      }
-
-      mutableArray
-    }
-
-    function_4(list_2.sorted.reverse)
-
-    def selectSorting(l: List[Int]): MutableArray[Int] = {
-      val array = MutableArray.from(l)
-      var minIndex = array(0)
-
-      (0 until array.length - 1).foreach { i =>
-        minIndex = i
-        (i + 1 until array.length).foreach { j =>
-          if (array(j) < array(i)) {
-            minIndex = j
-          }
-        }
-
-        if (array(minIndex) != array(i))  {
-          val minElement = array(minIndex)
-          val maxElement = array(i)
-          array(minIndex) = maxElement
-          array(i) = minElement
-        }
-      }
-      array
-    }
-
-
-
-    /*
-    * Insert sort: O(n^2)
-    * 1. Pick up an element
-    * 2. Pick up previous element
-    * 3. Compare 1 and 2
-    * 4. Swap in case 2 is higher than 1
-    *
-    * Solution:
-    * */
-
-    val list_3 = 7 :: 6 :: 5 :: 4 :: 10 :: 3 :: 13 :: 2 :: 1 :: 0 :: Nil
-
-    def function_5(element: List[Int]): MutableArray[Int] = {
-      val mutableArray = MutableArray.from(element)
-      (0 to mutableArray.length - 1).foreach {i =>
-        var j = i
-        while (j > 0 && mutableArray(j - 1) > mutableArray(j)) {
-          val previous = mutableArray(j - 1)
-          mutableArray(j - 1) = mutableArray(j)
-          mutableArray(j) = previous
-          j = j - 1
-        }
-      }
-
-      mutableArray
-    }
-
-
-    /*
-    * Merge sort: O(logN)
-    *
-    *
-    *  Solution:
-    * */
-    val list_4 = 7 :: 6 :: 5 :: 4 :: 10 :: 3 :: 13 :: 2 :: 1 :: 0 :: Nil
-
-    def merge(listOne: List[Int], listTwo: List[Int]): List[Int] = (listOne, listTwo) match {
-      case (Nil, list)        => list
-      case (list, Nil)        => list
-      case (x :: xs, y :: ys) =>
-        if (x < y) x :: merge(xs, listTwo)
-        else y :: merge(listOne, ys)
-    }
-
-    def mergeSort(list: List[Int]): List[Int] = list match {
-      case Nil       => list
-      case xs :: Nil => List(xs)
-      case _         =>
-        val (left, right) = list splitAt list.length / 2
-        merge(mergeSort(left), mergeSort(right))
-    }
-
-    mergeSort(list_4)
-
-
-
-    /* insert sort */
-
-    def insertSort(list: List[Int]): List[Int] = {
-      def insert(number: Int, sortedList: List[Int]): List[Int] = {
-        if (sortedList.isEmpty || number < sortedList.head) number :: sortedList
-        else sortedList.head :: insert(number, sortedList.tail)
-      }
-
-      if (list.isEmpty || list.tail.isEmpty) list
-      else insert(list.head, insertSort(list.tail))
-    }
-
-    assert(insertSort(Nil) == Nil)
-    assert(insertSort(List(1)) == List(1))
-    assert(insertSort(List(3,2,1)) == List(1,2,3))
-    assert(insertSort(List(3,2,1,4,5,9,0)) == List(0,1,2,3,4,5,9))
-  }
-
-
-
-  // algebra data type | ADT
   /*
-
-      SUM       =>  object
-      Product   =>  case class
-      Hybrid    =>  case class contains object Product(SUM)
-
+    ADT  =  algebra data type
+      SUM       →  object
+      Product   →  case class
+      Hybrid    →  case class contains object Product(SUM)
   * */
   {
       /*  SUM type  */
@@ -774,19 +510,6 @@ object Tutorial {
 
      */
   }
-
-
-
-  // SOLID
-    /*
-       Single responsibility  -> каждий клас должен иметь одну и только одну причину для изменения
-       Open closed            -> открит для розширения, закрит для изменения (только дописивать)
-       Liskov substitution    -> функции которие используют базовий тип должни без изменения использовать
-                                 подтип
-       Interface segregation  -> много интерфейсов лучше чем один большой
-       Dependency inversion   -> зависимость на абстракции нет завимостей на конкретное
-     */
-
 
 
   // test
@@ -893,7 +616,7 @@ object Tutorial {
           runMain           - command which is used to run main method from sbt console
           ~compile          - command from sbt console which allow us to recompile file automatically in case file was
                               changed
-          libraryDependecies - list with additional libs
+          libraryDependencies - list with additional libs
           test: testOnly     - command from sbt console to run test
 
           multiply projects - example
@@ -906,117 +629,5 @@ object Tutorial {
           java -jar core-assembly-1.0.jar - run jar file
     */
 
-
-
-
-
-  //                          **********      Patterns        **********
-
-
-
-
-
-
-
-  // call-by need pattern
-  {
-    /*
-     This pattern is about lazy evaluations where class parameters are declared as call-by name and values marked as a
-     lazy val ... Example can be find bellow (linked list)
-  */
-
-    trait DLLList[+T] {
-      def value: T
-      def next: DLLList[T]
-      def prev: DLLList[T]
-      def append[S >: T](element: S): DLLList[S]
-      def prepend[S >: T](element: S): DLLList[S]
-      def updateNext[S >: T](newNext: => DLLList[S]): DLLList[S]
-      def updatePrev[S >: T](newPrev: => DLLList[S]): DLLList[S]
-    }
-
-
-    object DLLEnpty extends DLLList[Nothing] {
-      override def value: Nothing = throw new NoSuchElementException("There are no element")
-      override def next: DLLList[Nothing] = throw new NoSuchElementException("There are no element")
-      override def prev: DLLList[Nothing] = throw new NoSuchElementException("There are no element")
-      override def append[S >: Nothing](element: S) = new DLLCons(element, DLLEnpty, DLLEnpty)
-      override def prepend[S >: Nothing](element: S) = new DLLCons(element, DLLEnpty, DLLEnpty)
-      override def updateNext[S >: Nothing](newNext: => DLLList[S]) = this
-      override def updatePrev[S >: Nothing](newPrev: => DLLList[S]) = this
-    }
-
-
-    class DLLCons[+T](override val value: T,
-                      p: => DLLList[T],
-                      n: => DLLList[T]) extends DLLList[T] {
-
-      override lazy val next: DLLList[T] = n
-      override lazy val prev: DLLList[T] = p
-
-      override def updatePrev[S >: T](newPrev: => DLLList[S]): DLLList[S] = {
-        lazy val result: DLLList[S] = new DLLCons(value, newPrev, n.updatePrev(result))
-        result
-      }
-
-      override def updateNext[S >: T](newNext: => DLLList[S]): DLLList[S] = {
-        lazy val result: DLLList[S] = new DLLCons(value, p.updateNext(result), newNext)
-        result
-      }
-
-      override def append[S >: T](element: S): DLLList[S] = {
-        lazy val result: DLLList[S] = new DLLCons(value, p.updateNext(result), n.append(element).updatePrev(result))
-        result
-      }
-
-      override def prepend[S >: T](element: S): DLLList[S] = {
-        lazy val result: DLLList[S] = new DLLCons(value, p.prepend(element).updateNext(result), n.updatePrev(result))
-        result
-      }
-
-      val list = DLLEnpty.prepend(1).append(2).prepend(3).append(4)
-      assert(list.value == 1)
-      assert(list.next.value == 2)
-      assert(list.next.prev == list)
-      assert(list.prev.value == 3)
-      assert(list.prev.next == list)
-      assert(list.next.next.value == 4)
-      assert(list.next.next.prev.prev == list)
-    }
-  }
-
-
-
-
-
-  // Loan - pattern
-  {
-    case class Session(url: String, isAlive: Boolean)
-
-    def builder(handle: Session => Unit): Unit =
-      handle(Session("www.trump.ua", true))
-
-
-    builder { session =>
-      println(session.url)
-      println(session.isAlive)
-    }
-  }
-
-
-
-  // singleton
-  /*    In scala it's represented in one line just as object    */
-  object Singleton
-
-
-
-  // companion object
-  /*  class + object = companion  */
-  class Kid {
-    val _ = Kid.privateField
-  }
-
-  object Kid { private val privateField = 123 }
 
 }

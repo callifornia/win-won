@@ -1,11 +1,11 @@
-package ______conspect______.patterns
+package ______conspect______.cats
 
 import cats.data.ReaderT
 
 import java.util.concurrent.ConcurrentHashMap
-import scala.concurrent.{Await, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.DurationInt
+import scala.concurrent.{Await, Future}
 
 object ReaderMonad {
   def main(args: Array[String]): Unit = {

@@ -17,8 +17,122 @@ object Tutorial {
   }
 
 
-  //################################ Cats ################################
-  /*
+/*
+    ################################ Patterns ################################################################
+
+    SOLID:
+      Single responsibility  -> каждий клас должен иметь одну и только одну причину для изменения
+      Open closed            -> открит для розширения, закрит для изменения (только дописивать)
+      Liskov substitution    -> функции которие используют базовий тип должни без изменения использовать
+                               подтип
+      Interface segregation  -> много интерфейсов лучше чем один большой
+      Dependency inversion   -> зависимость на абстракции нет завимостей на конкретное
+
+* */
+
+
+  // call-by need pattern
+  {
+    /*
+     This pattern is about lazy evaluations where class parameters are declared as call-by name and values marked as a
+     lazy val ... Example can be find bellow (linked list)
+  */
+
+    trait DLLList[+T] {
+      def value: T
+      def next: DLLList[T]
+      def prev: DLLList[T]
+      def append[S >: T](element: S): DLLList[S]
+      def prepend[S >: T](element: S): DLLList[S]
+      def updateNext[S >: T](newNext: => DLLList[S]): DLLList[S]
+      def updatePrev[S >: T](newPrev: => DLLList[S]): DLLList[S]
+    }
+
+
+    object DLLEnpty extends DLLList[Nothing] {
+      override def value: Nothing = throw new NoSuchElementException("There are no element")
+      override def next: DLLList[Nothing] = throw new NoSuchElementException("There are no element")
+      override def prev: DLLList[Nothing] = throw new NoSuchElementException("There are no element")
+      override def append[S >: Nothing](element: S) = new DLLCons(element, DLLEnpty, DLLEnpty)
+      override def prepend[S >: Nothing](element: S) = new DLLCons(element, DLLEnpty, DLLEnpty)
+      override def updateNext[S >: Nothing](newNext: => DLLList[S]) = this
+      override def updatePrev[S >: Nothing](newPrev: => DLLList[S]) = this
+    }
+
+
+    class DLLCons[+T](override val value: T,
+                      p: => DLLList[T],
+                      n: => DLLList[T]) extends DLLList[T] {
+
+      override lazy val next: DLLList[T] = n
+      override lazy val prev: DLLList[T] = p
+
+      override def updatePrev[S >: T](newPrev: => DLLList[S]): DLLList[S] = {
+        lazy val result: DLLList[S] = new DLLCons(value, newPrev, n.updatePrev(result))
+        result
+      }
+
+      override def updateNext[S >: T](newNext: => DLLList[S]): DLLList[S] = {
+        lazy val result: DLLList[S] = new DLLCons(value, p.updateNext(result), newNext)
+        result
+      }
+
+      override def append[S >: T](element: S): DLLList[S] = {
+        lazy val result: DLLList[S] = new DLLCons(value, p.updateNext(result), n.append(element).updatePrev(result))
+        result
+      }
+
+      override def prepend[S >: T](element: S): DLLList[S] = {
+        lazy val result: DLLList[S] = new DLLCons(value, p.prepend(element).updateNext(result), n.updatePrev(result))
+        result
+      }
+
+      val list = DLLEnpty.prepend(1).append(2).prepend(3).append(4)
+      assert(list.value == 1)
+      assert(list.next.value == 2)
+      assert(list.next.prev == list)
+      assert(list.prev.value == 3)
+      assert(list.prev.next == list)
+      assert(list.next.next.value == 4)
+      assert(list.next.next.prev.prev == list)
+    }
+  }
+
+  // Loan - pattern
+  {
+    case class Session(url: String, isAlive: Boolean)
+
+    def builder(handle: Session => Unit): Unit =
+      handle(Session("www.trump.ua", true))
+
+
+    builder { session =>
+      println(session.url)
+      println(session.isAlive)
+    }
+  }
+
+
+
+  // singleton
+  /*    In scala it's represented in one line just as object    */
+  object Singleton
+
+
+
+  // companion object
+  /*  class + object = companion  */
+  class Kid {
+    val _ = Kid.privateField
+  }
+
+  object Kid { private val privateField = 123 }
+
+
+/*
+
+      ################################ Cats ################################################################
+
       Тео́рия катего́рий — раздел математики, изучающий свойства отношений между математическими объектами,
                          не зависящие от внутренней структуры объектов.
 
