@@ -1,5 +1,6 @@
 package tmp
 
+
 object MonadExample {
   trait CMonad[+A] {
     def apply[A](value: A): CMonad[A] = CMonadImpl(value)
@@ -18,12 +19,11 @@ object MonadExample {
     def withFilter(condition: A => Boolean): CMonad[A] =
       if (condition(value)) self
       else CMonadEmpty
-
   }
 
   case object CMonadEmpty extends CMonad[Nothing] {
-    def flatMap[B](function: Nothing => CMonad[B]): CMonad[B] = CMonadEmpty
-    def map[B](function: Nothing => B): CMonad[B] = CMonadEmpty
+    def flatMap[B](function: Nothing => CMonad[B]): CMonad[B]      = CMonadEmpty
+    def map[B](function: Nothing => B): CMonad[B]                  = CMonadEmpty
     def withFilter(condition: Nothing => Boolean): CMonad[Nothing] = CMonadEmpty
   }
 

@@ -21,13 +21,42 @@ object Tutorial {
     ################################ Patterns ################################################################
 
     SOLID:
-      Single responsibility  -> каждий клас должен иметь одну и только одну причину для изменения
-      Open closed            -> открит для розширения, закрит для изменения (только дописивать)
-      Liskov substitution    -> функции которие используют базовий тип должни без изменения использовать
+      Single responsibility  → каждий клас должен иметь одну и только одну причину для изменения
+      Open closed            → открит для розширения, закрит для изменения (только дописивать)
+      Liskov substitution    → функции которие используют базовий тип должни без изменения использовать
                                подтип
-      Interface segregation  -> много интерфейсов лучше чем один большой
-      Dependency inversion   -> зависимость на абстракции нет завимостей на конкретное
+      Interface segregation  → много интерфейсов лучше чем один большой
+      Dependency inversion   → зависимость на абстракции нет завимостей на конкретное
 
+
+    Поліморфізм — це можливість працювати з різними типами даних через один і той самий інтерфейс або ім’я методу
+          --------------------------------------------------------------------------------------------------------
+          def identity[A](x: A): A = x
+
+          val a = identity(5)        // Int
+          val b = identity("hello")  // String
+          --------------------------------------------------------------------------------------------------------
+
+          trait Animal {
+            def sound(): String
+          }
+
+          class Dog extends Animal {
+            def sound() = "Woof"
+          }
+
+          class Cat extends Animal {
+            def sound() = "Meow"
+          }
+
+          def makeSound(animal: Animal): Unit = {
+            println(animal.sound())
+          }
+
+          makeSound(new Dog)
+          makeSound(new Cat)
+
+          Пояснення: Одна функція makeSound працює з різними типами (Dog, Cat)
 * */
 
 
@@ -49,12 +78,12 @@ object Tutorial {
     }
 
 
-    object DLLEnpty extends DLLList[Nothing] {
+    object DLLEmpty extends DLLList[Nothing] {
       override def value: Nothing = throw new NoSuchElementException("There are no element")
       override def next: DLLList[Nothing] = throw new NoSuchElementException("There are no element")
       override def prev: DLLList[Nothing] = throw new NoSuchElementException("There are no element")
-      override def append[S >: Nothing](element: S) = new DLLCons(element, DLLEnpty, DLLEnpty)
-      override def prepend[S >: Nothing](element: S) = new DLLCons(element, DLLEnpty, DLLEnpty)
+      override def append[S >: Nothing](element: S) = new DLLCons(element, DLLEmpty, DLLEmpty)
+      override def prepend[S >: Nothing](element: S) = new DLLCons(element, DLLEmpty, DLLEmpty)
       override def updateNext[S >: Nothing](newNext: => DLLList[S]) = this
       override def updatePrev[S >: Nothing](newPrev: => DLLList[S]) = this
     }
@@ -87,7 +116,7 @@ object Tutorial {
         result
       }
 
-      val list = DLLEnpty.prepend(1).append(2).prepend(3).append(4)
+      val list = DLLEmpty.prepend(1).append(2).prepend(3).append(4)
       assert(list.value == 1)
       assert(list.next.value == 2)
       assert(list.next.prev == list)
@@ -97,6 +126,7 @@ object Tutorial {
       assert(list.next.next.prev.prev == list)
     }
   }
+
 
   // Loan - pattern
   {
@@ -133,6 +163,16 @@ object Tutorial {
 
       ################################ Cats ################################################################
 
+      Cats       →  is a library which provides abstractions for functional programming in the Scala programming language
+      Cats goals →  support functional programming in Scala applications
+      GENERAL FLOW FOR CATS:
+          import cats.Eq
+          import cats.instances.int._
+          import cats.syntax.eq._
+
+          import cats.implicits._
+
+
       Тео́рия катего́рий — раздел математики, изучающий свойства отношений между математическими объектами,
                          не зависящие от внутренней структуры объектов.
 
@@ -141,7 +181,7 @@ object Tutorial {
             - категория модулей
             - категория векторных пространств
 
-      морфизми -> стрелоки
+      морфизми                → стрелоки
       Коммутативная диаграмма — это ориентированный граф, в вершинах которого находятся объекты, а стрелками являются морфизмы
 
       - изо морфизм (https://ru.hexlet.io/courses/graphs/lessons/isomorphism/theory_unit):
@@ -166,32 +206,21 @@ object Tutorial {
                         g ->        f: A -> B
 
 
-
-            - эндо морфизм - морфизмы, в которых начало и конец совпадают, является моноидом
-            - авто морфизм -
-
-
-            - би морфизм — это морфизм, являющийся одновременно мономорфизмом и эпиморфизмом
-
-      Cats is a library which provides abstractions for functional programming in the Scala programming language
-      Cats goals -> support functional programming in Scala applications
-
-
-      GENERAL FLOW FOR CATS:
-        import cats.Eq
-        import cats.instances.int._
-        import cats.syntax.eq._
-
-        import cats.implicits._
+      - эндо морфизм(моноид) - морфизмы, в которых начало и конец совпадают, является моноидом
+      - би морфизм — это морфизм, являющийся одновременно мономорфизмом и эпиморфизмом.
+                     функція, яку можна повністю “перевернути назад” без втрат.
+      - авто морфизм - ???
   */
 
 
-  //  Type classes
+  /*
+    Type classes
+      - структура даних яка підтримує ad hoc polymorphism
+      - ми можемо додати новий метод чи нові дані без зміни існуючого кода
+  */
+
   {
     /*
-        - is a data structure which support ad hoc polymorphism
-        - we can ADD NEW METHOD or NEW DATA without changing existing code
-
         There are three important point about type classes:
           - type class itself
           - instances for particular type
@@ -228,14 +257,10 @@ object Tutorial {
       The behavior of that method convert is 'ad-hoc' because of:
 
                           implicit convertor: Convertor[A]
+      Частина ad-hoc: в коді в нас є можливість викликати convertor.convert тільки тоді коли convertor is supplied це є частина ad-hoc
 
-      where in the code we have capability to call convertor.convert method  only when convertor is supplied.
-      That is the part of ad-hoc
-
-      ad-hoc - capability to call convert method on convertor only when convertor is supplied.
-
-      implicit convertor: Convertor[T] <- ad-hoc
-      [T]                              <- polymorphism, where for any specific type we must have it's own implementation
+      implicit convertor: Convertor[T] → ad-hoc
+      [T]                              → поліморфізм, де для кожного специфічного типу ми маємо конкретну імплементацію
 
      */
 
@@ -373,7 +398,6 @@ object Tutorial {
 
 
 
-
   // Functor
   {
 
@@ -382,19 +406,22 @@ object Tutorial {
         - provides the ability for its values to be "mapped over"
         - function that transforms inside a value while remembering its shape
         - fundamental method is a "map"
+
       Example, modify every element of a collection without dropping or adding elements
 
       Laws:
         identity:               fa.map(x => x)    ==  fa
         composition:            fa.map(f).map(g)  ==  fa.map(x => f(x) andThen g(x))
 
+
       In mathematical concept:
-        Functor - defines transformations between categories. In Scala - defines transformations between Scala types
-        EndoFunctors - defines transformations between same categories
+        Functor       → defines transformations between categories. In Scala - defines transformations between Scala types
+        EndoFunctors  → defines transformations between same categories
 
 
       Functor natural transformation is about:
                   List => Option
+
 
       as an example:
         trait FunctorTrans[-F[_], +G[_]] {
@@ -469,46 +496,32 @@ object Tutorial {
 
 
 
-
-
-
-
-
   // Monad
   {
     /*
     Monads:
-      - one of the most important building blocks of functional programming.
-        They help us to compose various computations in a better way by structuring the program generically and avoiding
-        boilerplate code
-      - data structure with sequential capabilities
-      - ability to transform values in a chain way:
+      - один із найважливіших building blocks of functional programming
+      - обгорнути значення в контекст
+      - і послідовно застосовувати до нього обчислення in a chain way
       - in the end have the same type
       - to be able write the for-comprehension we do need to have "map" and "flatMap"
       - for-comprehensions transform by compiler into the "map" and "flatMap"
 
 
-    Extract -> Transform -> Wrap
-
+    Extract → Transform → Wrap
       Monad has two fundamental operation
           Wrap a value: class `CustomMonad` wrap `value` In functional world it's named as a `pure` or `unit`
           Transform a value by the given function, in our case it's a `flatMap`: T => CustomMonad[S]
 
-      Monad(x).flatMap(x => Monad(x))   == Monad(x)                                 right identity
       Monad(x).flatMap(f)               == f(x)                                     left identity
+      Monad(x).flatMap(x => Monad(x))   == Monad(x)                                 right identity
 
-      Monad(x).flatMap(f).flatMap(g)    == Monad(x).flatMap(x => f(x).flatMap(g))   composition, associativity (ETW -> ETW -> ETW)
+      Monad(x).flatMap(f).flatMap(g)    == Monad(x).flatMap(x => f(x).flatMap(g))   composition, де f - функція котра повертає Monad(x)
 
-
-
-                  List(x).flatMap(f)        ==  f(x)
-                  xs.flatMap(x => List(x))  ==  xs
-                  xs.flatMap(f).flatMap(g)  ==  xs.flatMap(x => f(x).flatMap(g))
-
-
-
+            List(x).flatMap(f)        ==  f(x)
+            xs.flatMap(x => List(x))  ==  xs
+            xs.flatMap(f).flatMap(g)  ==  xs.flatMap(x => f(x).flatMap(g))
     */
-
   }
 
 
