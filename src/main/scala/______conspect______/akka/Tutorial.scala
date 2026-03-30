@@ -1,4 +1,4 @@
-package ______conspect______.scala_akka
+package ______conspect______.akka
 
 object Tutorial {
   def main(args: Array[String]): Unit = {

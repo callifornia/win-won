@@ -1,6 +1,6 @@
 package tmp
 
-object Main {
+object MonadExample {
   trait CMonad[+A] {
     def apply[A](value: A): CMonad[A] = CMonadImpl(value)
     def flatMap[B](function: A => CMonad[B]): CMonad[B]

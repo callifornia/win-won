@@ -1,4 +1,4 @@
-package ______conspect______.scala_main_concepts
+package ______conspect______.conspect
 
 object PoligonTutorial {
 

@@ -1,4 +1,4 @@
-package ______conspect______.scala_akka
+package ______conspect______.akka
 
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ActorSystem, Behavior}

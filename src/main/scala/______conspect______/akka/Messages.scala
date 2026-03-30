@@ -1,4 +1,4 @@
-package ______conspect______.scala_akka
+package ______conspect______.akka
 
 import java.util.UUID
 import scala.util.Random

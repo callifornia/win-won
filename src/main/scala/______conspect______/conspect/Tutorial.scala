@@ -1,4 +1,4 @@
-package ______conspect______.scala_main_concepts
+package ______conspect______.conspect
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -35,55 +35,63 @@ object Tutorial {
       -  cache line needs to be shipped to the other core’s cache
       -  on the JVM, to be shared across threads using volatile or Atomic wrappers
       -  an important difference between passing messages and calling methods is that messages have no return value
-      -  actor system can process as many messages simultaneously as the hardware will support.
+      -  actor system can process as many messages simultaneously as the hardware will support
 
 
 
-    - functional programming    => work with a function as we work with a value
-    - function value            => can be passed around or return as a result
-    - high order function       => take another function as an argument, return another function
-    - pattern matching          => decomposition of an element
-    - partial function          => in other words it's pattern matching
-    - higher kinder types       => when one type accept another type
-    - higher order function     => when one function accept another function
-    - instruction vs expression =>
-              Expression              → produces a value
-              Instruction (statement) → performs an action (may not produce a meaningful value)
+    - functional programming    → work with a function as we work with a value
+    - function value            → can be passed around or return as a result
+
+    - pattern matching          → decomposition of an element
+    - partial function          → in other words it's pattern matching
+
+    - higher kinder types       → when one type accept another type
+    - higher order function     → when one function accept another function
+    - inheritance model         → extends 1 class but lots of traits
+    - instruction vs expression:
+
+              Expression                  →     produces a value
+              Instruction (statement)     →     performs an action
+
               Expression example:
                   val x = 1 + 2
                   val y = if (x > 2) "big" else "small"
                   both return value ...
-              Instruction exemple:
+              Instruction example:
                   println("Hello")
                   var x = 10
                   x = x + 1
 
-    - inheritance model         => extends 1 class but lots of traits
-    - method notation           => 1 + 2
+    - method notation example:  1 + 2
+    - scala vision              → we think about program as one expression which evaluates and return a value which can be
+                                  complex like server application. Think in terms of expression instead of instructions(imperative approach).
+                                  We have an instruction problem which means evaluate the expression while maintaining type safety
+                                  and return the right value with the right type
+                                  Think of functions as values
+
+    - associativity             → a x (b x c) = (a x b) x c
+    - infix notation            → ability to use method without any dots or parentheses, fundamental feature in language
+    - auxiliary constructors    → overloaded constructor this()
+                                  must first call the primary constructor or another auxiliary constructor
+    - lifting                   → when we pass some method as if it were a function, Scala automatically converts it
+                                  to a function object
+
+    - scala prefixes            → all the parameters with val
+    - equals/hashCode           → implemented for you based on the given parameters
+    - companion object          → created with the appropriate apply method, which takes the same arguments as declared in the case class
+    - unapply                   → allow the class name to be used as an extractor for pattern matching
+    - sealed trait              → all the classes need to be in the same source file
+    - first-class citizens      → we can use functions as values or like normal variables
+    - default scala imports     → implicitly: java.lang._, scala._, scala.Predef._
+
+    - linearization             → This is an important concept in Scala that explains how Scala resolves methods when multiple traits are mixed
+                                  together. When a method is called, Scala looks for the implementation from left to right in this order
+                                  This solves the diamond problem found in multiple inheritance
 
    */
 
 
-
-  /*  Some interesting point around initialization  */
-  App.foo                     // in run we are "OK"
-  App.foo.bar.someMethod()    // in run "NullPointerException" тому що
-                              // val foo = Foo(bar, baz) йде перед
-                              // val bar = Bar()
-
-  case class Bar() { def someMethod(): String = "hi there ..." }
-  case class Baz()
-  case class Foo(bar: Bar, baz: Baz)
-
-  object App {
-    val foo = Foo(bar, baz)
-    val bar = Bar()
-    val baz = Baz()
-  }
-
-
-
-  // referential transparency - замінити функцію на val до котрої та функція заасайнина
+  // referential transparency → замінити функцію на val до котрої та функція заасайнина
   {
     def add(a: Int, b: Int): Int = a + b
 
@@ -95,7 +103,6 @@ object Tutorial {
     /* referential transparency is not */
     def showTime(): Long = System.currentTimeMillis()
   }
-
 
 
   // unapply
@@ -126,52 +133,6 @@ object Tutorial {
   }
 
 
-
-  // general notes
-  {
-    /*
-      scala 3 -
-                      extension(n: Int) {
-                            def times(s: String): Unit = println("...")
-                      }
-                      5.times("Scala")
-
-
-                      def someMethod(b: Int)(using implicit value: String) = "..."
-
-
-      scala vision              - we think about program as one expression which evaluates and return a value which can be
-                                  complex like server application. Think in terms of expression instead of instructions(imperative approach).
-                                  We have an instruction problem which means evaluate the expression while maintaining type sefty
-                                  and return the right value with the right type
-                                  Think of functions as values
-
-      associativity             - a x (b x c) = (a x b) x c
-      infix notation            - ability to use method without any dots or parentheses, fundamental feature in language
-      auxiliary constructors    - overloaded constructor this()
-                                  must first call the primary constructor or another auxiliary constructor
-      lifting                   - when we pass some method as if it were a function, Scala automatically converts it
-                                  to a function object
-
-      scala prefixes            - all the parameters with val
-      equals/hashCode           - implemented for you based on the given parameters
-      companion object          - created with the appropriate apply method, which takes the same arguments as declared in the case class
-      unapply                   - allow the class name to be used as an extractor for pattern matching
-
-      sealed trait              - all the classes need to be in the same source file
-
-
-      first-class citizens      - we can use functions as values or like normal variables
-      default scala imports     - implicitly: java.lang._, scala._, scala.Predef._
-
-      linearization             - This is an important concept in Scala that explains how Scala resolves methods when multiple traits are mixed
-                                  together. When a method is called, Scala looks for the implementation from left to right in this order
-                                  This solves the diamond problem found in multiple inheritance
-      */
-  }
-
-
-
   // value classes
   {
     /*
@@ -197,28 +158,24 @@ object Tutorial {
                           }
 
 */
-
   }
 
+  /*
 
+  implicit lookup:
 
-  // implicit lookup
-  {
-    /*    Look in current scope
+        Look in current scope
             - implicit defined in current scope
             - imports explicit, wildcard
           Look at associated types in
             - companion object of a type
             - companion object OtherClass
             - companion object B
-            - any superclass of B */
-  }
+            - any superclass of B
 
 
+  substitution model:
 
-
-  // substitution model
-  /*
         sumOfSquares(3, 2 + 2)
         sumOfSquares(3, 4)
         square(3) + square(4)
@@ -228,8 +185,7 @@ object Tutorial {
         9 + 16
         25
                            */
-
-
+  
 
 
   // call by name
@@ -304,16 +260,16 @@ object Tutorial {
        Dog is subtype of Animal
        Is List[Dog] is subtype of List[Animal] = this is variant question
 
-       In case answer is YES         => it means Covariant | In Scala it marked as List[+A] */
+       In case answer is YES         → it means Covariant | In Scala it marked as List[+A] */
     class Animal
     class Dog extends Animal
     val _: List[Animal] = List.empty[Dog]
 
-    /*   In case answer is NO         => it means Invariant where no relationships between List[Animal] and List[Dog]. In Scala it marked as List[A] */
+    /*   In case answer is NO         → it means Invariant where no relationships between List[Animal] and List[Dog]. In Scala it marked as List[A] */
     class MyList[A]
     val _: MyList[Animal] = new MyList[Animal]
 
-    /*    In case answer is HELL NO   => it means Contravariant. Where in Scala it marked as List[-A] */
+    /*    In case answer is HELL NO   → it means Contravariant. Where in Scala it marked as List[-A] */
     class MyList_2[-A]
     val _: MyList_2[Dog] = new MyList_2[Animal]
 
@@ -333,8 +289,8 @@ object Tutorial {
 
     /*
        Summary
-        - In case your generic type produce(creates) or contain an elements   =>  COVARIANT
-        - In case your generic type "acts on" or consume an elements          =>  CONTRAVARIANT
+        - In case your generic type produce(creates) or contain an elements   →  COVARIANT
+        - In case your generic type "acts on" or consume an elements          →  CONTRAVARIANT
    */
 
   }
@@ -417,11 +373,9 @@ object Tutorial {
     }
 
     /*
-
         - they can't be instantiated on their own
         - may have abstract fields/methods
         - may have non-abstract fields/methods
-
 
         - can inherit from a SINGLE abstract class
         - can inherit from MULTIPLE traits
@@ -446,7 +400,6 @@ object Tutorial {
 
       example:
        List(1,2,3,4).map(incrementMethod) <- compiler automatically transform "incrementMethod" into the function
-
    */
   }
 
@@ -487,8 +440,6 @@ object Tutorial {
     }
     val myClass = new MyClass_2
     123 :: myClass /* because method in class MyClass_2 ended with a ":" */
-
-
   }
 
 
@@ -501,7 +452,6 @@ object Tutorial {
     class Function[F[_]]        /*  level - 2 type */
     class Meta[F[_[_]]]         /*  level - 3 type */
   }
-
 
 
   // custom while
@@ -519,9 +469,24 @@ object Tutorial {
       println("Hello world")
       i = i - 1
     }
-
   }
 
+
+  /*  Some interesting point around initialization  */
+  App.foo                     // in run we are "OK"
+  App.foo.bar.someMethod()    // in run "NullPointerException" тому що
+  // val foo = Foo(bar, baz) йде перед
+  // val bar = Bar()
+
+  case class Bar() { def someMethod(): String = "hi there ..." }
+  case class Baz()
+  case class Foo(bar: Bar, baz: Baz)
+
+  object App {
+    val foo = Foo(bar, baz)
+    val bar = Bar()
+    val baz = Baz()
+  }
 
 
 
