@@ -14,6 +14,16 @@ object RepeatTmp {
     override def flatMap[B](function: A => CustomContainer[B]): CustomContainer[B] = function.apply(aValue)
   }
 
+//  case object CustomContainerEmpty extends CustomMonad[Nothing, CustomContainerEmpty.type] {
+//    override def pure[C](value: C): CustomContainerEmpty.type[C] = ???
+//    override def map[B](function: Nothing => B): CustomContainerEmpty.type[B] = ???
+//    override def flatMap[B](function: Nothing => CustomContainerEmpty.type[B]): CustomContainerEmpty.type[B] = ???
+//  }
+
+
+
+
+
 //  case object CustomContainerEmpty extends CustomMonad[Nothing] {
 //    override def pure[C](value: C): CustomMonad[C] = ???
 //    override def map[B](function: Nothing => B): CustomMonad[B] = ???

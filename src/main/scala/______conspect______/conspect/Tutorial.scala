@@ -475,13 +475,19 @@ object Tutorial {
   }
 
 
-
   /*
-    ADT  =  algebra data type
+    ADT  ==>  algebra data type
       SUM       →  object
       Product   →  case class
       Hybrid    →  case class contains object Product(SUM)
+
+    Algebra data type perform operations which exists, example:
+      case class Create[A](key: String, value: A)
+      case class Read(key: String)
+      case class Update[A](key: String, value: A)
+      case class Delete(key: String)
   * */
+
   {
       /*  SUM type  */
       sealed trait Weather

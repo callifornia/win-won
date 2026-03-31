@@ -1,6 +1,8 @@
 package tmp
 
+
 object MainScheduler {
+
 
   def main(args: Array[String]): Unit = {
 
@@ -11,9 +13,10 @@ object MainScheduler {
         "Akka http",
         "Akka stream",
         "Cats",
-        "ZIO",
         "Apache Spark",
+        "File format ... delta lake",
         "SQL",
+        "ZIO",
         "Знайти ресурси на котрих можна створювати AI відео реклами та іншого",
         "Scala programming",
         "Play Framework",

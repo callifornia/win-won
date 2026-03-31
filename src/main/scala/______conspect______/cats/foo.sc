@@ -7,12 +7,6 @@
 * */
 
 
-
-
-
-
-
-
 // Semigroup
 trait Semigroup[T] {
   def combine(a: T, b: T): T
@@ -60,4 +54,3 @@ implicit val monStr = new Monoid[String] {
 
 "foo".anEmpty
 1.anEmpty
-
