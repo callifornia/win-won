@@ -8,4 +8,15 @@ object Repeat_1 {
   }
 
   // FreeMonad
+  trait Monad[M[_]] {
+    def pure[A](value: A): M[A]
+    def flatMap[A, B](m: M[A])(f: A => M[B]): M[B]
+  }
+
+
+
+
+
+
+
 }

@@ -2,7 +2,7 @@ val AkkaVersion = "2.6.5"
 val KafkaVersion = "2.8.0"
 val ZioVersion = "1.0.12"
 val CatsEffectVersion = "3.3.12"
-val sparkVersion = "3.5.5"
+val sparkVersion = "4.0.2"
 val postgresVersion = "42.7.5"
 
 scalaVersion := "2.13.8"
@@ -18,7 +18,7 @@ libraryDependencies ++= List(
   "org.typelevel" %% "cats-free" % "2.8.0",
   "org.apache.spark" %% "spark-core" % sparkVersion,
   "org.apache.spark" %% "spark-sql" % sparkVersion,
-  "io.delta" %% "delta-spark" % "3.3.0",
+//  "io.delta" %% "delta-spark" % "3.3.0",
   "org.postgresql" % "postgresql" % postgresVersion,
 
   "com.typesafe.akka" %% "akka-actor-typed" % AkkaVersion
