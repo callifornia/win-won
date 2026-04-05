@@ -2,6 +2,8 @@ package spark.util
 
 import org.apache.spark.sql.SparkSession
 
+
+
 trait InitSession {
 
   /*
@@ -11,7 +13,8 @@ trait InitSession {
         - use ".cache()" for DataFrame in case: java.io.IOException: Connection reset by peer "
 
      */
-  implicit val spark: SparkSession = SparkSession
+  implicit val spark: SparkSession =
+    SparkSession
     .builder()
     .appName("lessons")
     .master("local[*]")

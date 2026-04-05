@@ -1,58 +1,315 @@
-Databricks
+📦Open table formats and legacy data storage techniques:
+        Відкриті табличні формати:
+         • підтримують транзакції ACID
+         • розширений пропуск даних
+         • функцію подорожей у часі та інші чудові функції
+         • роблять роботу з вашими даними швидшою та безпечнішою
+
+        Delta Lake – популярний формат відкритих столів. Існують також інші формати відкритих столів, такі як Apache Iceberg та Apache Hudi
+
+        Відкриті табличні формати – це технологія з відкритим кодом для зберігання табличних даних, яка базується на існуючих форматах файлів,
+        таких як Parquet та ORC. Відкритий табличний формат зберігає ваші табличні дані у файлах та зберігає метадані (про ваші дані та операції) в окремому файлі
+        або каталозі. Ці метадані використовуються для забезпечення багатьох чудових функцій відкритих табличних форматів:
+            • швидшої обробки запитів
+            • надійніших транзакцій та
+            • менший ризик пошкодження даних
+
+        Три основні формати відкритих столів:
+            • це Delta Lake
+            • Apache Hudi
+            • Apache Iceberg
+
+        Відкриті табличні формати вирішують проблеми продуктивності та надійності традиційних озер даних. Зберігаючи метадані разом із табличними даними,
+        відкриті табличні формати надають вам такі чудові функції, як:
+            • надійні ACID-транзакції
+            • розширений пропуск даних
+            • подорож у часі
+            • застосування та еволюція схеми
+            • повні операції CRUD
+
+✅ Формати відкритих таблиць: надійні ACID-транзакції
+        Відкриті формати таблиць були розроблені для забезпечення гарантій ACID. Транзакції ACID роблять запис ваших даних надійнішим, тому операції не пошкоджують вашу таблицю.
+        «Транзакція» стосується будь-якої операції запису, яка змінює стан таблиці
+
+        З ACID-транзакціями ви можете бути впевнені, що уникнете:
+            • невдалі часткові записи, що переривають виконання запитів нижче за течією
+            • випадкове пошкодження даних
+            • конфлікт паралельних процесів або версій даних
+            • ненавмисна втрата даних
 
 
-Databricks is a cloud-based data platform used for building, running, and managing:
-    🚀 Big data processing
-    🤖 Machine learning & AI workloads
-    🛢️ Data engineering pipelines
-    📊 Analytics & BI dashboards
+✅ Формати відкритих таблиць: розширений пропуск даних
+        Відкриті табличні формати пропонують розширений пропуск даних порівняно з такими форматами файлів, як Parquet та CSV. Оскільки вони зберігають метадані в централізованому
+        каталозі метаданих, механізми запитів можуть легко знаходити відповідні дані для вибіркового запиту
 
-It’s built on top of Apache Spark and provides a unified environment for teams to collaborate on data projects
+        Delta Lake підтримує розширений пропуск даних завдяки:
+          • ефективному зберіганню метаданих у централізованому журналі транзакцій
+          • оптимізованому розміщенню даних за допомогою Z-упорядкування або рідкої кластеризації
 
 
-******************** Delta Lake *****************************************************************************
+✅ Формати відкритих столів: Подорожі в часі
+        Відкриті табличні формати підтримують подорожі в часі. Це означає, що ви можете легко перевіряти попередні версії вашого набору даних і за потреби повертатися до них.
+        Delta Lake підтримує керування версіями даних через журнал транзакцій. Усі зміни, які ви вносите до своїх даних, записуються в цей журнал.
+        Це означає, що ви можете легко переглянути попередні версії та виправити випадкову помилку, якщо це необхідно.
+        Певну версію вашої таблиці Delta ось так:
+             spark.read.format("delta").option("versionAsOf", version).load("path/to/delta")
 
-    Delta Lake додає:
-	    •	транзакції (ACID)
-	    •   контроль структури даних
-	    •	версійність даних
-	    •	контроль змін
+
+✅ Формати відкритих таблиць: Застосування схеми та еволюція
+
+        Щоб забезпечити узгодженість даних і уникнути пошкодження, зазвичай потрібно переконатися, що нові дані відповідають існуючій схемі.
+        Це називається примусовим дотриманням схеми.
+        Багато стандартних форматів файлів, таких як Parquet та CSV, не підтримують застосування схеми за замовчуванням. Це означає, що ви можете легко записувати дані з
+        іншою схемою, наприклад, у ваше існуюче озеро даних Parquet. Це спричинить проблеми під час спроби зчитування даних.
+        Відкриті табличні формати за замовчуванням мають вбудоване застосування схеми. Це запобігає випадковому пошкодженню даних.
+
+
+✅ Відкриті формати таблиць: повні операції CRUD
+        Звичайні файли Parquet незмінні. Єдиний спосіб змінити файл Parquet – це повністю перезаписати його.
+        Це особливість: вона запобігає випадковому пошкодженню даних.
+
+        Відкриті табличні формати, такі як Delta Lake, забезпечують більшу надійність і гнучкість, ніж звичайні файли Parquet.
+        Ви можете використовувати відкриті табличні формати для виконання операцій CRUD (створення, читання, оновлення, видалення)
+        Наприклад, replaceWhere в Delta Lake для вибіркового перезапису певних рядків у таблиці:
+                                      df
+                                          .write
+                                          .format("delta")
+                                          .option("replaceWhere", "number > 2")
+                                          .mode("overwrite")
+                                          .save("tmp/my_data")
+        Видалення або перезапиз  просто зміна маркера в журналі транзакцій, щоб вони вказували на новий рядок або стовпець
+
+
+✅ Чи можна використовувати різні формати відкритих таблиць разом?
+        Так, ви можете використовувати різні формати відкритих таблиць разом, але це вимагає ретельного планування. Формати відкритих таблиць, такі як Delta Lake,
+        Apache Iceberg та Apache Hudi, спочатку розроблені для незалежного керування наборами даних. Кожен формат має власну структуру метаданих, керування транзакціями та API.
+        Це може ускладнити сумісність.
+
+        Такі проекти, як Delta Lake Uniform та Apache XTable, працюють над уніфікацією робочих процесів у форматах відкритих таблиць. Наприклад, ви можете використовувати Delta Lake
+
+
+✅ Коли слід використовувати формат відкритої таблиці?
+        Відкриті табличні формати майже завжди швидші, безпечніші та зручніші для розробників, ніж озера даних з такими форматами файлів, як Parquet, CSV або JSON.
+        Відкриті табличні формати, такі як Delta Lake, можуть бути чудовим вибором для вас, оскільки вони підтримують транзакції та застосування схеми,
+        тому набагато менша ймовірність пошкодження таблиці. Абстрагувати метадані файлу до журналу транзакцій та підтримувати розширену кластеризацію та пропуск даних,
+        що дозволяє швидше виконувати запити спрощують виконання поширених операцій з даними, таких як видалення стовпців, перейменування стовпців, видалення рядків та операції DML.
+        Якщо ви запускаєте важливі робочі процеси з табличними даними у виробництві, формати відкритих таблиць, ймовірно, будуть для вас найкращим вибором.
+
+
+
+✅ Delta Lake vs Data Lake - What's the Difference?   (https://delta.io/blog/delta-lake-vs-data-lake/)
+    «Озеро даних» – це загальний термін, що описує методологію зберігання даних, яка може існувати будь-де, де можна зберігати гібридні формати даних.
+    Наприклад, у вас може бути озеро даних, що містить файли Parquet, JSON та неструктуровані текстові файли, розташовані в корзині AWS S3.
+
+    «Delta Lake» – це формат таблиць з відкритим кодом для зберігання даних у великих масштабах. Він покращує надійність, продуктивність та зручність розробників
+    звичайних озер даних, надаючи вам:
+
+
+    Коли ваші дані масштабуються, ця гнучкість може стати проблемою.
+        • може бути важко відстежувати версії файлів
+        • схеми даних або
+        • відкатувати випадкову операцію з даними.
+        • озера даних легко пошкоджуються, що робить їх нечитабельними без ручного очищення.
+
+    Це призведе до неправильного аналізу та дорогого простою для розробників, яким потрібно використовувати дані для подальшого використання
+        • ACID-транзакції для надійного читання та запису
+        • високопродуктивна оптимізація запитів за допомогою пропуску файлів
+        • версіонування даних та подорожі в часі
+        • застосування та еволюція схеми
+        • гнучкі операції з даними, такі як видалення/перейменування стовпців, видалення рядків та операції DML
+
+        Delta Lake надає вам гнучкість та низькі витрати на зберігання, властиві озеру даних, разом із надійністю та продуктивністю сховища даних.
+    Ви можете запускати Delta Lake поверх існуючої інфраструктури озера даних. Таблиці Delta Lake можна використовувати для побудови архітектури Data Lakehouse
+    Delta Lake зберігає ваші дані у файлах Parquet «під капотом». Файли Parquet – це популярний формат файлів для озер даних. Але файли Parquet не мають таких функцій,
+    як журнали транзакцій, Z-упорядкування та подорожі в часі.
+
+    Delta Lake використовує ваше існуюче озеро даних Parquet та робить його надійнішим та продуктивнішим завдяки:
+        • зберігання всіх метаданих в окремому журналі транзакцій
+        • відстеження всіх змін ваших даних у цьому журналі транзакцій
+        • організація даних для максимальної продуктивності запитів
+
+    Delta Lake підтримує транзакції ACID (атомарність, узгодженість, ізоляція та довговічність). Транзакції ACID роблять запис даних надійнішим,
+    тому операції не пошкоджують вашу таблицю. «Транзакція» — це будь-яка операція запису, яка змінює стан таблиці.
+
+    ACID-транзакції надають вам 4 важливі гарантії:
+        • кожна транзакція даних розглядається як неподільна одиниця. Або вся транзакція завершується повністю, або вона повністю завершується невдачею, і дані не змінюються.
+          Це вирішує проблему невдалих часткових записів. (Atomicity)
+        • ваша база даних перебуває у коректному (непошкодженому) стані до та після кожної транзакції. Якщо транзакція порушує будь-яке з попередньо визначених обмежень,
+          вся транзакція відхиляється та не завершується. Це вирішує проблему пошкодження таблиці. (Узгодженість)
+        • Паралельні процеси відбуваються ізольовано один від одного та не можуть отримати доступ до проміжних станів один одного.
+          Це вирішує проблему конфлікту версій файлів або даних на кількох серверах або процесах. (Ізоляція)
+        • Після завершення транзакції зміни гарантовано ніколи не будуть втрачені, навіть у разі системних збоїв або відключення живлення. Внесені зміни зберігаються в
+          енергонезалежному сховищі. Це вирішує проблему ненавмисної втрати даних. (Довговічність)
+
+    Озера даних не дають вам жодної з цих гарантій
+
+        Наприклад, припустимо, що ви записуєте великий обсяг даних до існуючого озера даних файлів Parquet. Якщо ваш кластер завершує роботу під час операції,
+    у вашому озері даних можуть залишитися частково записані файли Parquet. Ці частково записані файли перервуть подальше читання. Щоб виправити це, вам потрібно буде
+    ідентифікувати всі пошкоджені файли та видалити їх. Потім вам потрібно буде повторно запустити операцію та сподіватися, що ваш кластер більше не завершить роботу.
+
+        Така ситуація неможлива з транзакціями ACID: вся операція запису завершиться невдачею, і ви зможете повторити спробу, не стикаючись із пошкодженою таблицею.
+    Дельта-озеро змушує ваші запити виконуватися швидше, ніж звичайне озеро даних
+
+    Delta Lake оптимізує ваші запити шляхом:
+        • зберігання шляхів до файлів в окремому журналі транзакцій
+        • зберігання метаданих у журналі транзакцій
+        • пріоритетність часткового читання шляхом пропуску файлів
+        • спільне розташування схожих даних для кращого пропуску файлів
+
+
+        Файли Parquet зберігають метадані про значення стовпців у нижньому колонтитулі кожного файлу. Це означає, що коли ви хочете прочитати метадані вашого озера даних,
+    вам доведеться прочитати метадані з кожного окремого файлу Parquet. Це вимагає отримання кожного файлу та отримання метаданих нижнього колонтитула, що є повільним,
+    коли у вас багато файлів Parquet
+
+
+
+
+
+
+
+
+
+
+https://delta.io/blog/delta-lake-vs-parquet-comparison/                             Delta Lake vs. Parquet Comparison
+https://delta.io/blog/delta-lake-vs-orc/                                            Delta Lake vs. ORC Comparison
+https://delta.io/blog/2022-08-29-delta-lake-drop-column/                            How to drop columns from a Delta Lake table
+https://delta.io/blog/2023-07-27-delta-lake-table-features/                         Introducing Delta Lake Table Features
+https://delta.io/blog/2022-10-25-create-delta-lake-tables/                          How to Create Delta Lake Tables
+https://delta.io/blog/2023-04-12-delta-lake-generated-columns/                      How to use Delta Lake generated columns
+https://delta.io/blog/2022-12-07-delete-rows-from-delta-lake-table/                 How to Delete Rows from a Delta Lake Table
+https://delta.io/blog/delta-lake-replacewhere/                                      Delta Lake replaceWhere
+https://delta.io/blog/2022-10-03-rollback-delta-lake-restore/                       How to Rollback a Delta Lake Table to a Previous Version with Restore
+
+https://delta.io/blog/2023-01-25-delta-lake-small-file-compaction-optimize/         Delta Lake Small File Compaction with OPTIMIZE
+https://delta.io/blog/delta-lake-upsert/                                            Delta Lake Upsert
+https://delta.io/blog/2023-02-14-delta-lake-merge/                                  Delta Lake Merge
+https://delta.io/blog/delta-lake-clone/                                             Delta Lake Clone
+https://delta.io/blog/2023-07-07-delta-lake-transaction-log-protocol/               Delta Lake’s transaction log protocol and its implementations
+https://delta.io/blog/2023-02-01-delta-lake-time-travel/                            Delta Lake Time Travel
+https://delta.io/blog/2023-02-08-delta-lake-schema-evolution/                       Delta Lake Schema Evolution
+https://delta.io/blog/2022-11-16-delta-lake-schema-enforcement/                     Delta Lake Schema Enforcement
+https://delta.io/blog/2022-11-21-delta-lake-contraints-check/                       Delta Lake Constraints and Checks
+https://delta.io/blog/2023-06-03-delta-lake-z-order/                                Delta Lake Z Order
+
+https://delta.io/blog/delta-lake-performance/                                       Delta Lake Performance
+https://delta.io/blog/2023-04-19-faster-aggregations-metadata/                      How Delta Lake uses metadata to make certain aggregations much faster
+https://delta.io/blog/delta-lake-optimize/                                          Delta Lake Optimize
+https://delta.io/blog/2023-03-22-convert-csv-to-delta-lake/                         How to Convert from CSV to Delta Lake
+https://delta.io/blog/2022-09-23-convert-parquet-to-delta/                          Converting from Parquet to Delta Lake
+https://delta.io/blog/remove-files-delta-lake-vacuum-command/                       Remove old files with the Delta Lake Vacuum Command
+https://delta.io/blog/2023-01-18-add-remove-partition-delta-lake/                   Adding and Deleting Partitions in Delta Lake tables
+
+https://delta.io/blog/2023-03-07-delta-lake-spark-development/                      Getting started contributing to Delta Lake Spark
+https://delta.io/blog/2020-09-16-getting-started-with-delta-lake/                   Getting Started with Delta Lake
+https://delta.io/blog/2020-03-13-diving-into-delta-lake-online-tech-talk-series/    Diving into Delta Lake Online Tech Talk Series
+https://delta.io/blog/delta-lake-without-spark/                                     Delta Lake without Spark
+
+
+
+
+
+???? Z-упорядкування
+???? рідкої кластеризації
+
+
+🚀 Delta Lake
+    - connectors: spark, snowflake, amazon redshift, amazon athena, presto
+
+    Обрабатывать:
+        - структурированные данные
+        - полуструктурированные данные
+        - неструктурированные данные
+
+
+    Blob - cloud-based system for storing large, unstructured files as objects
+    Think of blob storage as a big online hard drive where you can store files like:
+    	• images 📸
+    	• videos 🎥
+    	• PDFs 📄
+    	• backups 💾
+    	• logs 📜
+    	• data files (Parquet, JSON, CSV)
+
+
+    In cloud terms. Blob storage is commonly provided by cloud platforms like:
+    	• Azure
+    	• S3
+    	• Google Cloud Storage
+
+
+    Key characteristics:
+        • Unstructured data      - no fixed schema (unlike databases)
+        • Object-based           - data (the blob)
+                                     unique path/name, size, type, timestamps
+        • Scalable
+        • Accessible via URL/API  - https://storage.example.com/container/file.parquet
+
+🚀 DeltaLake додає:
+	    • транзакції (ACID)
+	    • контроль структури даних
+	    • версійність даних
+	    • контроль змін
 
     Простий приклад:
-        Було:
-            •	CSV/Parquet файли без контролю
-
-        З Delta Lake:
-        	•	ті ж файли
-        	+	історія змін
-        	+	безпечні транзакції
-        	+	можливість “відкотитись назад”
-
-    Apache Iceberg, Apache Hudi - головні конкуренти
-    Обрабатывать:
-        -   структурированные данные
-        -   полуструктурированные данные
-        -   неструктурированные данные
+        було:
+            • CSV/Parquet файли без контролю
+        стало:
+        	• ті ж CSV/Parquet
+        	+ історія змін
+        	+ безпечні транзакції
+        	+ можливість “відкотитись назад”
 
 
-************************* ACID ****************************************************************************
-
-    Набір принципів, які гарантують надійність роботи транзакцій у базах даних
-    Гарантія, що дані в базі не зламаються, навіть при помилках, паралельній роботі або збоях
-
-    Атомарність     - Транзакція виконується або повністю, або взагалі не виконується.
-    (Atomicity)       Якщо сталася помилка — всі зміни скасовуються
-
-    Узгодженість    - Після транзакції база даних залишається у коректному стані, без порушення правил (обмежень, зв’язків)
-    (Consistency)
-
-    Ізольованість   - Транзакції виконуються так, ніби вони не заважають одна одній, навіть якщо йдуть паралельно
-    (Isolation)
-
-    Надійність / Довговічність - Після завершення транзакції її результат зберігається назавжди, навіть якщо система впаде
-    (Durability)
+    Open format: parquet as blob storage
+    ACID Transactions:
+    Schema enforcement:
+    Audit history:
+    Time travel:
+    Deletes and upserts: support deleting and upserting operation
+    Scalable metadata: able to handle millions files
+    Unified batch and Streaming Source and Sink: A table in Deltalake is both a batch table as source as sink
 
 
+    Transaction logs:
+           • default keep 30 days логічне збереження історії:
+                spark.conf.set("spark.databricks.delta.logRetentionDuration", "interval 7 days")
+           • для файлів це VACUUM:
+                spark.sql("VACUUM delta.`/path/to/table` RETAIN 168 HOURS")
+
+
+    Schema enforcement
+        • schema validation (reject writes to the table that does not confirm schema)
+        • happens on write
+        • throw an exception
+        • in case some columns are not mentioned on write and those columns allow nulls it's OK, otherwise throw an Exception
+        • can not have columns such as "Foo" and "foo" in one table because parquet file
+            spark can be case sensitive or insensitive (default)
+            This restriction was added to prevent allow mistake, data corruption, etc
+
+
+    ACID - набір принципів, які гарантують надійність роботи транзакцій у базах даних. Гарантія, що дані в базі не зламаються, навіть при помилках,
+           паралельній роботі або збоях
+
+        Атомарність     - транзакція виконується або повністю, або взагалі не виконується
+        (Atomicity)       помилка —> всі зміни скасовуються
+
+        Узгодженість    - після транзакції база даних залишається у коректному стані, без порушення правил (обмежень, зв’язків)
+        (Consistency)
+
+        Ізольованість   - транзакції виконуються так, ніби вони не заважають одна одній, навіть якщо йдуть паралельно
+        (Isolation)
+
+        Надійність / Довговічність - після завершення транзакції її результат зберігається назавжди, навіть якщо система впаде
+        (Durability)
+
+
+    How things go:
+        • identify rows to insert
+        • identify rows to update
+        • identify rows no touched
+        • create tmp table based on 3 steps
+        • delete the original table
+        • rename tmp table
 
 
 
@@ -62,7 +319,76 @@ It’s built on top of Apache Spark and provides a unified environment for teams
 
 
 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+    In case we do have a parallel writes we can play with that as we have sync flow
+    2 types of concurrency:
+        - pessimistic - lock entire table
+        - optimistic  - in big data world we do append rather than update the same record
+
+    cases:
+        2 users append data:  ~> одна транзакція добавила дані + закомітила
+                              ~> друга транзакція добавила дані + отримала помилку + прочитала коміт лог побачила що там тільки апенд + добавила
+        in other cases it's throw an exception
 
 
 
-    
+************************* insert / update / delete ***********************************************************************
+
+
+    - When do we have 10 files and do write, we do have 10 rewrites which is bad:
+        - Solution: 1 file,
+        - Too many small files = slow queries
+
+
+    - Merge inefficiency:
+        - numTargetRowsCopied, numTargetRowsUpdated in case
+          If copied >> updated → inefficient merge
+
+
+    Patterns:
+        -  insert only if not matched:
+                MERGE INTO table
+                USING parseLog
+                ON table.id == parseLog.id
+                WHEN NOT MATCHED THAN INSERT
+            Problem:  scan all table
+            Solution: more specific predicat like date
+
+
+
+??? Open questions:
+    - Best practices for performance
+        - optimize:
+            to check how many files exists just run:
+                * spark.sql("DESCRIBE DETAIL delta.`/Users/hryhorii/Desktop/projects/win-won/src/main/resources/spark/range-delta-2`")
+            then run optimization to make one file instead:
+                * DeltaTable.forPath("").optimize().executeCompaction()
+
+
+
+
+
+    - How to check performance on Deltalake
+    - patterns => duplication during the ETL
+               => Streaming aggregate
+               => GDPR - simple way
+               => Apply changes data with deletes
+
+
+
+QA
+    - Does vacuum improve performance?
+        in most cases it doesn't because transaction log. In other way when we do have huge transaction log it slow down all operations
+        it's not recommended to keep very large history
+    - We do update/delete what about file distribution ?
+    - Does any speed differences between using scala, java, python language with DataLake
+        answer is: no
+        in spark context yes, because of spark
+
+
+
+
+
+    !!!!! STOPPED at performance...

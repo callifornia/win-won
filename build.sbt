@@ -3,6 +3,7 @@ val KafkaVersion = "2.8.0"
 val ZioVersion = "1.0.12"
 val CatsEffectVersion = "3.3.12"
 val sparkVersion = "4.0.2"
+val sparkDeltaVersion = "4.0.1"
 val postgresVersion = "42.7.5"
 
 scalaVersion := "2.13.8"
@@ -18,14 +19,12 @@ libraryDependencies ++= List(
   "org.typelevel" %% "cats-free" % "2.8.0",
   "org.apache.spark" %% "spark-core" % sparkVersion,
   "org.apache.spark" %% "spark-sql" % sparkVersion,
-//  "io.delta" %% "delta-spark" % "3.3.0",
+  "io.delta" %% "delta-spark" % sparkDeltaVersion,
   "org.postgresql" % "postgresql" % postgresVersion,
-
   "com.typesafe.akka" %% "akka-actor-typed" % AkkaVersion
 //  "com.typesafe.akka" %% "akka-cluster-typed" % AkkaVersion,
 //  "com.typesafe.akka" %% "akka-cluster-sharding-typed" % AkkaVersion,
 //  "com.typesafe.akka" %% "akka-serialization-jackson" % AkkaVersion,
-
 //  "com.typesafe.akka" %% "akka-persistence-typed" % AkkaVersion,
 //  "com.typesafe.akka" %% "akka-persistence-query" % AkkaVersion,
 //  "com.lightbend.akka" %% "akka-projection-core" % "1.2.4",
@@ -39,14 +38,10 @@ libraryDependencies ++= List(
 //  "org.fusesource.leveldbjni" % "leveldbjni-all" % "1.8",
 //  "org.iq80.leveldb" % "leveldb" % "0.7"
 
-
-
-
   // not compiled with a scala 2.13.8 as they have dependency issue
   //  "org.apache.kafka" %% "kafka" % KafkaVersion,
   //  "org.apache.kafka" % "kafka-clients" % KafkaVersion,
   //  "com.typesafe.akka" %% "akka-actor-testkit-typed" % AkkaVersion % Test,
-
   //  "com.typesafe.akka" %% "akka-stream-testkit" % AkkaVersion % Test,
 )
 

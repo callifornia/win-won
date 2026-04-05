@@ -1,6 +1,6 @@
 package spark
 
-import InitSparkSession._
+import util.InitSession._
 import org.apache.spark.sql.functions.{col, column, expr}
 
 

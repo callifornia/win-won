@@ -4,7 +4,8 @@ import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.sql.functions.{col, column, expr, lit, trunc, udf}
 import org.apache.spark.sql.types.{IntegerType, StringType, StructField, StructType}
 import org.apache.spark.sql.{Column, DataFrame, SaveMode, SparkSession}
-import spark.InitSparkSession._
+
+import spark.util.InitSession._
 import spark.implicits._
 
 import java.util.UUID

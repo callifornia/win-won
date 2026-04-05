@@ -1,0 +1,2 @@
+When Dataset was changed we do need to set option:
+        .option("mergeSchema", "true")
