@@ -13,7 +13,6 @@ object Main {
 
   def main(args: Array[String]): Unit = {
     println("Hello world ...")
-
 //    val data = spark.range(0, 50)
 //    data.show()
 //    data.repartition(1).write.mode("overwrite").csv("src/main/resources/spark/range")
@@ -25,7 +24,22 @@ object Main {
 //    schemaEvolution()
 //    schemaEvolution2()
 //    checkPerformance()
-    describe()
+//    describe()
+    exercise()
+  }
+
+
+  def exercise()(implicit spark: SparkSession): Unit = {
+    val data = spark.range(0, 5)
+    val data2 = spark.range(4, 6)
+    val data3 = spark.range(7, 10)
+
+    data.coalesce(1).write.format("delta").save("/Users/hryhorii/Desktop/projects/win-won/src/main/resources/spark/range-delta-3")
+    DeltaTable.forPath("/Users/hryhorii/Desktop/projects/win-won/src/main/resources/spark/range-delta-3").toDF.show()
+    data2.coalesce(1).write.format("delta").mode("overwrite").save("/Users/hryhorii/Desktop/projects/win-won/src/main/resources/spark/range-delta-3")
+    DeltaTable.forPath("/Users/hryhorii/Desktop/projects/win-won/src/main/resources/spark/range-delta-3").toDF.show()
+    data3.coalesce(1).write.format("delta").mode("overwrite").save("/Users/hryhorii/Desktop/projects/win-won/src/main/resources/spark/range-delta-3")
+    DeltaTable.forPath("/Users/hryhorii/Desktop/projects/win-won/src/main/resources/spark/range-delta-3").toDF.show()
   }
 
 
@@ -44,7 +58,6 @@ object Main {
   def checkPerformance()(implicit spark: SparkSession): Unit = {
     val data = DeltaTable.forPath("/Users/hryhorii/Desktop/projects/win-won/src/main/resources/spark/range-delta-2")
 //    data.history().select("version", "operation", "operationMetrics").show(false)
-
     data.history().show(false)
   }
 
