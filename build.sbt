@@ -13,7 +13,10 @@ libraryDependencies ++= List(
   "com.lihaoyi" %% "fansi" % "0.3.1",
   "org.scalameta" %% "munit" % "0.7.29" % Test,
   "dev.zio" %% "zio" % ZioVersion,
-  "ch.qos.logback" % "logback-classic" % "1.2.3",
+
+  "ch.qos.logback" % "logback-classic" % "1.5.6",
+  "org.slf4j" % "slf4j-api" % "2.0.12",
+
   "org.typelevel" %% "cats-effect" % CatsEffectVersion,
   "org.typelevel" %% "cats-core" % "2.8.0",
   "org.typelevel" %% "cats-free" % "2.8.0",

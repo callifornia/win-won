@@ -492,13 +492,90 @@ Parquet — це незмінний, двійковий, стовпцевий ф
 
 
 
-✅✅✅  How to Rollback a Delta Lake Table to a Previous Version with Restore (https://delta.io/blog/2022-10-03-rollback-delta-lake-restore/) ✅✅✅
+✅✅✅ How to Rollback a Delta Lake Table to a Previous Version with Restore (https://delta.io/blog/2022-10-03-rollback-delta-lake-restore/) ✅✅✅
 
     • коли ви працюєте зі звичайним озером даних, відкат помилок може бути надзвичайно складним, якщо не неможливим, особливо якщо файли були видалені
     • можливість скасувати помилки – це величезна перевага, яку Delta Lake пропонує кінцевим користувачам
     • Delta Lake зберігає історію змін, які ви вносите з часом, зберігаючи різні версії ваших даних
             •• DeltaTable.forPath(spark, "/tmp/delta-table").restoreToVersion(1)
             •• RESTORE TABLE your_table TO VERSION AS OF 1
+
+
+✅✅✅ Delta Lake Constraints and Checks (https://delta.io/blog/2022-11-21-delta-lake-contraints-check/) ✅✅✅
+
+    • Delta Lake дозволяє за замовчуванням додавати будь-які дані з відповідними типами даних до ваших дельта-таблиць
+    • spark.sql("ALTER TABLE default.random1 ADD CONSTRAINT ageIsPositive CHECK (age >= 0)")
+    • spark.sql("SHOW TBLPROPERTIES random1").show(truncate=False)
+    • якщо дадати обмеження до вже існуючих даних і у випадку коли є дані в таблиці котрі не відповідають обмеженню викинеться Exception
+
+
+✅✅✅ How to Convert from CSV to Delta Lake (https://delta.io/blog/2023-03-22-convert-csv-to-delta-lake/) ✅✅✅
+    • конвертувати таблицю Data Lake у форматі CSV легко. Вам просто потрібно зчитати файли CSV у DataFrame та записати їх у форматі файлу Delta
+    • delta Lake — це краща технологія для побудови надійних та продуктивних конвеєрів даних
+
+
+✅✅✅ Converting from Parquet to Delta Lake (https://delta.io/blog/2022-09-23-convert-parquet-to-delta/) ✅✅✅
+    • DeltaTable.convertToDelta(spark, "path/deltaLake...")
+
+
+✅✅✅ Delta Lake’s transaction log protocol and its implementations (https://delta.io/blog/2023-07-07-delta-lake-transaction-log-protocol/) ✅✅✅
+    • це про протоколи та реалізації DeltaLake функцій.
+
+
+✅✅✅ Delta Lake Time Travel (https://delta.io/blog/2023-02-01-delta-lake-time-travel/) ✅✅✅
+    • spark.read.format("delta").option("versionAsOf", "0").load("path/...").show()
+    • DeltaTable.forPath(spark, "path/...").history().select("version", "timestamp", "operation").show()
+                            +-------+-----------------------+---------+
+                            |version|timestamp              |operation|
+                            +-------+-----------------------+---------+
+                            |2      |2023-01-31 06:27:08.508|WRITE    |
+                            |1      |2023-01-31 06:26:56.895|WRITE    |
+                            |0      |2023-01-31 06:26:35.825|WRITE    |
+                            +-------+-----------------------+---------+
+    • SELECT count(*) FROM my_table VERSION AS OF 5238
+    • SELECT count(*) FROM my_table TIMESTAMP AS OF "2019-01-01"
+    • delta Lake підтримує VACUUM команду, яка видаляє зі сховища файли, які старіші за термін зберігання та позначені для видалення в журналі транзакцій
+
+
+
+✅✅✅ Delta Lake Schema Evolution (https://delta.io/blog/2023-02-08-delta-lake-schema-evolution/) ✅✅✅
+• delta Lake за замовчуванням не дозволяє додавати дані з невідповідною схемою
+• щоб записувати дані до таблиці Delta із невідповідною схемою:
+        df.write.option("mergeSchema", "true").mode("append").format("delta").save("path/...")
+• ввімкнути еволюцію схеми для усіх таблиць за замовчуванням:
+        spark.conf.set("spark.databricks.delta.schema.autoMerge.enabled", "true")
+• spark навмисно отримує схему з одного файлу Parquet під час її визначення
+• зчитування схеми з усіх файлів було б трудомістким обчисленням і уповільнило б усі зчитування
+• ви можете змусити Spark зчитувати схеми всіх файлів Parquet, встановивши відповідний mergeSchema параметр під час виконання зчитування:
+        spark.read.format("parquet").option("mergeSchema", "true").load("path/...").show()
+• не варто вмикати цю функцію за замовчуванням, оскільки це уповільнить усі операції читання, навіть коли в цьому немає потреби
+
+
+🔑 Еволюція схеми Delta Lake проти озер даних
+• Parquet схема визначається під час читання даних
+• схема при читанні є недоліком при підтримці даних зі змінною схемою. Вам потрібно або вручну відстежувати, які таблиці даних мають змінні схеми,
+  або завжди встановлювати цю схему mergeSchema=true під час читання озер даних, що уповільнить усі читання
+
+• Таблиці Delta Lake мають схему під час запису, що означає, що схема вже визначена під час зчитування даних.
+• Delta Lake знають, коли дані з іншими схемами були додані.
+• Delta Lake визначає остаточну схему для таблиці, запитуючи журнал транзакцій, а не відкриваючи всі окремі файли Parquet.
+  Це робить еволюцію схеми з дельта-таблицями швидкою та зручною для користувача.
+
+
+
+✅✅✅ Delta Lake Schema Enforcement (https://delta.io/blog/2022-11-16-delta-lake-schema-enforcement/) ✅✅✅
+    • схема «під час читання» - механізми виконання повинні визначати схему під час виконання запитів
+    • «під час запису» - вони перевіряють схему під час запису даних
+    • delta Lake - «під час запису», що надається користувачам
+    • застосування схеми – це функція Delta Lake, яка запобігає додаванню даних з іншою схемою до таблиці, якщо ви явно не вкажете, що таблиця має дозволяти запис даних з
+      різними схемами
+    • Застосування схеми стосується перевірок на рівні схеми
+    • Delta Lake також підтримує обмеження, які є перевірками на рівні значень під час додавання даних
+    • Застосування схеми та обмеження пов'язані між собою, оскільки обидва поняття перевіряють якість ваших даних перед записом, але це окремі концепції
+
+
+✅✅✅ How to use Delta Lake generated columns (https://delta.io/blog/2023-04-12-delta-lake-generated-columns/) ✅✅✅
+
 
 
 
@@ -513,16 +590,16 @@ Parquet — це незмінний, двійковий, стовпцевий ф
 
 + https://delta.io/blog/2023-07-27-delta-lake-table-features/                         Introducing Delta Lake Table Features
 + https://delta.io/blog/2022-10-25-create-delta-lake-tables/                          How to Create Delta Lake Tables
-https://delta.io/blog/2022-10-03-rollback-delta-lake-restore/                       How to Rollback a Delta Lake Table to a Previous Version with Restore
-https://delta.io/blog/2022-11-21-delta-lake-contraints-check/                       Delta Lake Constraints and Checks
++ https://delta.io/blog/2022-10-03-rollback-delta-lake-restore/                       How to Rollback a Delta Lake Table to a Previous Version with Restore
++ https://delta.io/blog/2022-11-21-delta-lake-contraints-check/                       Delta Lake Constraints and Checks
 
-https://delta.io/blog/2023-03-22-convert-csv-to-delta-lake/                         How to Convert from CSV to Delta Lake
-https://delta.io/blog/2022-09-23-convert-parquet-to-delta/                          Converting from Parquet to Delta Lake
++ https://delta.io/blog/2023-03-22-convert-csv-to-delta-lake/                         How to Convert from CSV to Delta Lake
++ https://delta.io/blog/2022-09-23-convert-parquet-to-delta/                          Converting from Parquet to Delta Lake
 
-https://delta.io/blog/2023-07-07-delta-lake-transaction-log-protocol/               Delta Lake’s transaction log protocol and its implementations
-https://delta.io/blog/2023-02-01-delta-lake-time-travel/                            Delta Lake Time Travel
-https://delta.io/blog/2023-02-08-delta-lake-schema-evolution/                       Delta Lake Schema Evolution
-https://delta.io/blog/2022-11-16-delta-lake-schema-enforcement/                     Delta Lake Schema Enforcement
++ https://delta.io/blog/2023-07-07-delta-lake-transaction-log-protocol/               Delta Lake’s transaction log protocol and its implementations
++ https://delta.io/blog/2023-02-01-delta-lake-time-travel/                            Delta Lake Time Travel
++ https://delta.io/blog/2023-02-08-delta-lake-schema-evolution/                       Delta Lake Schema Evolution
++ https://delta.io/blog/2022-11-16-delta-lake-schema-enforcement/                     Delta Lake Schema Enforcement
 
 https://delta.io/blog/2023-04-12-delta-lake-generated-columns/                      How to use Delta Lake generated columns
 https://delta.io/blog/2022-08-29-delta-lake-drop-column/                            How to drop columns from a Delta Lake table
