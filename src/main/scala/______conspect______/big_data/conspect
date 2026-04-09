@@ -574,7 +574,28 @@ Parquet — це незмінний, двійковий, стовпцевий ф
     • Застосування схеми та обмеження пов'язані між собою, оскільки обидва поняття перевіряють якість ваших даних перед записом, але це окремі концепції
 
 
+
 ✅✅✅ How to use Delta Lake generated columns (https://delta.io/blog/2023-04-12-delta-lake-generated-columns/) ✅✅✅
+    • delta lake дозволяє створювати дельта-таблиці зі згенерованими стовпцями, які автоматично обчислюються на основі значень інших стовпців і зберігаються в сховищі
+    • delta lake зі згенерованими стовпцями, що є чудовим способом автоматичного заповнення стовпців на основі значень інших стовпців
+    • згенерований стовпець не можна додати до існуючої дельта-таблиці
+            spark.sql("""
+              CREATE TABLE my_table (
+                id BIGINT GENERATED ALWAYS AS IDENTITY,
+                name STRING
+              ) USING DELTA
+            """)
+            ... id BIGINT GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1) ...
+            ... id BIGINT GENERATED ALWAYS AS IDENTITY ...
+
+
+
+
+
+
+
+
+
 
 
 
@@ -601,7 +622,7 @@ Parquet — це незмінний, двійковий, стовпцевий ф
 + https://delta.io/blog/2023-02-08-delta-lake-schema-evolution/                       Delta Lake Schema Evolution
 + https://delta.io/blog/2022-11-16-delta-lake-schema-enforcement/                     Delta Lake Schema Enforcement
 
-https://delta.io/blog/2023-04-12-delta-lake-generated-columns/                      How to use Delta Lake generated columns
++ https://delta.io/blog/2023-04-12-delta-lake-generated-columns/                      How to use Delta Lake generated columns
 https://delta.io/blog/2022-08-29-delta-lake-drop-column/                            How to drop columns from a Delta Lake table
 https://delta.io/blog/2022-12-07-delete-rows-from-delta-lake-table/                 How to Delete Rows from a Delta Lake Table
 https://delta.io/blog/delta-lake-replacewhere/                                      Delta Lake replaceWhere
