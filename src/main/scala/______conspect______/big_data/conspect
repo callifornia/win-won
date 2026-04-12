@@ -590,8 +590,159 @@ Parquet — це незмінний, двійковий, стовпцевий ф
 
 
 
+✅✅✅ How to drop columns from a Delta Lake table (https://delta.io/blog/2022-08-29-delta-lake-drop-column/) ✅✅✅
+
+• Delta просто створює запис у журналі транзакцій, щоб вказати, що запити повинні ігнорувати видалений стовпець надалі
+• ALTER TABLE `my_cool_table` DROP COLUMN language
+• Може викинути помилку оскільки потрібний мапінг, це фіксається цим:
+        ALTER TABLE delta.`/Users/hryhorii/Desktop/projects/win-won/src/main/resources/spark/range-delta-4`
+            SET TBLPROPERTIES (
+                'delta.columnMapping.mode' = 'name'
+            )
+• Після видалення появляється запис в журналі:
+• "commitInfo": {
+      "timestamp": 1775717831210,
+      "operation": "DROP COLUMNS",
+      "operationParameters": {
+        "columns": [
+          "name"
+        ]
+      }
+• вилучені стовпці просто ігноруються під час виконання запитів
+• якщо вам потрібно повністю стерти колонку з ваших систем, тоді слід перезаписати існуючі дані, а потім виконати операцію вакуумування
 
 
+
+✅✅✅ How to Delete Rows from a Delta Lake Table      (https://delta.io/blog/2022-12-07-delete-rows-from-delta-lake-table/) ✅✅✅
+• якщо ви хочете «видалити» рядки з файлу Parquet, вам потрібно зчитати дані в пам'ять, відфільтрувати непотрібні рядки та створити новий файл Parquet
+• delta lake має записувати нові файли під час видалення рядків через незмінну природу файлів Parquet
+• операція видалення Delta Lake виконується ефективно, оскільки вона перезаписує лише мінімальну підмножину файлів
+• коли вектори видалення ввімкнено, операції видалення виконуються ще швидше
+
+
+
+✅✅✅ Delta Lake Deletion Vectors      (https://delta.io/blog/2023-07-05-deletion-vectors/) ✅✅✅
+• ALTER TABLE tblName SET TBLPROPERTIES ('delta.enableDeletionVectors' = true)
+• вектори видалення значно покращують продуктивність операцій DELETE у таблицях Deleta Lake
+• вони досягають цього, вказуючи, що модулі запису позначають позицію видалених рядків окремо від самих файлів даних - «м’яке видалення»
+• частота запису та затримки:
+    • використовуйте вектори видалення, коли частота запису висока або коли потрібна низька затримка запису, особливо для невеликих змін даних,
+      які призводять до значного посилення запису в традиційному режимі копіювання під час запису. У сценаріях з низькою частотою запису з гнучкими вимогами
+      до затримки вектори видалення можуть бути не такими вигідними
+    • частота читання та затримки: будьте обережні з векторами видалення у сценаріях з високою частотою читання,
+      оскільки сукупна вартість додаткового часу виконання для обробки додаткових файлів векторів видалення може суттєво зрости
+    • вектори видалення чудово працюють, коли зміни даних розподілені по багатьох файлах, що робить посилення запису, яке забезпечується традиційним методом
+      копіювання під час запису, надзвичайно дорогим
+
+
+
+✅✅✅ Delta Lake replaceWhere      (https://delta.io/blog/delta-lake-replacewhere/) ✅✅✅
+    • replaceWhere є окремим випадком функції перезапису Delta Lake, яка дозволяє перезаписати підмножину однієї таблиці даними з іншої таблиці
+    • приклад
+            таблиця_1:                        таблиця_2:
+                +------+------+                   +------+------+
+                |letter|number|                   |letter|number|
+                +------+------+                   +------+------+
+                |     a|     1|                   |     x|     7|
+                |     b|     2|                   |     y|     8|
+                |     c|     3|                   |     z|     9|
+                |     d|     4|                   +------+------+
+                +------+------+
+            код:
+                df2.write.format("delta").mode("overwrite").option("replaceWhere", "number > 2").save("tmp/my_data")
+            результат:
+                        +------+------+
+                        |letter|number|
+                        +------+------+
+                        |     a|     1|
+                        |     b|     2|
+                        |     x|     7|
+                        |     y|     8|
+                        |     z|     9|
+                        +------+------+
+
+
+
+✅✅✅ Delta Lake Small File Compaction with OPTIMIZE   (https://delta.io/blog/2023-01-25-delta-lake-small-file-compaction-optimize/)  ✅✅✅
+• малі файли створюють проблеми, оскільки вони спричиняють повільне виконання запитів даних
+• вони вимагають значних накладних витрат вводу-виводу, що є обчислювально дорогим
+• вони також створюють великі журнали транзакцій метаданих, що уповільнює час планування
+• delta Lake надає команду OPTIMIZE, яка дозволяє користувачам стискати малі файли у більші файли, щоб їхні запити не обтяжувалися накладними витратами на малі файли
+• spark.databricks.delta.optimize.maxFileSize - це дозволяє встановити цільовий розмір файлу, який відрізняється від значення за замовчуванням 1Гб
+• можна вказати предикати для стиснення лише певної підмножини даних:
+    deltaTable.optimize().where("date='2021-11-18'").executeCompaction()
+• існує три основні причини малих розмірів файлів даних:
+    • помилка користувача: користувачі можуть перерозподіляти набори даних та записувати дані з будь-якою кількістю файлів.
+      Припустимо, є набір даних розміром 500 ГБ. Користувач може записати цей набір даних у 100 000 файлів, використовуючи repartition(100000)
+    • надмірно розділені набори даних: припустимо, у вас є набір даних розміром 1 ГБ. Якщо він записується в несекціоновану таблицю, то дані можна записати як один файл.
+      Якщо дані записуються в секціоновану таблицю Hive з ключем розділу, який має 5000 унікальних значень, то під час запису буде створено до 5000 файлів
+    • таблиці, що часто оновлюються поступово: чим частіше оновлюється таблиця, тим більше невеликих файлів буде створено. Завдання, яке оновлює таблицю кожні 2 хвилини, створить більше невеликих файлів, ніж завдання, яке виконується кожні 8 годин. Пам’ятайте, що деякі таблиці оновлюються часто, щоб забезпечити актуальність запитів.
+
+
+
+✅✅✅ Delta Lake Upsert               (https://delta.io/blog/delta-lake-upsert/) ✅✅✅
+    Апсерти особливо корисні, коли:
+        • вам регулярно потрібно вносити невеликі зміни до великої таблиці
+        • ви впроваджуєте повільно змінювані виміри у сховищі даних
+        • ви хочете забезпечити єдине джерело достовірної інформації з послідовними та точними даними
+
+    У наборі даних, що зберігається як Parquet, це вимагатиме або:
+        • повного перезапису всіх 50 мільйонів рядків
+        • зберігання оновлень у багатьох невеликих файлах, що призведе до проблеми малих файлів. У будь-якому випадку це буде повільно та дорого
+        • замість перезапису всіх даних, delta lake реєструє вашу операцію upsert як просту зміну в журналі транзакцій delta Lake
+        • upserts - оператор MERGE у Delta Lake. Він дозволяє поєднувати дії insert, update та delete в одному запиті
+                data_1.as("main")
+                      .merge(data_2.as("second"), "main.id == second.id")
+                      .whenMatched()
+                      .update(Map("main.age" -> lit("foo").cast(StringType)))
+                      .whenNotMatched()
+                      .insertExpr(Map(
+                        "main.id" -> "second.id",
+                        "main.age" -> "second.age"
+                      ))
+                      .execute()
+
+
+
+✅✅✅ Delta Lake Merge        https://delta.io/blog/2023-02-14-delta-lake-merge/ ✅✅✅
+    • коли потрібно застосувати вибіркові зміни до дельта-таблиці, не перезаписуючи всю таблицю
+    • merge є найпотужнішою та найгнучкішою командою, доступною для тих випадків, коли потрібно ефективно застосовувати вибіркові зміни до таблиці Delta Lake
+
+
+✅✅✅ Delta Lake Clone        https://delta.io/blog/delta-lake-clone/ ✅✅✅
+
+• клонування таблиць Delta Lake – це чудова функція, яку можна використовувати для перенесення даних, відтворення процесів машинного навчання та створення
+  копій даних для спільного використання або експериментів
+• будь-які зміни, внесені до клонів Delta Lake, впливають лише на самі клони, а не на вихідну таблицю
+• дельта-клони копіюють лише метадані таблиці;
+• вони не копіюють вихідні дані.
+• можна редагувати клон, не впливаючи на вихідні дані, але не навпаки
+• посилаються на ті самі вихідні дані
+• VACUUM вплине на ваше поверхневе клонування
+• створити клон:
+        CREATE TABLE delta. `/data/target/` SHALLOW CLONE delta. `/data/source/`
+        CREATE TABLE IF NOT EXISTS delta.`/data/target/` SHALLOW CLONE db.source_table
+• створити клон певної версії:
+        CREATE TABLE db.target_table SHALLOW CLONE delta.`/data/source` VERSION AS OF version
+• замінити існуючу цільову таблицю поверхневим клоном вихідної таблиці:
+        CREATE OR REPLACE TABLE db.target_table SHALLOW CLONE db.source_table
+• цільову таблицю потрібно спочатку очистити, щоб уникнути дублювання даних
+• припустимо, у вас є вихідна таблиця версії 10, і ви клонуєте цю таблицю
+• нова (клонована) таблиця почне роботу з версії 0
+• ви не можете виконувати запити щодо подорожей у часі для цієї нової таблиці так, як ви це робили б для вихідної таблиці
+• клонована таблиця отримує власну, нову історію
+• неглибокі клони посилаються на файли даних у вихідному каталозі
+• функція поверхневого клонування підтримується для Parquet або Iceberg
+• ця функціональність перетворить джерела даних у дельта-таблицю та зробить її поверхневе клонування
+• поверхневе клонування таблиці Parquet у таблицю Delta Lake:
+        CREATE OR REPLACE TABLE <target_table_name> SHALLOW CLONE parquet.`/path/to/data`
+        CREATE OR REPLACE TABLE <target_table_name> SHALLOW CLONE iceberg.`/path/to/data`
+• можна використовувати її для складних операцій, таких як:
+    • міграція даних
+    • архівування даних
+    • відтворення потоку машинного навчання
+    • короткострокові експерименти та обмін даними
+    • відновлення після збоїв
 
 
 
@@ -623,13 +774,14 @@ Parquet — це незмінний, двійковий, стовпцевий ф
 + https://delta.io/blog/2022-11-16-delta-lake-schema-enforcement/                     Delta Lake Schema Enforcement
 
 + https://delta.io/blog/2023-04-12-delta-lake-generated-columns/                      How to use Delta Lake generated columns
-https://delta.io/blog/2022-08-29-delta-lake-drop-column/                            How to drop columns from a Delta Lake table
-https://delta.io/blog/2022-12-07-delete-rows-from-delta-lake-table/                 How to Delete Rows from a Delta Lake Table
-https://delta.io/blog/delta-lake-replacewhere/                                      Delta Lake replaceWhere
++ https://delta.io/blog/2022-08-29-delta-lake-drop-column/                            How to drop columns from a Delta Lake table
++ https://delta.io/blog/2023-07-05-deletion-vectors/                                  Delta Lake Deletion Vectors
++ https://delta.io/blog/2022-12-07-delete-rows-from-delta-lake-table/                 How to Delete Rows from a Delta Lake Table
++ https://delta.io/blog/delta-lake-replacewhere/                                      Delta Lake replaceWhere
 
-https://delta.io/blog/2023-01-25-delta-lake-small-file-compaction-optimize/         Delta Lake Small File Compaction with OPTIMIZE
-https://delta.io/blog/delta-lake-upsert/                                            Delta Lake Upsert
-https://delta.io/blog/2023-02-14-delta-lake-merge/                                  Delta Lake Merge
++ https://delta.io/blog/2023-01-25-delta-lake-small-file-compaction-optimize/         Delta Lake Small File Compaction with OPTIMIZE
++ https://delta.io/blog/delta-lake-upsert/                                            Delta Lake Upsert
++ https://delta.io/blog/2023-02-14-delta-lake-merge/                                  Delta Lake Merge
 https://delta.io/blog/delta-lake-clone/                                             Delta Lake Clone
 
 https://delta.io/blog/delta-lake-performance/                                       Delta Lake Performance

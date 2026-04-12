@@ -11,24 +11,85 @@ import spark.implicits._
 object Main {
 
   def main(args: Array[String]): Unit = {
-    println("Hello world ...")
-//    val data = spark.range(0, 50)
-//    data.show()
-//    data.repartition(1).write.mode("overwrite").csv("src/main/resources/spark/range")
-//    data.repartition(1).write.format("delta").mode("overwrite").save("src/main/resources/spark/range-delta")
-//    mergeDeltaData()
-//    readCommits()
-//    mergeDelta2()
-//    mergeDeltaData()
-//    schemaEvolution()
-//    schemaEvolution2()
-//    checkPerformance()
-//    describe()
-//    exercise()
-//    readVersions()
-//    readLatest()
-//    resetToVersion()
+//    println("Hello world ...")
+////    val data = spark.range(0, 50)
+////    data.show()
+////    data.repartition(1).write.mode("overwrite").csv("src/main/resources/spark/range")
+////    data.repartition(1).write.format("delta").mode("overwrite").save("src/main/resources/spark/range-delta")
+////    mergeDeltaData()
+////    readCommits()
+////    mergeDelta2()
+////    mergeDeltaData()
+////    schemaEvolution()
+////    schemaEvolution2()
+////    checkPerformance()
+////    describe()
+////    exercise()
+////    readVersions()
+////    resetToVersion()
+////    createData()
+    readLatest("/Users/hryhorii/Desktop/projects/win-won/src/main/resources/spark/range-delta-5")
+//    upgradeColumnName()
+//    deleteColumn()
+//    deleteRows()
+//    mergeColumns()
   }
+
+
+
+  // write merge columns ...
+  def mergeColumns()(implicit spark: SparkSession): Unit = {
+    def genData(from: Int, to: Int): Seq[(Int, String)] = (from until to).map(index => (index, "age_" + index))
+    val data = genData(1, 10).toDF("id", "age")
+    data.coalesce(1).write.format("delta").save("/Users/hryhorii/Desktop/projects/win-won/src/main/resources/spark/range-delta-5")
+    val writtenData = DeltaTable.forPath(spark, "/Users/hryhorii/Desktop/projects/win-won/src/main/resources/spark/range-delta-5")
+    val data_2 = genData(5, 15).toDF("id", "age")
+    writtenData.as("main")
+      .merge(data_2.as("second"), "main.id == second.id")
+      .whenMatched()
+      .update(Map("main.age" -> lit("foo").cast(StringType)))
+      .whenNotMatched()
+      .insertExpr(Map(
+        "main.id" -> "second.id",
+        "main.age" -> "second.age"
+      ))
+      .execute()
+  }
+
+
+
+  def deleteRows()(implicit spark: SparkSession): Unit = {
+    val data = spark.read.format("delta").load("/Users/hryhorii/Desktop/projects/win-won/src/main/resources/spark/range-delta-4")
+    data.show()
+  }
+
+
+
+  def upgradeColumnName()(implicit spark: SparkSession): Unit = {
+    spark.sql("""
+      ALTER TABLE delta.`/Users/hryhorii/Desktop/projects/win-won/src/main/resources/spark/range-delta-4`
+      SET TBLPROPERTIES (
+        'delta.columnMapping.mode' = 'name'
+      )
+    """)
+  }
+
+
+
+  def deleteColumn()(implicit spark: SparkSession): Unit = {
+//    val data = spark.read.format("delta").load("/Users/hryhorii/Desktop/projects/win-won/src/main/resources/spark/range-delta-4")
+    spark.sql("ALTER TABLE delta.`/Users/hryhorii/Desktop/projects/win-won/src/main/resources/spark/range-delta-4` DROP COLUMN name")
+//    data.show()
+  }
+
+
+
+  def createData()(implicit spark: SparkSession): Unit = {
+    import spark.implicits._
+    val data =  (1 to 5).map(index => (index, s"name_" + index)).toSeq.toDF("id", "name")
+    data.write.format("delta").save("/Users/hryhorii/Desktop/projects/win-won/src/main/resources/spark/range-delta-4")
+  }
+
 
 
   def parquetToDeltaLake()(implicit spark: SparkSession): Unit = {
@@ -44,9 +105,11 @@ object Main {
 
 
 
-  def readLatest()(implicit spark: SparkSession): Unit = {
-    val data = spark.read.format("delta").load("/Users/hryhorii/Desktop/projects/win-won/src/main/resources/spark/range-delta-3")
-    data.show()
+  def readLatest(path: String)(implicit spark: SparkSession): Unit = {
+    val data = spark.read.format("delta").load(path)
+    data
+      .sort("id")
+      .show()
   }
 
 
