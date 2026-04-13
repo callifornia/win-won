@@ -28,13 +28,38 @@ object Main {
 ////    readVersions()
 ////    resetToVersion()
 ////    createData()
-    readLatest("/Users/hryhorii/Desktop/projects/win-won/src/main/resources/spark/range-delta-5")
+//    readLatest("/Users/hryhorii/Desktop/projects/win-won/src/main/resources/spark/range-delta-5")
 //    upgradeColumnName()
 //    deleteColumn()
 //    deleteRows()
 //    mergeColumns()
+//    zOrder()
+    zOrder()
   }
 
+  def zOrder()(implicit spark: SparkSession): Unit = {
+    //    val data = spark.range(0, 10)
+    //    data.write.format("delta").save("/Users/hryhorii/Desktop/projects/win-won/src/main/resources/spark/range-delta-6")
+    val writtenData = DeltaTable.forPath("/Users/hryhorii/Desktop/projects/win-won/src/main/resources/spark/range-delta-6")
+    writtenData.toDF.show()
+    writtenData.optimize().executeZOrderBy("id")
+    val optimizedData = DeltaTable.forPath("/Users/hryhorii/Desktop/projects/win-won/src/main/resources/spark/range-delta-6")
+    optimizedData.toDF.show()
+  }
+
+
+  def cloneData()(implicit spark: SparkSession): Unit = {
+    spark.sql("""
+        CREATE TABLE deep_clone_table
+        DEEP CLONE delta.`/Users/hryhorii/Desktop/projects/win-won/src/main/resources/spark/range-delta-6`
+        LOCATION '/Users/hryhorii/Desktop/projects/win-won/src/main/resources/spark/deep-clone-tables'
+    """)
+
+    spark.sql(
+      """
+        SELECT * FROM deep_clone_table
+        """).show()
+  }
 
 
   // write merge columns ...
