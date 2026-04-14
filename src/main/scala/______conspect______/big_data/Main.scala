@@ -40,8 +40,55 @@ object Main {
 //    partiotionBy()
 //    optimize2()
 //    zOrder_2()
-    println(generateWithRepeat(1, 5))
+//    zOrder_3()
+//    mergeData()
+    optimizeE()
   }
+
+
+
+  def optimizeE()(implicit spark: SparkSession): Unit = {
+    DeltaTable
+      .forPath("/Users/hryhorii/Desktop/projects/win-won/src/main/resources/spark/range-delta-8")
+      .optimize()
+      .executeCompaction()
+  }
+
+
+
+  def mergeData()(implicit spark: SparkSession): Unit = {
+    val freshData = generateWithRepeat(4, 10).toDF("id", "age")
+    DeltaTable
+      .forPath("/Users/hryhorii/Desktop/projects/win-won/src/main/resources/spark/range-delta-8")
+      .as("main")
+      .merge(freshData.as("new"), "new.id==main.id AND new.age==main.age")
+      .whenMatched()
+      .updateExpr(Map(
+        "main.age" -> "new.age"))
+      .whenNotMatched()
+      .insertExpr(Map(
+        "main.id"  -> "new.id",
+        "main.age" -> "new.age"))
+      .execute()
+  }
+
+
+
+  def zOrder_3()(implicit spark: SparkSession): Unit =
+    DeltaTable
+      .forPath("/Users/hryhorii/Desktop/projects/win-won/src/main/resources/spark/range-delta-8")
+      .optimize()
+      .executeZOrderBy("age")
+
+
+
+  def zOrder_2()(implicit spark: SparkSession): Unit =
+    generateWithRepeat(1, 5)
+      .toDF("id", "age")
+      .coalesce(1)
+      .write
+      .format("delta")
+      .save("/Users/hryhorii/Desktop/projects/win-won/src/main/resources/spark/range-delta-8")
 
 
 
@@ -50,27 +97,17 @@ object Main {
       for {
         index        <- (from to to_2)
         index_plus   <- (from to index)
-      } yield (index, "age_" + index + "_" +index_plus)
+      } yield (index, "age___" + index + "_" +index_plus)
     }
 
 
-  def zOrder_2()(implicit spark: SparkSession): Unit = {
-    def genData(from: Int, to: Int): Seq[(Int, String)] = (from until to).map(index => (index, "age_" + index))
 
-
-    DeltaTable
-      .forPath("/Users/hryhorii/Desktop/projects/win-won/src/main/resources/spark/range-delta-7")
-      .toDF
-      .show()
-  }
-
-
-  def optimize2()(implicit spark: SparkSession): Unit = {
+  def optimize2()(implicit spark: SparkSession): Unit =
     DeltaTable
       .forPath("/Users/hryhorii/Desktop/projects/win-won/src/main/resources/spark/range-delta-7")
       .optimize()
       .executeCompaction()
-  }
+
 
   def partiotionBy()(implicit spark: SparkSession): Unit = {
     def genData(from: Int, to: Int): Seq[(Int, String)] = (from until to).map(index => (index, "age_" + index))
