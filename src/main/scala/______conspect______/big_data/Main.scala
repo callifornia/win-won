@@ -34,8 +34,42 @@ object Main {
 //    deleteRows()
 //    mergeColumns()
 //    zOrder()
-    zOrder()
+//    zOrder()
+//    partiotionBy()
+//    optimize2()
+    zOrder_2()
   }
+
+  def zOrder_2()(implicit spark: SparkSession): Unit = {
+    DeltaTable
+      .forPath("/Users/hryhorii/Desktop/projects/win-won/src/main/resources/spark/range-delta-7")
+      .optimize()
+      .executeZOrderBy("id")
+  }
+
+
+  def optimize2()(implicit spark: SparkSession): Unit = {
+    DeltaTable
+      .forPath("/Users/hryhorii/Desktop/projects/win-won/src/main/resources/spark/range-delta-7")
+      .optimize()
+      .executeCompaction()
+  }
+
+  def partiotionBy()(implicit spark: SparkSession): Unit = {
+    def genData(from: Int, to: Int): Seq[(Int, String)] = (from until to).map(index => (index, "age_" + index))
+    val data = genData(0, 10).foldLeft(Seq.empty[(Int, String, String)]){
+      case (acc, (index, age)) if index % 2 == 0 => acc :+ (index, age, "ua")
+      case (acc, (index, age))                   => acc :+ (index, age, "fr")
+    }
+
+    data
+      .toDF("id", "age", "region")
+      .write
+      .format("delta")
+      .partitionBy("region")
+      .save("/Users/hryhorii/Desktop/projects/win-won/src/main/resources/spark/range-delta-7")
+  }
+
 
   def zOrder()(implicit spark: SparkSession): Unit = {
     //    val data = spark.range(0, 10)

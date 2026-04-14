@@ -827,10 +827,10 @@ Parquet — це незмінний, двійковий, стовпцевий ф
 
 
 
-✅✅✅ Liquid Clustering в Delta Lake (I)        GPT ✅✅✅
+✅✅✅ Liquid Clustering в Delta Lake        GPT ✅✅✅
     • кардинальність - кількість унікальних значень
     • чим більше унікальних значень - тим вища кардинальність
-    Liquid Clustering в Delta Lake — це динамічна (адаптивна) кластеризація даних, яка:
+    • Liquid Clustering в Delta Lake — це динамічна (адаптивна) кластеризація даних в середині файла, яка:
         • автоматично підтримує оптимальне розташування даних у файлах
         • без ручного OPTIMIZE
             WHERE user_id = 123
@@ -838,7 +838,18 @@ Parquet — це незмінний, двійковий, стовпцевий ф
         • зберігає дані так, щоб ці фільтри читали мінімум файлів
     	• адаптується якщо запити зміняться
 
-    ALTER TABLE events CLUSTER BY (user_id, country)
+    • ALTER TABLE events CLUSTER BY (user_id, country)
+
+    • Partitioning у Delta Lake — розкласти дані по папках, щоб читати тільки потрібні
+            data
+                  .toDF("id", "age", "region")
+                  .write
+                  .format("delta")
+                  .partitionBy("region")
+                  .save("/Users/hryhorii/Desktop/projects/win-won/src/main/resources/spark/range-delta-7")
+            /root
+                /region=fr
+                /region=ua
 
 
     Z-Order:                                     Liquid Clustering:
@@ -872,42 +883,35 @@ Parquet — це незмінний, двійковий, стовпцевий ф
 
 + https://delta.io/blog/delta-lake-vs-parquet-comparison/                             Delta Lake vs Parquet Comparison
 + https://delta.io/blog/delta-lake-vs-orc/                                            Delta Lake vs ORC Comparison
-
 + https://delta.io/blog/2023-07-27-delta-lake-table-features/                         Introducing Delta Lake Table Features
 + https://delta.io/blog/2022-10-25-create-delta-lake-tables/                          How to Create Delta Lake Tables
 + https://delta.io/blog/2022-10-03-rollback-delta-lake-restore/                       How to Rollback a Delta Lake Table to a Previous Version with Restore
 + https://delta.io/blog/2022-11-21-delta-lake-contraints-check/                       Delta Lake Constraints and Checks
-
 + https://delta.io/blog/2023-03-22-convert-csv-to-delta-lake/                         How to Convert from CSV to Delta Lake
 + https://delta.io/blog/2022-09-23-convert-parquet-to-delta/                          Converting from Parquet to Delta Lake
-
 + https://delta.io/blog/2023-07-07-delta-lake-transaction-log-protocol/               Delta Lake’s transaction log protocol and its implementations
 + https://delta.io/blog/2023-02-01-delta-lake-time-travel/                            Delta Lake Time Travel
 + https://delta.io/blog/2023-02-08-delta-lake-schema-evolution/                       Delta Lake Schema Evolution
 + https://delta.io/blog/2022-11-16-delta-lake-schema-enforcement/                     Delta Lake Schema Enforcement
-
 + https://delta.io/blog/2023-04-12-delta-lake-generated-columns/                      How to use Delta Lake generated columns
 + https://delta.io/blog/2022-08-29-delta-lake-drop-column/                            How to drop columns from a Delta Lake table
 + https://delta.io/blog/2023-07-05-deletion-vectors/                                  Delta Lake Deletion Vectors
 + https://delta.io/blog/2022-12-07-delete-rows-from-delta-lake-table/                 How to Delete Rows from a Delta Lake Table
 + https://delta.io/blog/delta-lake-replacewhere/                                      Delta Lake replaceWhere
-
 + https://delta.io/blog/2023-01-25-delta-lake-small-file-compaction-optimize/         Delta Lake Small File Compaction with OPTIMIZE
 + https://delta.io/blog/delta-lake-upsert/                                            Delta Lake Upsert
 + https://delta.io/blog/2023-02-14-delta-lake-merge/                                  Delta Lake Merge
 + https://delta.io/blog/delta-lake-clone/                                             Delta Lake Clone
-
 + https://delta.io/blog/delta-lake-performance/                                       Delta Lake Performance
 + https://delta.io/blog/2023-06-03-delta-lake-z-order/                                Delta Lake Z Order
 
 https://docs.delta.io/delta-clustering/                                             рідкої кластеризації
 https://docs.delta.io/latest/delta-clustering.html                                  рідкої кластеризації
-
 https://delta.io/blog/pros-cons-hive-style-partionining/                            Pros and cons of Hive-style partitioning
-https://delta.io/blog/2023-04-19-faster-aggregations-metadata/                      How Delta Lake uses metadata to make certain aggregations much faster
 https://delta.io/blog/delta-lake-optimize/                                          Delta Lake Optimize
-
 https://delta.io/blog/remove-files-delta-lake-vacuum-command/                       Remove old files with the Delta Lake Vacuum Command
+
+https://delta.io/blog/2023-04-19-faster-aggregations-metadata/                      How Delta Lake uses metadata to make certain aggregations much faster
 https://delta.io/blog/2023-01-18-add-remove-partition-delta-lake/                   Adding and Deleting Partitions in Delta Lake tables
 
 https://delta.io/blog/2023-03-07-delta-lake-spark-development/                      Getting started contributing to Delta Lake Spark
