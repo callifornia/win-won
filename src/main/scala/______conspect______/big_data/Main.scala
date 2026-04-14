@@ -7,6 +7,8 @@ import org.apache.spark.sql.types.StringType
 import spark.util.InitSession._
 import spark.implicits._
 
+import scala.util.Random
+
 
 object Main {
 
@@ -37,14 +39,29 @@ object Main {
 //    zOrder()
 //    partiotionBy()
 //    optimize2()
-    zOrder_2()
+//    zOrder_2()
+    println(generateWithRepeat(1, 5))
   }
 
+
+
+  def generateWithRepeat(from: Int, to_2: Int): Seq[(Int, String)] =
+    Random.shuffle {
+      for {
+        index        <- (from to to_2)
+        index_plus   <- (from to index)
+      } yield (index, "age_" + index + "_" +index_plus)
+    }
+
+
   def zOrder_2()(implicit spark: SparkSession): Unit = {
+    def genData(from: Int, to: Int): Seq[(Int, String)] = (from until to).map(index => (index, "age_" + index))
+
+
     DeltaTable
       .forPath("/Users/hryhorii/Desktop/projects/win-won/src/main/resources/spark/range-delta-7")
-      .optimize()
-      .executeZOrderBy("id")
+      .toDF
+      .show()
   }
 
 
