@@ -42,9 +42,19 @@ object Main {
 //    zOrder_2()
 //    zOrder_3()
 //    mergeData()
-    optimizeE()
+//    optimizeE()
+    optimizeWithLargeDataSet()
   }
 
+
+  def optimizeWithLargeDataSet()(implicit spark: SparkSession): Unit = {
+    val freshData = generateWithRepeat(1, 2_500_000).toDF("id", "age")
+    freshData
+      .coalesce(1)
+      .write
+      .format("delta")
+      .save("/Users/hryhorii/Desktop/projects/win-won/src/main/resources/spark/range-delta-large-1")
+  }
 
 
   def optimizeE()(implicit spark: SparkSession): Unit = {
@@ -92,11 +102,26 @@ object Main {
 
 
 
+  def displayHeap(): Unit = {
+    val runtime       = Runtime.getRuntime
+    val maxHeap       = runtime.maxMemory()
+    val allocatedHeap = runtime.totalMemory()
+    val freeHeap      = runtime.freeMemory()
+    println(
+      s"""
+         | max heap:       ${maxHeap / (1024 * 1024)} MB
+         | allocated heap: ${allocatedHeap / (1024 * 1024)} MB
+         | free heap:      ${freeHeap / (1024 * 1024)} MB
+         |""".stripMargin)
+  }
+
+
   def generateWithRepeat(from: Int, to_2: Int): Seq[(Int, String)] =
     Random.shuffle {
       for {
-        index        <- (from to to_2)
-        index_plus   <- (from to index)
+        index         <- (from to to_2)
+//        _             =  displayHeap()
+        index_plus    <- from to index / 2
       } yield (index, "age___" + index + "_" +index_plus)
     }
 

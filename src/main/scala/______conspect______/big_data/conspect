@@ -872,7 +872,31 @@ Parquet — це незмінний, двійковий, стовпцевий ф
 
 
 
+✅✅✅ Pros and cons of Hive-style partitioning        https://delta.io/blog/pros-cons-hive-style-partionining/ ✅✅✅
+    • розділення у стилі Hive фізично розділяє дані в папках. Ось приклад набору даних, розділеного за країнами
+            country="Angola"/
+              fileA.parquet
+              fileB.parquet
+            country="Colombia"/
+              fileC.parquet
+              fileD.parquet
+              fileE.parquet
 
+
+
+✅✅✅ Delta Lake Optimize        https://delta.io/blog/delta-lake-optimize/ ✅✅✅
+
+Оптимізація Delta Lake — це набір практик для підвищення продуктивності читання/запису, зменшення кількості файлів і ефективного використання ресурсів у
+середовищах на базі Apache Spark
+
+Основные методы оптимизации Delta Lake:
+    • оптимизация файлов (OPTIMIZE): Преобразует множество мелких файлов (паркет) в более крупные, что резко повышает скорость чтения, так как Spark тратит меньше
+      времени на открытие файлов
+    • Z-Ordering:        Техника упорядочивания данных внутри файлов, которая группирует связанные данные, значительно сокращая объем данных, считываемых при запросах
+    • Liquid Clustering: Современный подход, заменяющий статическое секционирование и Z-Ordering. Он автоматически перестраивает структуру данных, обеспечивая
+      оптимальный размер файлов и эффективность запросов
+    • VACUUM:            Очищает таблицу от неиспользуемых файлов, которые больше не нужны для возврата к предыдущим версиям (Time Travel), освобождая место в хранилище
+    • schema evolution:  Использование mergeSchema при записи позволяет безопасно менять структуру данных без переписывания всей таблицы
 
 
 
@@ -905,9 +929,10 @@ Parquet — це незмінний, двійковий, стовпцевий ф
 + https://delta.io/blog/delta-lake-performance/                                       Delta Lake Performance
 + https://delta.io/blog/2023-06-03-delta-lake-z-order/                                Delta Lake Z Order
 
-https://docs.delta.io/delta-clustering/                                             рідкої кластеризації
-https://docs.delta.io/latest/delta-clustering.html                                  рідкої кластеризації
-https://delta.io/blog/pros-cons-hive-style-partionining/                            Pros and cons of Hive-style partitioning
++ https://docs.delta.io/delta-clustering/                                             рідкої кластеризації
++ https://docs.delta.io/latest/delta-clustering.html                                  рідкої кластеризації
+
++ https://delta.io/blog/pros-cons-hive-style-partionining/                            Pros and cons of Hive-style partitioning
 https://delta.io/blog/delta-lake-optimize/                                          Delta Lake Optimize
 https://delta.io/blog/remove-files-delta-lake-vacuum-command/                       Remove old files with the Delta Lake Vacuum Command
 
