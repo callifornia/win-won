@@ -890,15 +890,33 @@ Parquet — це незмінний, двійковий, стовпцевий ф
 середовищах на базі Apache Spark
 
 Основные методы оптимизации Delta Lake:
-    • оптимизация файлов (OPTIMIZE): Преобразует множество мелких файлов (паркет) в более крупные, что резко повышает скорость чтения, так как Spark тратит меньше
-      времени на открытие файлов
-    • Z-Ordering:        Техника упорядочивания данных внутри файлов, которая группирует связанные данные, значительно сокращая объем данных, считываемых при запросах
-    • Liquid Clustering: Современный подход, заменяющий статическое секционирование и Z-Ordering. Он автоматически перестраивает структуру данных, обеспечивая
-      оптимальный размер файлов и эффективность запросов
-    • VACUUM:            Очищает таблицу от неиспользуемых файлов, которые больше не нужны для возврата к предыдущим версиям (Time Travel), освобождая место в хранилище
-    • schema evolution:  Использование mergeSchema при записи позволяет безопасно менять структуру данных без переписывания всей таблицы
+    • optimize:
+        преобразует множество мелких файлов (паркет) в более крупные, что резко повышает скорость чтения, так как Spark тратит меньше
+        времени на открытие файлов
+        OPTIMIZE table_name
+    • z-ordering:
+        техника упорядочивания данных внутри файлов, которая группирует связанные данные, значительно сокращая объем данных, считываемых при запросах
+        OPTIMIZE table_name ZORDER BY (column_name)
+    • liquid clustering:
+        современный подход, заменяющий статическое секционирование и Z-Ordering. Он автоматически перестраивает структуру данных, обеспечивая
+        оптимальный размер файлов и эффективность запросов
+    • vacuum:
+        очищает таблицу от неиспользуемых файлов, которые больше не нужны для возврата к предыдущим версиям (Time Travel), освобождая место в хранилище
+        VACUUM table_name RETAIN 168
+    • schema evolution:
+        использование mergeSchema при записи позволяет безопасно менять структуру данных без переписывания всей таблицы
 
 
+
+✅✅✅ Remove old files with the Delta Lake Vacuum Command      https://delta.io/blog/remove-files-delta-lake-vacuum-command/ ✅✅✅
+
+    • DRY RUN - щоб отримати список файлів, які будуть видалені зі сховища під час виконання команди vacuum
+                    spark.sql("VACUUM some_people DRY RUN")
+
+    • spark.sql("VACUUM some_people RETAIN 0 HOURS DRY RUN") - викине IllegalArgumentException.
+      Це поверне виняток, що є бажаним, оскільки очищення з таким коротким періодом зберігання потенційно небезпечне
+
+    • spark.databricks.delta.retentionDurationCheck.enabled=false -  можна вимкнути цю перевірку
 
 
 
@@ -928,17 +946,16 @@ Parquet — це незмінний, двійковий, стовпцевий ф
 + https://delta.io/blog/delta-lake-clone/                                             Delta Lake Clone
 + https://delta.io/blog/delta-lake-performance/                                       Delta Lake Performance
 + https://delta.io/blog/2023-06-03-delta-lake-z-order/                                Delta Lake Z Order
-
 + https://docs.delta.io/delta-clustering/                                             рідкої кластеризації
 + https://docs.delta.io/latest/delta-clustering.html                                  рідкої кластеризації
-
 + https://delta.io/blog/pros-cons-hive-style-partionining/                            Pros and cons of Hive-style partitioning
-https://delta.io/blog/delta-lake-optimize/                                          Delta Lake Optimize
-https://delta.io/blog/remove-files-delta-lake-vacuum-command/                       Remove old files with the Delta Lake Vacuum Command
++ https://delta.io/blog/delta-lake-optimize/                                          Delta Lake Optimize
++ https://delta.io/blog/remove-files-delta-lake-vacuum-command/                       Remove old files with the Delta Lake Vacuum Command
++ https://delta.io/blog/2023-04-19-faster-aggregations-metadata/                      How Delta Lake uses metadata to make certain aggregations much faster
 
-https://delta.io/blog/2023-04-19-faster-aggregations-metadata/                      How Delta Lake uses metadata to make certain aggregations much faster
+
+
 https://delta.io/blog/2023-01-18-add-remove-partition-delta-lake/                   Adding and Deleting Partitions in Delta Lake tables
-
 https://delta.io/blog/2023-03-07-delta-lake-spark-development/                      Getting started contributing to Delta Lake Spark
 https://delta.io/blog/2020-09-16-getting-started-with-delta-lake/                   Getting Started with Delta Lake
 https://delta.io/blog/2020-03-13-diving-into-delta-lake-online-tech-talk-series/    Diving into Delta Lake Online Tech Talk Series
