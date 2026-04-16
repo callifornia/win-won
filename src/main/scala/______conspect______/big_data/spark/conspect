@@ -1,0 +1,44 @@
+Welcome
+How to Make the Best out of This Course
+Scala Recap
+Spark First Principles
+
+Spark Structured API with DataFrames
+    DataFrames Basics
+    DataFrames Basics: Exercises
+    How DataFrames Work
+    Data Sources
+    Data Sources, Part 2 + Exercises
+    DataFrame Columns and Expressions
+    Columns and Expressions: Exercises
+    DataFrame Aggregations
+    DataFrame Joins
+    Joins: Exercises
+
+Spark Types and Datasets
+    Working with Spark Types
+    Advanced Spark Types
+    Managing Nulls in Data
+    Type-Safe Processing: Datasets
+    Datasets, Part 2 + Exercises
+
+Spark SQL
+    The Spark SQL Shell
+    Programmatic Spark SQL
+    Spark SQL: Exercises
+
+Spark Low-Level
+    RDDs
+    RDDs, Part 2 + Exercises
+    Practical Spark
+    How Spark Runs on a Cluster
+    Deploying Spark Applications on a Cluster
+
+A Real Big Data Project
+    A Big Data Problem
+    Investigative Data Analysis on Big Data
+    Investigative Data Analysis on Big Data, Part 2
+    Gathering Answers and Running our Solution on Amazon EMR
+
+Epilogue
+You ROCK!
