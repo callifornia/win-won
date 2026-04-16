@@ -1,4 +1,4 @@
-package ______conspect______.big_data
+package ______conspect______.big_data.delta_lake
 
 import io.delta.tables.DeltaTable
 import org.apache.spark.sql.SparkSession
@@ -6,7 +6,6 @@ import org.apache.spark.sql.functions.lit
 import org.apache.spark.sql.types.StringType
 import spark.util.InitSession._
 import spark.implicits._
-
 import scala.util.Random
 
 
