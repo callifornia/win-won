@@ -28,3 +28,21 @@ Types of BigData analytics:
       Example: Google car. Get data from sensor and decide what next step should be,
       turn left or turn right ...
     • Diagnostic analytics. Why did it happen. Understand root cost of problem
+
+Hadoop - framework that allow us to STORE and PROCESS large data set in parallel and distribution fashion
+
+Hadoop
+    • Store (HDFS)
+    • Processing (MapReduce), parallel distributed processing
+
+Hadoop master/slave architecture
+
+
+
+
+
+
+
+
+
+
