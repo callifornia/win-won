@@ -1,5 +1,5 @@
 
-                             BigData
+                             🔑 BigData 🔑
 
     • structured         • semi-structured                  • un-structured
       tables               json, xml, csv, email              log, audio, video, image
@@ -10,7 +10,6 @@
     • Variety:    Data can be different, structured, semi-structured, un-structured
     • Velocity:   People generate the data
     • Value:      Extract useful value from those data which will help company to grow
-
 
 DataAnalytics:
     •   Identifying the problem which we are going to solve
@@ -31,12 +30,81 @@ Types of BigData analytics:
 
 Hadoop - framework that allow us to STORE and PROCESS large data set in parallel and distribution fashion
 
-Hadoop
-    • Store (HDFS)
-    • Processing (MapReduce), parallel distributed processing
+
+                              🔑 Hadoop 🔑
+             • Store (HDFS)               • Processing (MapReduce), parallel distributed processing
+                                            pic: /Users/hryhorii/Desktop/projects/win-won/src/main/resources/pictures/big_data/hadoop/Screenshot 2026-04-18 at 12.32.58.png
+
 
 Hadoop master/slave architecture
+ pic: /Users/hryhorii/Desktop/projects/win-won/src/main/resources/pictures/big_data/hadoop/Screenshot 2026-04-18 at 12.45.07.png
+      /Users/hryhorii/Desktop/projects/win-won/src/main/resources/pictures/big_data/hadoop/Screenshot 2026-04-18 at 18.14.35.png
 
+
+                                         Name Node (maintains and manage DataNode)
+                                        /     |     \
+                                DataNode   DataNode  DataNode
+
+   Name Node:                                                   DataNode:
+     - maintains and manage DataNode                               - stores actual data in data blocks
+     - heartbeat from DataNode                                     - responsible to manage data across data blocks
+     - records metadata, information about DataNode                - server reads and write data from the clients
+     - location of block stored                                    - slave demons
+     - size of the files
+     - permissions
+     - hierarchy
+     - master demons
+
+
+🔑NameNode and Secondary NameNode 🔑 (pic: /Users/hryhorii/Desktop/projects/win-won/src/main/resources/pictures/big_data/hadoop/Screenshot 2026-04-18 at 18.31.21.png)
+    NameNode contains:
+        - editLog:
+            - stored on a RAM
+            - there are 2 editLogs: recent changes and tumbstone
+        - fsImage:
+            - stored on a disk
+            - contains all modifications which was made by the cluster since NameNode was started
+        - do the checkpoint
+
+    Secondary NameNode contains:
+        - grab the data from the NameNode
+        - pack all logs into the FsImage (final pice of log)
+
+
+🔑HDFS DataBlocks 🔑   pic: (/Users/hryhorii/Desktop/projects/win-won/src/main/resources/pictures/big_data/hadoop/Screenshot 2026-04-18 at 19.41.31.png)
+    - each file is stored on HDFS as blocks
+    - the default size of each block is 128MB
+    - replication factor - it's about storing the same data on few nodes
+      pic: /Users/hryhorii/Desktop/projects/win-won/src/main/resources/pictures/big_data/hadoop/Screenshot 2026-04-18 at 19.53.24.png
+
+
+                    File 380MB                                 NameNode
+            128MB       128MB       124MB                  /      |        \
+            block_1     block_2     block_3         128MB       128MB      124MB
+                                                    DataNode    DataNode   DataNode
+
+🔑 HDFS Fault tolerance: replication factor pic: (/Users/hryhorii/Desktop/projects/win-won/src/main/resources/pictures/big_data/hadoop/Screenshot 2026-04-18 at 19.53.24.png) 🔑
+
+🔑 HDFS Write Mechanism Pipeline Setup pic: (/Users/hryhorii/Desktop/projects/win-won/src/main/resources/pictures/big_data/hadoop/Screenshot 2026-04-18 at 20.12.16.png) 🔑
+   Example:
+        - we do have new text file
+        - client node ask  ~> name node:      i have a data to write
+        - name node answer ~> client node:    here is ip's
+        - client node ask  ~> data_node_1: i have data to write are you ready ?
+                              data_node_1 ask ~> data_node 2: we do have data to write are you ready ?
+                              data_node_2 ask ~> data_node 3: we do have data to write are you ready ?
+                              data_node_3 answer ~> data_node 2: yes i am ready
+                              data_node_2 answer ~> data_node 1: yes we are ready
+                              data_node_1 answer ~> client node: yes we are ready
+        - client node send file to data_node_1
+                              data_node_1 send file to data_node_2
+                              data_node_2 send file to data_node_3
+        - acknowledge
+            - data_node_3 send acknowledge (complete) to data_node_2
+            - data_node_2 send acknowledge (complete) to data_node_1
+            - data_node_1 send acknowledge to client node
+            - client_node send acknowledge to name_node
+            - name_node updated it's own meta_data
 
 
 
