@@ -1,11 +1,30 @@
+
                              BigData
+
     • structured         • semi-structured                  • un-structured
       tables               json, xml, csv, email              log, audio, video, image
 
 
 
+    • Volume:     lots of devices generate data
+    • Variety:    Data can be different, structured, semi-structured, un-structured
+    • Velocity:   People generate the data
+    • Value:      Extract useful value from those data which will help company to grow
 
-Volume:     lots of devices generate data
-Variety:    Data can be different, structured, semi-structured, un-structured
-Velocity:   People generate the data
-Value:      Extract useful value from those data which will help company to grow
+
+DataAnalytics:
+    •   Identifying the problem which we are going to solve
+    •   Designing Data requirements. What data we do need to have just to be able solve the problem
+    •   Pre-processing data. Clean data, perform some sort of processing
+    •   Performing Analytics over data. Analyzing the data using specific process
+    •   Visualizing the data
+
+Types of BigData analytics:
+    • Descriptive analysis: what is happening now based on incoming data. What was happen
+    • Predictive analysis:  what will may happen in the future.
+      Example: get data from sensors and see if something can happen in the future
+    • Prescriptive analysis: what action should be taken based on some algorithm output.
+      So data went through the algorithms and provide possible outputs...
+      Example: Google car. Get data from sensor and decide what next step should be,
+      turn left or turn right ...
+    • Diagnostic analytics. Why did it happen. Understand root cost of problem
