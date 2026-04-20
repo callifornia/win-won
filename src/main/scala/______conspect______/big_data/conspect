@@ -36,6 +36,9 @@ Hadoop - framework that allow us to STORE and PROCESS large data set in parallel
                                             pic: /Users/hryhorii/Desktop/projects/win-won/src/main/resources/pictures/big_data/hadoop/Screenshot 2026-04-18 at 12.32.58.png
 
 
+
+✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅ Store (HDFS) ✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅
+
 Hadoop master/slave architecture
  pic: /Users/hryhorii/Desktop/projects/win-won/src/main/resources/pictures/big_data/hadoop/Screenshot 2026-04-18 at 12.45.07.png
       /Users/hryhorii/Desktop/projects/win-won/src/main/resources/pictures/big_data/hadoop/Screenshot 2026-04-18 at 18.14.35.png
@@ -56,7 +59,9 @@ Hadoop master/slave architecture
      - master demons
 
 
-🔑NameNode and Secondary NameNode 🔑 (pic: /Users/hryhorii/Desktop/projects/win-won/src/main/resources/pictures/big_data/hadoop/Screenshot 2026-04-18 at 18.31.21.png)
+
+🔑NameNode and Secondary NameNode
+  pic: /Users/hryhorii/Desktop/projects/win-won/src/main/resources/pictures/big_data/hadoop/Screenshot 2026-04-18 at 18.31.21.png
     NameNode contains:
         - editLog:
             - stored on a RAM
@@ -71,7 +76,9 @@ Hadoop master/slave architecture
         - pack all logs into the FsImage (final pice of log)
 
 
-🔑HDFS DataBlocks 🔑   pic: (/Users/hryhorii/Desktop/projects/win-won/src/main/resources/pictures/big_data/hadoop/Screenshot 2026-04-18 at 19.41.31.png)
+
+🔑 HDFS DataBlocks
+   pic: /Users/hryhorii/Desktop/projects/win-won/src/main/resources/pictures/big_data/hadoop/Screenshot 2026-04-18 at 19.41.31.png
     - each file is stored on HDFS as blocks
     - the default size of each block is 128MB
     - replication factor - it's about storing the same data on few nodes
@@ -83,9 +90,14 @@ Hadoop master/slave architecture
             block_1     block_2     block_3         128MB       128MB      124MB
                                                     DataNode    DataNode   DataNode
 
-🔑 HDFS Fault tolerance: replication factor pic: (/Users/hryhorii/Desktop/projects/win-won/src/main/resources/pictures/big_data/hadoop/Screenshot 2026-04-18 at 19.53.24.png) 🔑
 
-🔑 HDFS Write Mechanism Pipeline Setup pic: (/Users/hryhorii/Desktop/projects/win-won/src/main/resources/pictures/big_data/hadoop/Screenshot 2026-04-18 at 20.12.16.png) 🔑
+🔑 HDFS Fault tolerance: replication factor
+   pic: /Users/hryhorii/Desktop/projects/win-won/src/main/resources/pictures/big_data/hadoop/Screenshot 2026-04-18 at 19.53.24.png
+
+
+
+🔑 HDFS Write Mechanism Pipeline Setup
+   pic: /Users/hryhorii/Desktop/projects/win-won/src/main/resources/pictures/big_data/hadoop/Screenshot 2026-04-18 at 20.12.16.png
    Example:
         - we do have new text file
         - client node ask  ~> name node:      i have a data to write
@@ -105,6 +117,47 @@ Hadoop master/slave architecture
             - data_node_1 send acknowledge to client node
             - client_node send acknowledge to name_node
             - name_node updated it's own meta_data
+        - in case data was split into more than two blocks, two blocks copied in the same time,
+          but block_1 and block_2 are going to be copied into the different data nodes
+
+
+
+🔑 HDFS Read Mechanism
+        - client_node ask name_node: i want to read this file
+        - name_node answer to client_node: here is ip's from which you read file
+        - client_node ask data_nodes about file and all blocks are going to be read selmutenuasly
+
+
+
+✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅ MapReduce, processing parallel && distributed ✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
