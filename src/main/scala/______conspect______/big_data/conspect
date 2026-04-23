@@ -219,6 +219,48 @@ pic: src/main/resources/pictures/big_data/hadoop/Screenshot 2026-04-23 at 14.12.
 
 ✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅ Problem with Relation Database ✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅
 
+    RDSMS issue:
+        • Data import ing was a tedious task
+        • BigData Difficult to handle large dataset
+        • Can store Unstructured Data
+        • Time Consuming Task
+
+    Apache Sqoop: tool to transfer data between HDFS & Relation Database Servers in both sides
+
+
+
+✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅ Apache Flume ✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅
+
+    Apache Flume - open-source tool designed to collect, aggregate, and move large amounts of log data (or event data)
+                   from various sources into centralized storage systems
+    In short: Apache Flume is basically a data pipeline tool specialized for moving log/event data efficiently into big data systems
+
+    Flows like:    Source → Channel → Sink
+
+    Used in big data environments to:
+	    •	collect logs from servers, apps, or devices
+	    •	stream data into systems like Apache Hadoop (especially HDFS)
+	    •	handle high-throughput, real-time data ingestion
+
+    Flume is built around a pipeline with three main components:
+	    •	Source – where the data comes from (e.g., log files, web servers)
+	    •	Channel – temporary storage (memory or disk buffer)
+	    •	Sink – where the data goes (e.g., Hadoop, databases)
+
+    Key features
+	    •	Scalable: can handle huge volumes of data
+	    •	Reliable: ensures data delivery even if failures happen
+	    •	Flexible: supports many data sources and destinations
+	    •   Fault tolerant
+	    •   Centralized data storage
+	    •   Data ingestion
+	    •   Large Data Set
+	    •	Streaming: works in near real-time
+
+    A common setup:
+	    •	Web servers generate logs
+	    •	Flume collects those logs
+	    •	Sends them into Hadoop for analysis
 
 
 
