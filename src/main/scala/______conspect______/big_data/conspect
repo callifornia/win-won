@@ -129,8 +129,13 @@ Hadoop master/slave architecture
 
 
 
-✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅ MapReduce, processing parallel && distributed ✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅
+✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅ MapReduce, processing parallel && distributed ✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅
 
+🔑🔑🔑🔑🔑🔑🔑🔑🔑🔑🔑🔑🔑🔑🔑🔑🔑🔑🔑🔑🔑🔑🔑🔑🔑🔑🔑
+    • MapReduce is a low level paradigm of processing data
+    • MapReduce is hard to programing 
+
+🔑🔑🔑🔑🔑🔑🔑🔑🔑🔑🔑🔑🔑🔑🔑🔑🔑🔑🔑🔑🔑🔑🔑🔑🔑🔑🔑
 MapReduce general story (1 Professor and 4 students):
     pic_1:   src/main/resources/pictures/big_data/hadoop/Screenshot 2026-04-20 at 10.02.16.png
     pic_2:   src/main/resources/pictures/big_data/hadoop/Screenshot 2026-04-20 at 10.02.27.png
@@ -191,7 +196,7 @@ Explanation:
 
 
 
-✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅ HDFS & Yarn ✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅
+✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅ HDFS & Yarn ✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅
     • HDFS - Name node
         • is responsible only for storing BigData in DataNode
     • Yarn - Resource Manager
@@ -201,7 +206,7 @@ Explanation:
 
 
 
-✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅ Hadoop & Hadoop Ecosystem ✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅
+✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅ Hadoop & Hadoop Ecosystem ✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅
 pic: 1  src/main/resources/pictures/big_data/hadoop/Screenshot 2026-04-22 at 18.42.09.png
 
                                         Hadoop cluster modes
@@ -212,12 +217,12 @@ pic: 1  src/main/resources/pictures/big_data/hadoop/Screenshot 2026-04-22 at 18.
 
                                                                                 • has no DFS (distributed file system)
 
-✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅ Hadoop ecosystem ✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅
+✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅ Hadoop ecosystem ✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅
 pic: src/main/resources/pictures/big_data/hadoop/Screenshot 2026-04-23 at 14.12.24.png
 
 
 
-✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅ Problem with Relation Database ✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅
+✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅ Problem with Relation Database ✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅
 
     RDSMS issue:
         • Data import ing was a tedious task
@@ -229,7 +234,7 @@ pic: src/main/resources/pictures/big_data/hadoop/Screenshot 2026-04-23 at 14.12.
 
 
 
-✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅ Apache Flume ✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅
+✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅ Apache Flume ✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅
 
     Apache Flume - open-source tool designed to collect, aggregate, and move large amounts of log data (or event data)
                    from various sources into centralized storage systems
@@ -264,19 +269,56 @@ pic: src/main/resources/pictures/big_data/hadoop/Screenshot 2026-04-23 at 14.12.
 
 
 
+✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅ Apache Pig ✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅
+
+    Apache Pig                                                  vs          MapReduce
+        • high level data flow tool                                            • low level data programing
+        • no need to write complex program                                     • you need to write programs in Java/Python etc.
+        • build in support for data operations                                 • Per2forming data operations in MapReduce is a humongous task
+          like joins, filters, ordering, sorting, etc.                         • nested data types are not in MapReduce
+        • Provide nested data types like tuples, bags,
+          and maps
+
+    • Structured data, Semi-structured data, Unstructured data
+    • Dataflow language, Read like a series of steps
+    • Java, python, JavaScript, Ruby
+
+
+    Apache pig main flow:
+        • Source --store--> HDFS --read--> ApachePig(joins and group, sort, aggregate, filter, other operations) --store--> HDFS
 
 
 
+✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅ Apache Hive ✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅
+
+    • data warehousing package built on top of hadoop
+    • used for data analysis
+    • use similar as SQL for managing and querying the STRUCTURED DATA
+    • no need to lear java or hadoop apis
+    • under the hood transform into the mapReduce
+    • developed by facebook
 
 
+    • Defines SQL-Like Query Language called QL
+    • Allows programmers to plug-in custom mappers and reducers
+    • Data warehouse infrastructure
+    • Provide tools to easy enable data ETL
 
 
+    Apache PIG                             vs           Apache Hive
+       • data flow language                                • declarative select * from
+       • load my data                                      • used by analysis generating daily reports
+       • dump dota
+       • used by programmers and users
 
 
-
-
-
-
+    Features:
+        • Schema/Types                         • DFS Direct Access
+        • Partitions                           • Join/Order/Sort
+        • Server                               • Shell
+        • User Defined Function (UDF)          • Streaming
+        • Custom Serializer/Deserializer       • Web Interface
+        • JDBC                                 • Language (like SQL)
 
 
 
