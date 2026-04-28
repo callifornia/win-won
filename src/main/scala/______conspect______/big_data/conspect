@@ -321,9 +321,120 @@ pic: src/main/resources/pictures/big_data/hadoop/Screenshot 2026-04-23 at 14.12.
         • JDBC                                 • Language (like SQL)
 
 
+    Hive component:
+        • Shell
+        • Compiler
+        • Driver - take the code and trunsform into the somthing that hive can understand
+        • Execution agent
+        • Metastore - database definition, table, view defenitions,
+
+
+    Limitation:
+        • is not an option to update or delete the data
+        • not designing for the live transtaction processing
+        • latency for Hive queries is very high (minutes)
+        • Provide acceptable latency for interactive data browsing
+        • does not offer real-time queries and row level updates
+        • no transaction, indexes
+        • does not verify the data when it's loaded
+
+
+    SQL-like:
+        • Filter, join two tables,
+        • Store query result in HDFS or another table
+        • alter, drop, create and partitioning the tables
+
+    Types:
+        • TINYINT     • INT       • FLOAT      • BOOLEAN
+        • SMALLINT    • BIGINT    • DOUBLE     • STRING
 
 
 
+✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅ Apache HBase ✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅
+    • Data model:     Column-family (wide-column)
+                      pic: src/main/resources/pictures/big_data/hadoop/Screenshot 2026-04-25 at 15.23.59.png
+                           src/main/resources/pictures/big_data/hadoop/Screenshot 2026-04-25 at 15.25.12.png
+    • Architecture component:
+                      pic: src/main/resources/pictures/big_data/hadoop/Screenshot 2026-04-25 at 15.27.12.png
+    • Region architecture:
+                      pic: src/main/resources/pictures/big_data/hadoop/Screenshot 2026-04-25 at 15.32.24.png
+                           src/main/resources/pictures/big_data/hadoop/Screenshot 2026-04-25 at 15.35.49.png
+    • Access pattern: Key-based (row key)
+    • Category:       NoSQL
+    • Scalable:       Horizontally
+    • Schema:         Does not have a fixed schema, columns can be added on the fly
+    • Data:           HDFS
+                      works well with a structured/semi-structured data
+    • Provide read/write
+    • Versioned Data
+
+
+
+
+
+
+
+
+
+**************************************************************************************************************
+
+   • NoSQL doesn't has a fixed table structure
+   • rests on top of HDFS
+   • enable real time analysis
+   • store data in tabular format for extremely fast reads and writes
+   • regular inserting and overwriting data
+   • key/value database
+   • value is identify with a key and stored in a key-order
+   • fast access via key
+   • key and value are ByteArray
+
+
+    What is common:
+        • huge data
+        • fast random access
+        • structured data
+        • variable schema
+        • need of compression
+        • need of distribution
+
+
+    HBase Architecture
+        pic: src/main/resources/pictures/big_data/hadoop/Screenshot 2026-04-25 at 15.05.01.png
+        • Master node - single node, manage cluster operations, not a part of read or write part
+        • Region node - one or more, hold tables, perform reads/write
+        • Zookeeper is used for coordinating and monitoring
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    Probable solution:
+        • Distributed Database
+        • Sorted Data
+        • Sparse Data Store
+        • Automatic sharding
+
+
+                                                    NoSQL
+            • key-value store       • big table clone (column)        • document database        • graph database
+              Dynamo, membase         BigTable, Cassandra               MongoDB, etc               FlockDB etc
+              etc                     HBase, etc
 
 
 
