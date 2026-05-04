@@ -547,18 +547,28 @@ object MainTutorial {
   }
 
 
-  // F-Bound polimorphism
+  
+  // F-Bound polymorphism
+  /*
+    Єто мощный объектно-ориентированный метод, который использует систему типов для кодирования ограничений на дженерики
+    F-bounded polymorphism (a.k.a self-referential types, recursive type signatures, recursively bounded quantification)
+    is a powerful object-oriented technique that leverages the type system to encode constraints on generics
+  * */
+
   trait Pets[A <: Pets[A]] { this: A =>
     def rename(str: String): A
   }
 
-  case class Fish(name: String) extends Pets[Fish] {
-    def rename(str: String): Fish = copy(str)
+  case class Fish2(name: String) extends Pets[Fish2] {
+    def rename(str: String): Fish2 = copy(str)
   }
 
   case class Dog(name: String) extends Pets[Dog] {
     def rename(str: String): Dog = copy(str)
   }
+
+  class Mammut(name: String) extends Dog(name)
+
 
 
   {

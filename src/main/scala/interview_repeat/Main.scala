@@ -232,31 +232,6 @@ object toJsonWrapper {
 
 
 /*
-*                           F-Bound polymorphism
-*
-* F-bounded polymorphism (a.k.a self-referential types, recursive type signatures, recursively bounded quantification)
-* is a powerful object-oriented technique that leverages the type system to encode constraints on generics
-*
-* это мощный объектно-ориентированный метод, который использует систему типов для кодирования ограничений на дженерики
-* */
-
-  trait Pets[A <: Pets[A]] { this: A =>
-    def rename(str: String): A
-  }
-
-  case class Fish2(name: String) extends Pets[Fish2] {
-    def rename(str: String): Fish2 = copy(str)
-  }
-
-  case class Dog(name: String) extends Pets[Dog] {
-    def rename(str: String): Dog = copy(str)
-  }
-
-  class Mammut(name: String) extends Dog(name)
-
-
-
-/*
 *                             Higher-kinded types
 *
 * A higher-kinded type is a type that abstracts over some type that, in turn, abstracts over another type.

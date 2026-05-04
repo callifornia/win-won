@@ -1,10 +1,9 @@
-package typeClasses
+package ______conspect______
 
-object Main {
+object TypeClass {
   case class ScoredPoint(amount: Amount)
   case class Amount(value: Int)
   case class Description(value: String)
-
 
 
   trait Json[T] {
@@ -18,6 +17,7 @@ object Main {
   implicit object IntJson extends Json[Int] {
     def toJson(value: Int): JsonValue = IntJsonValue(value)
   }
+
   implicit object StringJson extends Json[String] {
     def toJson(value: String): JsonValue = StringJsonValue(value)
   }
@@ -26,6 +26,7 @@ object Main {
     def toJson(value: Description): JsonValue =
       JsonObjectValue(Map("description" -> StringJsonValue(value.value)))
   }
+
   implicit object AmountJson extends Json[Amount] {
     def toJson(value: Amount): JsonValue = JsonObjectValue(
       Map(
