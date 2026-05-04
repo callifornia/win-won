@@ -27,8 +27,8 @@ object Main {
   *
   * LEADER
   * - There is no leader election process,
-  * - the leader can always be recognised deterministically by any node whenever there is gossip convergence.
-  * - The leader is only a role, any node can be the leader and it can change between convergence rounds.
+  * - the leader can always be recognised deterministically by any node whenever there is gossip convergence
+  * - The leader is only a role, any node can be the leader and it can change between convergence rounds
   * - The leader is the first node in sorted order that is able to take the leadership role
 
   * - The role of the leader:

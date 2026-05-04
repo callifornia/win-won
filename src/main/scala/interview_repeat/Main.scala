@@ -237,7 +237,7 @@ object toJsonWrapper {
 * F-bounded polymorphism (a.k.a self-referential types, recursive type signatures, recursively bounded quantification)
 * is a powerful object-oriented technique that leverages the type system to encode constraints on generics
 *
-* это мощный объектно-ориентированный метод, который использует систему типов для кодирования ограничений на дженерики.
+* это мощный объектно-ориентированный метод, который использует систему типов для кодирования ограничений на дженерики
 * */
 
   trait Pets[A <: Pets[A]] { this: A =>
@@ -407,11 +407,10 @@ object toJsonWrapper {
 
                                             Cluster
 
-
    -  Akka Cluster provides a fault-tolerant decentralized peer-to-peer based Cluster Membership Service
-     with no single point of failure or single point of bottleneck.
+      with no single point of failure or single point of bottleneck.
       It does this using gossip protocols and an automatic failure detector.
-     Akka Cluster allows for building distributed applications, where one application or service spans multiple nodes
+      Akka Cluster allows for building distributed applications, where one application or service spans multiple nodes
      (in practice multiple ActorSystems)
 
 

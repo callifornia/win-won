@@ -11,13 +11,15 @@ object Tutorial {
   // akka
   {
     /*
-      concurrency     - might not be executing паралельно
-      parallelism     - can be truly паралельно
+      загальне виконання задачі:
+          concurrency     - might not be executing паралельно
+          parallelism     - can be truly паралельно
 
-      synchronous     - caller cannot make progress until the method returns a value or throws an exception
-      asynchronous    - caller can make progress. Completion  may be signalled via some additional mechanism
-                        Actors - are asynchronous by nature: an actor can progress after a message send without
-                        waiting for the actual delivery to happen
+      виклик метода thread:
+          synchronous     - caller cannot make progress until the method returns a value or throws an exception
+          asynchronous    - caller can make progress. Completion  may be signalled via some additional mechanism
+                            Actors - are asynchronous by nature: an actor can progress after a message send without
+                            waiting for the actual delivery to happen
 
       blocking        - if the delay of one thread can indefinitely delay some of the other threads
       non-blocking    - means that no thread is able to indefinitely delay others
@@ -53,12 +55,10 @@ object Tutorial {
 
 
 
-
      Actor can do the following three fundamental actions:
           - create a finite number of new Actors
           - send a finite number of messages to Actors it knows
           - designate the behavior to be applied to the next message
-
 
 
     An actor is a container for:
@@ -120,12 +120,12 @@ object Tutorial {
 
 
     Supervisor Strategy
-      The final piece of an actor is its strategy for handling unexpected exceptions - failures. Fault handling is then
+        The final piece of an actor is its strategy for handling unexpected exceptions - failures. Fault handling is then
       done transparently by Akka, applying one of the strategies described in Fault Tolerance for each failure
 
 
     When an Actor Terminates
-      Once an actor terminates, fails (in a way which is not handled by a restart), stops itself or is stopped by its supervisor,
+        Once an actor terminates, fails (in a way which is not handled by a restart), stops itself or is stopped by its supervisor,
       it will free up its resources, видаляє всі  remaining messages from its mailbox into the system’s “dead letter mailbox”
       which will forward them to the EventStream as DeadLetters.
       The mailbox is then replaced within the actor reference with a system mailbox, redirecting all new messages to the EventStream as DeadLetters
@@ -136,7 +136,7 @@ object Tutorial {
       supervision provides the following three strategies:
           - restore the actor, keeping its accumulated internal state
           - restart the actor, clearing out its accumulated internal state, with a potential delay starting again
-          - stop the actor permanently
+          - stop the actor permanently(постійно)
         if all children of an actor has stopped unexpectedly it may make sense for the actor itself to restart or stop
       to get back to a functional state. This can be achieved through a combination of supervision and watching the
       children to get notified when they terminate. An example of this can be found in Bubble failures up through the hierarchy
@@ -192,9 +192,9 @@ object Tutorial {
 
 
       Semantics of a delivery mechanism
-        exactly-once                ->  message не може бути втрачений чи продубльована. most expensive
-        at-least-once(як мінімум)   ->  messages may be duplicated but not lost
-        at-most-once                ->  fire-and-forget fashionю message is delivered once or not at all. is the cheapest
+        • exactly-once                                       ->  message не може бути втрачений чи продубльована, most expensive
+        • at-least-once(як мінімум один, може бути багато)   ->  messages may be duplicated but not lost
+        • at-most-once                                       ->  fire-and-forget fashion message is delivered once or not at all. is the cheapest
 
 
       Adapting Messages pattern

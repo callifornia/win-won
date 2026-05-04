@@ -31,10 +31,12 @@ NoSQL:
 
 
 
-Теорема CAP
-    C (consistency)           —  cамую последнюю запись
-    A (availability)          —  Каждый узел всегда успешно выполняет запросы (на чтение и запись)
-    P (partition tolerance)   —  между узлами нет связи, они продолжают работать независимо друг от друга
+Теорема CAP:
+    Сonsistency             -   всі клієнти бачать однакові дані в один і той самий момент як у класичній базі даних (ACID)
+    Availability            -   кожен запит отримує відповідь (навіть якщо дані можуть бути неактуальні)
+    Partition_tolerance     -   cистема продовжує працювати, навіть якщо:
+                                    - мережа розбита
+                                    - вузли не можуть спілкуватись
 
 
 
@@ -135,8 +137,7 @@ BASE означает:
 
 
 Если дубликаты удалять не нужно, используется инструкция UNION ALL:
-
-  Different SQL Operators:::    = , <, >, >=, <=, <>, !=, BETWEEN, ORDER BY, IN, NOT IN, LIKE, ALIASE, DISTINCT, LIMIT, CASE:
+  Different SQL Operators:::   = , <, >, >=, <=, <>, !=, BETWEEN, ORDER BY, IN, NOT IN, LIKE, ALIASE, DISTINCT, LIMIT, CASE:
   Comparison Operators:        =, <>, != , >, <, >=, <=
   Arithmetic Operators:        +, -, *, /, %
   Logical Operators:           AND, OR, NOT, IN, BETWEEN, LIKE etc.

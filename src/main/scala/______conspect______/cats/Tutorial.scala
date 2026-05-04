@@ -13,51 +13,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 object Tutorial {
   def main(args: Array[String]): Unit = {
     //    println(CustomSemigroup.check())
-
   }
 
-
-/*
-    ################################ Patterns ################################################################
-
-    SOLID:
-      Single responsibility  → каждий клас должен иметь одну и только одну причину для изменения
-      Open closed            → открит для розширения, закрит для изменения (только дописивать)
-      Liskov substitution    → функции которие используют базовий тип должни без изменения использовать
-                               подтип
-      Interface segregation  → много интерфейсов лучше чем один большой
-      Dependency inversion   → зависимость на абстракции нет завимостей на конкретное
-
-
-    Поліморфізм — це можливість працювати з різними типами даних через один і той самий інтерфейс або ім’я методу
-          --------------------------------------------------------------------------------------------------------
-          def identity[A](x: A): A = x
-
-          val a = identity(5)        // Int
-          val b = identity("hello")  // String
-          --------------------------------------------------------------------------------------------------------
-
-          trait Animal {
-            def sound(): String
-          }
-
-          class Dog extends Animal {
-            def sound() = "Woof"
-          }
-
-          class Cat extends Animal {
-            def sound() = "Meow"
-          }
-
-          def makeSound(animal: Animal): Unit = {
-            println(animal.sound())
-          }
-
-          makeSound(new Dog)
-          makeSound(new Cat)
-
-          Пояснення: Одна функція makeSound працює з різними типами (Dog, Cat)
-* */
 
 
   // call-by need pattern
@@ -128,26 +85,6 @@ object Tutorial {
   }
 
 
-  // Loan - pattern
-  {
-    case class Session(url: String, isAlive: Boolean)
-
-    def builder(handle: Session => Unit): Unit =
-      handle(Session("www.trump.ua", true))
-
-
-    builder { session =>
-      println(session.url)
-      println(session.isAlive)
-    }
-  }
-
-
-
-  // singleton
-  /*    In scala it's represented in one line just as object    */
-  object Singleton
-
 
 
   // companion object
@@ -214,63 +151,10 @@ object Tutorial {
 
 
   /*
-    Type classes
-      - структура даних яка підтримує ad hoc polymorphism
-      - ми можемо додати новий метод чи нові дані без зміни існуючого кода
+
   */
 
-  {
-    /*
-        There are three important point about type classes:
-          - type class itself
-          - instances for particular type
-          - interface method (API) that we exposed to user
-    */
-    trait Convertor[T] {
-      def convert(value: T): String
-    }
 
-
-    object ConvertorSyntax {
-      implicit class ConvertorOps[A](value: A) {
-        def convert()(implicit convertor: Convertor[A]): String = convertor.convert(value)
-      }
-    }
-
-
-    object ConvertorInstances {
-      implicit object IntSummup extends Convertor[Int] {
-        override def convert(n: Int): String = n.toString
-      }
-
-      implicit object StrSummup extends Convertor[Boolean] {
-        override def convert(s: Boolean): String = s.toString
-      }
-    }
-
-
-    /*
-      implicit class ConvertorOps[A](value: A) {
-        def convert()(implicit converter: Convertor[A]): String = converter.convert(value)
-      }
-
-      The behavior of that method convert is 'ad-hoc' because of:
-
-                          implicit convertor: Convertor[A]
-      Частина ad-hoc: в коді в нас є можливість викликати convertor.convert тільки тоді коли convertor is supplied це є частина ad-hoc
-
-      implicit convertor: Convertor[T] → ad-hoc
-      [T]                              → поліморфізм, де для кожного специфічного типу ми маємо конкретну імплементацію
-
-     */
-
-
-    /* Using */
-    import ConvertorSyntax._
-    import ConvertorInstances._
-    1.convert()
-    true.convert()
-  }
 
 
 
@@ -304,231 +188,8 @@ object Tutorial {
 
 
 
-
-  // Semigroup
-  {
-    /*
-    It's just a combine method which combines two values of the same type into the one:
-
-                trait Semigroup[T] {
-                  def combine(a: T, b: T): T
-                }
-    Law:
-      associative:
-          combine(a, combine(b, c)) === combine(combine(a, b), c)
-
-  */
-
-
-    trait Semigroup[T] {
-      def combine(a: T, b: T): T
-    }
-
-    object SemigroupSyntax {
-      implicit class SemigroupOps[A](value: A) {
-        def |+|(v: A)(implicit semigroup: Semigroup[A]): A = semigroup.combine(value, v)
-      }
-    }
-
-
-    object SemigroupInstances {
-      implicit val intSemigroup = new Semigroup[Int] {
-        override def combine(a: Int, b: Int): Int = a + b
-      }
-
-      implicit val strSemigroup = new Semigroup[String] {
-        override def combine(a: String, b: String): String = a + b
-      }
-    }
-
-    1 |+| 2
-    "foo" |+| "bar"
-  }
-
-
-
-  // Monoid
-  {
-    /*
-      It's just a trait which extends Semigroup and has only one method "empty"
-
-              trait Monoid[A] extends Semigroup[A] {
-                def empty(): A
-              }
-
-      law:
-        associativity:
-              empty + x === x, x + empty == x
-    */
-
-    trait Semigroup[T] {
-      def combine(a: T, b: T): T
-    }
-
-    trait Monoid[A] extends Semigroup[A] {
-      def empty(): A
-    }
-
-
-    object MonoidSyntax {
-      implicit class MonoidOps[A](value: A) {
-        def empty(implicit monoid: Monoid[A]): A = monoid.empty()
-      }
-    }
-
-
-    object MonoidInstances {
-      implicit object IntMonoid extends Monoid[Int] {
-        override def empty(): Int = 0
-        override def combine(a: Int, b: Int): Int = a + b
-      }
-
-      implicit object StrMonoid extends Monoid[String] {
-        override def empty(): String = ""
-        override def combine(a: String, b: String): String = a + b
-      }
-    }
-
-    import MonoidSyntax._
-    import MonoidInstances._
-
-    "foo".empty
-    2.empty
-  }
-
-
-
-  // Functor
-  {
-
-    /*
-      Functor
-        - provides the ability for its values to be "mapped over"
-        - function that transforms inside a value while remembering its shape
-        - fundamental method is a "map"
-
-      Example, modify every element of a collection without dropping or adding elements
-
-      Laws:
-        identity:               fa.map(x => x)    ==  fa
-        composition:            fa.map(f).map(g)  ==  fa.map(x => f(x) andThen g(x))
-
-
-      In mathematical concept:
-        Functor       → defines transformations between categories. In Scala - defines transformations between Scala types
-        EndoFunctors  → defines transformations between same categories
-
-
-      Functor natural transformation is about:
-                  List => Option
-
-
-      as an example:
-        trait FunctorTrans[-F[_], +G[_]] {
-          def apply[A](v: F[A]): G[A]
-        }
-
-        object FunctorTrans extends FunctorTrans[List, Option] {
-          def apply[A](v: List[A]): Option[A] = v.headOption
-        }
-
-      all the next methods work in that way which are basically transformations between Functors:
-        .toList, .toSeq, .toOption, .toEither, .toTry and so on ...
-
-    */
-
-
-    trait Functor[F[_]] {
-      def map[A, B](container: F[A])(function: A => B): F[B]
-    }
-
-
-    object FunctorInstances {
-      implicit object optionFunctor extends Functor[Option] {
-        override def map[A, B](container: Option[A])(function: A => B): Option[B] = container.map(function)
-      }
-
-      implicit object listFunctor extends Functor[List] {
-        override def map[A, B](container: List[A])(function: A => B): List[B] = container.map(function)
-      }
-
-      implicit object treeFunctor extends Functor[Tree] {
-        override def map[A, B](container: Tree[A])(function: A => B): Tree[B] =
-          container match {
-            case Leaf(value)                => Leaf(function(value))
-            case Branch(value, left, right) => Branch(function(value), map(left)(function), map(right)(function))
-        }
-      }
-
-      type Id[A] = A
-      implicit object idFunctor extends Functor[Id] {
-        def map[A, B](container: A)(function: A => B): B = function.apply(container)
-      }
-    }
-
-
-
-    // small cats magic
-
-    object FunctorSyntax{
-      implicit class FunctorOps[A, F[_]](value: F[A]) {
-        def map[B](function: A => B)(implicit functor: Functor[F]): F[B] = functor.map(value)(function)
-      }
-    }
-
-    trait Tree[+T]
-    object Tree {
-      def leaf[T](value: T): Tree[T] = Leaf(value)
-      def branch[T](value: T, left: Tree[T], right: Tree[T]): Tree[T] = Branch(value, left, right)
-    }
-
-    case class Leaf[+T](value: T) extends Tree[T]
-    case class Branch[+T](value: T, left: Tree[T], right: Tree[T]) extends Tree[T]
-
-    val tree = Tree.branch(1, Tree.leaf(2), Tree.branch(3, Tree.leaf(4), Tree.leaf(5)))
-
-    import FunctorSyntax._
-    import FunctorInstances._
-
-    tree.map(_ + 100)
-  }
-
-
-
-
-  // Monad
-  {
-    /*
-    Monads:
-      - один із найважливіших building blocks of functional programming
-      - обгорнути значення в контекст
-      - і послідовно застосовувати до нього обчислення in a chain way
-      - in the end have the same type
-      - to be able write the for-comprehension we do need to have "map" and "flatMap"
-      - for-comprehensions transform by compiler into the "map" and "flatMap"
-
-
-    Extract → Transform → Wrap
-      Monad has two fundamental operation
-          Wrap a value: class `CustomMonad` wrap `value` In functional world it's named as a `pure` or `unit`
-          Transform a value by the given function, in our case it's a `flatMap`: T => CustomMonad[S]
-
-      Monad(x).flatMap(f)               == f(x)                                     left identity
-      Monad(x).flatMap(x => Monad(x))   == Monad(x)                                 right identity
-
-      Monad(x).flatMap(f).flatMap(g)    == Monad(x).flatMap(x => f(x).flatMap(g))   composition, де f - функція котра повертає Monad(x)
-
-            List(x).flatMap(f)        ==  f(x)
-            xs.flatMap(x => List(x))  ==  xs
-            xs.flatMap(f).flatMap(g)  ==  xs.flatMap(x => f(x).flatMap(g))
-    */
-  }
-
-
   // Free Monad
-
   /*
-
   regular Monad:
     trait Monad[M[_]] {
       def pure[A](value: A): M[A]
@@ -547,7 +208,6 @@ object Tutorial {
 
 
   // Validated
-
   /*
      Let say we do have a bunch of conditions to check
        - return error list with all possible errors
@@ -591,14 +251,13 @@ object Tutorial {
 
 
 
+
   // State
   /*
-
      State - is a structure that provides a functional approach to handling application state
      State[S, A]   -   S => (S, A)
       S - type that represents your state
       A - is the result the function produces
-
   * */
 
   /*    just a container    */

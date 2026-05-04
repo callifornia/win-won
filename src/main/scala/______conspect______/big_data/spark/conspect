@@ -1,13 +1,20 @@
+
+- REST APIs (pagination, rate limiting, token-based authentication)
+- Strong data modelling skills with structured, relational data
+- Solid SQL knowledge Experience operating data pipelines in production environments
+- Який досвід ви шукаєте ?
+
+
 Spark Structured API with DataFrames
-    DataFrames Basics
-    DataFrames Basics: Exercises
-    How DataFrames Work
-    Data Sources
-    Data Sources, Part 2 + Exercises
-    DataFrame Columns and Expressions
-    Columns and Expressions: Exercises
-    DataFrame Aggregations
-    DataFrame Joins
+    + DataFrames Basics
+    + DataFrames Basics: Exercises
+    + How DataFrames Work
+    + Data Sources
+    + Data Sources, Part 2 + Exercises
+    + DataFrame Columns and Expressions
+    + Columns and Expressions: Exercises
+    + DataFrame Aggregations
+    + DataFrame Joins
     Joins: Exercises
 
 Spark Types and Datasets
@@ -34,9 +41,51 @@ A Real Big Data Project
     Investigative Data Analysis on Big Data
     Investigative Data Analysis on Big Data, Part 2
     Gathering Answers and Running our Solution on Amazon EMR
-
 Epilogue
 You ROCK!
+
+
+
+✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅
+
+    • Spark know types not at compile time
+    • Partitioning:
+            - data is too big, for a single computer
+            - too long to process the entire data on single CPU
+            - splits the data into files, distributed between nodes in the cluster
+            - impacts the processing parallelism
+    • Shuffle - data exchange between cluster nodes. The most important topic in spark performance
+    • Lazy evaluations: spark чекає до останнього моменту, щоб виконати перетворення DF
+        - Перед тим як виконувати щось spark робить:
+            - spark компілює the DF transformation into the graph before running any code
+            - логічний план = граф залежностей для DataFrame
+            - фізичний план = оптимізовує порядок кроків котрі необхідні для нодів на кластері
+            - оптимізація: обєднання декільки where в один
+    • transformation - описує як отримати новий DataFrame
+    • actions (show/count) - стартує spark джобу
+    • spark read:
+            spark.option("mode") ---> FailFast      - якість даних критична
+                                                    - throw an Exception коли є некоректні рядки
+
+                                 ---> Permissive    - не падає при помилках
+                                                    - кладуться в спеціальну колонку (_corrupt_record)
+                                                    - підходить, коли важливо зчитати максимум даних, навіть якщо частина “крива”
+
+                                 ---> DropMalformed - ігнорує (викидає) некоректні рядки
+                                                    - вони просто не потрапляють у DataFrame
+                                                    - підходить, коли погані дані не потрібні взагалі
+            .option("dateFormat", "...")
+            .option("header", "true")
+            .option("sep", ",")
+            .option("nullValue", "")
+
+
+    • narrow transformation - це коли в нас є DataFrame і ми робимо select якихось окремих колонок і в результаті в нас є новий DataFrame
+      тільки з тими колонками котрі були вказані в select
+    • union and unionAll - unionAll це просто аліас
+    • shuffling - is more expensive operation
+    • left-semi-join  -  беруться з лівох ті, котрі intersect
+    • left-anti-join  -  diff -> беруться з лівої ті, котрих не має в правій
 
 
 
