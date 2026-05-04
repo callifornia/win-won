@@ -1,6 +1,4 @@
-package ______conspect______.cats
-
-import cats.data.ReaderT
+package ______conspect______
 
 import java.util.concurrent.ConcurrentHashMap
 import scala.concurrent.ExecutionContext.Implicits.global

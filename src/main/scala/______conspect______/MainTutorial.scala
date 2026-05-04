@@ -547,6 +547,20 @@ object MainTutorial {
   }
 
 
+  // F-Bound polimorphism
+  trait Pets[A <: Pets[A]] { this: A =>
+    def rename(str: String): A
+  }
+
+  case class Fish(name: String) extends Pets[Fish] {
+    def rename(str: String): Fish = copy(str)
+  }
+
+  case class Dog(name: String) extends Pets[Dog] {
+    def rename(str: String): Dog = copy(str)
+  }
+
+
   {
     /*
       Type classes
@@ -738,7 +752,6 @@ object MainTutorial {
     Law:
       associative:
           combine(a, combine(b, c)) === combine(combine(a, b), c)
-
   */
 
     trait Semigroup[T] {
@@ -767,7 +780,6 @@ object MainTutorial {
     1 |+| 2
     "foo" |+| "bar"
   }
-
 
 
   // Monoid
@@ -835,10 +847,73 @@ object MainTutorial {
   }
 
 
-
   // Singleton
   /*    In scala it's represented in one line just as object    */
   object Singleton
+
+
+
+
+  /*
+      :::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+      :::::::::::::::::::::: Теория Cats ::::::::::::::::::::::
+      :::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+      Cats       -  is a library which provides abstractions for functional programming in the Scala programming language
+      Cats goals -  support functional programming in Scala applications
+      GENERAL FLOW FOR CATS:
+          import cats.Eq
+          import cats.instances.int._
+          import cats.syntax.eq._
+          import cats.implicits._
+
+
+      Тео́рия катего́рий — раздел математики, изучающий свойства отношений между математическими объектами,
+                         не зависящие от внутренней структуры объектов
+            - категория множеств
+            - категория групп
+            - категория модулей
+            - категория векторных пространств
+
+      морфизми                - стрелоки
+      Коммутативная диаграмма — это ориентированный граф, в вершинах которого находятся объекты, а стрелками являются морфизмы
+
+      - изо морфизм (https://ru.hexlet.io/courses/graphs/lessons/isomorphism/theory_unit):
+        изоморфизм -  буквально означает «одинаковая форма». Два графа изоморфны, если это один и тот же граф,
+        просто нарисованный или представленный по-другому. Другими словами, два графа считаются изоморфными,
+        если мы можем идеально сопоставить вершины одного графа с вершинами другого. При этом смежность тоже должна совпадать:
+          - если две вершины были смежными в первом графе, во втором они тоже должны быть смежными
+          - если две вершины не были смежными в первом графе, во втором они тоже не должны быть смежными
+
+
+      - моно морфизм - стрелки которие можно сократить слева
+             h ->                 g: A -> B        f * h = f * g
+          A        B  f ->  C     h: A -> B            h = g
+             g ->                 f: B -> C
+
+
+      - епи морфизм - стрелки которие можно сократить вправа
+                        h ->        h: B -> C      h * f = g * f
+          A   f ->  B          C    g: B -> C          h = g
+                        g ->        f: A -> B
+
+
+      - эндо морфизм(моноид) - морфизмы, в которых начало и конец совпадают, является моноидом
+      - би морфизм — это морфизм, являющийся одновременно мономорфизмом и эпиморфизмом.
+                     функція, яку можна повністю “перевернути назад” без втрат
+      - авто морфизм - ???
+  */
+
+  // Writer Monad
+  // Reader Monad
+
+
+
+
+
+
+
+
 
 
 

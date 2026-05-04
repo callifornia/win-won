@@ -1,6 +1,6 @@
-package ______conspect______.cats
+package ______conspect______
 
-object RepeatTmp {
+object MonadExample_3 {
 
   trait CustomMonad[A, F[_]] {
     def pure[C](value: C): F[C]

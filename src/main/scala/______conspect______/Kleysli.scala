@@ -1,11 +1,7 @@
-package ______conspect______.cats.kleysli
-
-import cats.FlatMap
-import cats.Functor
-import cats.implicits._
+package ______conspect______
 
 
-object Main {
+object Kleysli {
 
   /*
   *

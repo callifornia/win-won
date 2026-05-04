@@ -1,6 +1,6 @@
-package ______conspect______.cats
+package ______conspect______
 
-object MonadExample {
+object MonadExample_2 {
   trait CMonad[+A] {
     def apply[A](value: A): CMonad[A] = CMonadImpl(value)
     def flatMap[B](function: A => CMonad[B]): CMonad[B]

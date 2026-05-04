@@ -1,6 +1,6 @@
-package ______conspect______.cats.freeMonad
+package ______conspect______
 
-object Main {
+object MonadExample {
 
   def main(args: Array[String]): Unit = {
     val result =
