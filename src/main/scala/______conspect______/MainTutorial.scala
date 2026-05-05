@@ -20,7 +20,7 @@ object MainTutorial {
   }
 
 
-  // OOP vs Functional Programing
+  ✅✅✅✅✅✅  // Functional Programing  ✅✅✅✅✅✅
   /*
     https://doc.akka.io/libraries/akka-core/2.6/typed/guide/actors-motivation.html#the-challenge-of-encapsulation
 
@@ -123,7 +123,7 @@ object MainTutorial {
    */
 
 
-  // unapply
+  ✅✅✅✅✅✅  // unapply  ✅✅✅✅✅✅
   {
     case class Pet(age: Int, name: String)
     object Pet {
@@ -151,20 +151,20 @@ object MainTutorial {
   }
 
 
-  // value classes
+  ✅✅✅✅✅✅ // value classes ✅✅✅✅✅✅
   {
     /*
 
-                                case class BarCode(value: String) extends AnyVal {
-                                    def countryCode: Char = value.charAt(0)
+       case class BarCode(value: String) extends AnyVal {
+           def countryCode: Char = value.charAt(0)
 
 
         Restriction:
+            - no runtime overhead, in heap we are going to have String instead of BarCode
             - no vals only def
             - only one constructors
             - can not be extended
             - can only extend universal trait (traits with just def and without initialization)
-            - no runtime overhead, in heap we are going to have String instead of BarCode
             - instance of the BarCode is going to be created only if it in use in generic type:
                           def show[T](agr: T): String = agr.toString
                           show(BarCode("..."))
@@ -178,14 +178,8 @@ object MainTutorial {
 */
   }
 
-  /*
 
-
-                           */
-
-
-
-  // call by name
+  ✅✅✅✅✅✅ // call by name ✅✅✅✅✅✅
   {
     def byValueFunction(x: Int): Int = x + 1
     byValueFunction(3 + 2) /*     3 + 2 evaluated before method "byValueFunction" are going to be called        */
@@ -251,7 +245,7 @@ object MainTutorial {
 
 
 
-  // variants | covariant | contravariant
+  ✅✅✅✅✅✅ // variants | covariant | contravariant ✅✅✅✅✅✅
   {
     /*
        Dog is subtype of Animal
@@ -294,7 +288,7 @@ object MainTutorial {
   }
 
 
-  // null, Null, Nothing, None
+  ✅✅✅✅✅✅ // null, Null, Nothing, None ✅✅✅✅✅✅
   {
     /* null */
     val g: String = null  /* as in a Java world */
@@ -330,7 +324,7 @@ object MainTutorial {
 
 
 
-  // abstract class vs trait
+  ✅✅✅✅✅✅ // abstract class vs trait ✅✅✅✅✅✅
   {
     abstract class Person {
       def canFly: Boolean = true
@@ -361,7 +355,7 @@ object MainTutorial {
 
 
 
-  //  Blocking | Async | Non-blocking
+   ✅✅✅✅✅✅   //  Blocking | Async | Non-blocking     ✅✅✅✅✅✅
   {
     /*  Blocking */
     def blockingCode(a: Int): Int = {
@@ -444,7 +438,7 @@ object MainTutorial {
 
 
   /*
-    ADT  ==>  algebra data type
+    ✅✅✅✅✅✅    ADT (algebra data type)   ✅✅✅✅✅✅
       SUM       →  object
       Product   →  case class
       Hybrid    →  case class contains object Product(SUM)
@@ -488,7 +482,7 @@ object MainTutorial {
 
 
   /*
-    ################################ Patterns ################################################################
+    ✅✅✅✅✅✅✅✅✅✅✅✅    Patterns     ✅✅✅✅✅✅✅✅✅✅✅✅
 
     SOLID:
       Single responsibility  - каждий клас должен иметь одну и только одну причину для изменения
@@ -529,7 +523,9 @@ object MainTutorial {
           Пояснення: Одна функція makeSound працює з різними типами (Dog, Cat)
 * */
 
-  // self type
+
+
+  ✅✅✅✅✅✅ // self type ✅✅✅✅✅✅
   {
     /*  Which mean everyone who extends Hospital MUST extends Builder  */
     trait Builder {
@@ -548,7 +544,7 @@ object MainTutorial {
 
 
   
-  // F-Bound polymorphism
+  ✅✅✅✅✅✅ // F-Bound polymorphism ✅✅✅✅✅✅
   /*
     Єто мощный объектно-ориентированный метод, который использует систему типов для кодирования ограничений на дженерики
     F-bounded polymorphism (a.k.a self-referential types, recursive type signatures, recursively bounded quantification)
@@ -571,6 +567,7 @@ object MainTutorial {
 
 
 
+  ✅✅✅✅✅✅ // Type classes ✅✅✅✅✅✅
   {
     /*
       Type classes
@@ -629,6 +626,8 @@ object MainTutorial {
   }
 
 
+
+  ✅✅✅✅✅✅  // Functor  ✅✅✅✅✅✅
   {
     /*
       Functor
@@ -723,6 +722,10 @@ object MainTutorial {
     tree.map(_ + 100)
 
 
+
+
+    ✅✅✅✅✅✅  // Monads   ✅✅✅✅✅✅
+
     /*
     Monads:
       - один із найважливіших building blocks of functional programming
@@ -751,7 +754,8 @@ object MainTutorial {
   }
 
 
-  // Semigroup
+
+  ✅✅✅✅✅✅   // Semigroup     ✅✅✅✅✅✅
   {
     /*
     It's just a combine method which combines two values of the same type into the one:
@@ -792,7 +796,9 @@ object MainTutorial {
   }
 
 
-  // Monoid
+
+  ✅✅✅✅✅✅   // Monoid     ✅✅✅✅✅✅
+
   {
     /*
       It's just a trait which extends Semigroup and has only one method "empty"
@@ -843,7 +849,7 @@ object MainTutorial {
 
 
 
-  // Loan - pattern
+  ✅✅✅✅✅✅   // Loan - pattern     ✅✅✅✅✅✅
   {
     case class Session(url: String, isAlive: Boolean)
 
@@ -857,18 +863,15 @@ object MainTutorial {
   }
 
 
-  // Singleton
+  ✅✅✅✅✅✅   // Singleton     ✅✅✅✅✅✅
   /*    In scala it's represented in one line just as object    */
   object Singleton
 
 
 
+  ✅✅✅✅✅✅   // Теория Cats     ✅✅✅✅✅✅
 
   /*
-      :::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      :::::::::::::::::::::: Теория Cats ::::::::::::::::::::::
-      :::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
       Cats       -  is a library which provides abstractions for functional programming in the Scala programming language
       Cats goals -  support functional programming in Scala applications
       GENERAL FLOW FOR CATS:
@@ -877,9 +880,16 @@ object MainTutorial {
           import cats.syntax.eq._
           import cats.implicits._
 
-
       Тео́рия катего́рий — раздел математики, изучающий свойства отношений между математическими объектами,
                          не зависящие от внутренней структуры объектов
+            - математика                            Scala:
+              - об’єкти:  множини                     типи (A, B)
+              - морфізми: функції між множинами       функції (A => B)
+
+                                                      val f: Int => String = _.toString
+                                                      val g: String => Int = _.length
+                                                      val composed = f.andThen(g) // композиція морфізмів
+
             - категория множеств
             - категория групп
             - категория модулей
