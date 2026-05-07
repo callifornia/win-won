@@ -727,6 +727,15 @@ Akka вирішує проблеми такі як:
         • Async boundaries      дозволяють виконувати частини pipeline у різних actor/thread            .flow.async
         • Buffer                буферизація елементів                                                   .buffer(100, OverflowStrategy.dropHead)
         • Throttle              обмеження швидкості                                                     .throttle(10, 1.second)
+        • KillSwitch            дозволяє зупинити stream зовні                                          KillSwitches.shared("switch")
+        • Custom stages
+        • Error handling
+                • recover
+                • restartWithBackoff
+                • watchTermination
+
+
+
 
 
 
@@ -738,6 +747,14 @@ Akka вирішує проблеми такі як:
         - Як зібрати повторно використовувані фрагменти обробки подій/даних у гнучкі конвеєри
         - Як гнучко підключати асинхронні сервіси один до одного з високою продуктивністю
         - Як надавати або використовувати інтерфейси, сумісні з Reactive Streams, для взаємодії зі сторонньою бібліотекою
+
+
+
+
+
+
+
+
 
 
 
