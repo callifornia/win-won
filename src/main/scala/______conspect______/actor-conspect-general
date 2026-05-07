@@ -728,17 +728,40 @@ Akka вирішує проблеми такі як:
         • Buffer                буферизація елементів                                                   .buffer(100, OverflowStrategy.dropHead)
         • Throttle              обмеження швидкості                                                     .throttle(10, 1.second)
         • KillSwitch            дозволяє зупинити stream зовні                                          KillSwitches.shared("switch")
+        • Supervision Strategy  дозволяє continue processing після errors
         • Custom stages
         • Error handling
-                • recover
+                • recover - використовується для обробки помилок у stream і дозволяє
+                    • перехопити exception
+                    • замінити помилку fallback-елементом
+                    • завершити stream “нормально”
+                    без recover:    exception -> stream failed
+                    з recover:      exception -> fallback value -> stream completed
+                            .recover {
+                                case ex: ArithmeticException => 0
+                            }
+                    • багато хто думає що recover:  error -> continue
+                    • на стправді:                  error -> fallback -> stop
+                    • приклад:
+                            Source(List(1,2,0,4,5))
+                              .map(100 / _)
+                              .recover {
+                                case _: ArithmeticException => -1  (!!!!!)
+                              }
+                              .runForeach(println)
+                    • output:     100, 50, -1 (!!!!!), елементи 4 і 5 вже НЕ обробляться
+
+                • recoverWithRetries    якщо треба переключитись на інший Source
+                    приклад:
+                            Source(1 to 5)
+                              .map(x => 100 / (x - 3))
+                              .recoverWithRetries(1, {
+                                case _: ArithmeticException => Source.single(-1)
+                              })
+                    output: -50, -100, -1
+
                 • restartWithBackoff
                 • watchTermination
-
-
-
-
-
-
 
 
 
@@ -747,9 +770,6 @@ Akka вирішує проблеми такі як:
         - Як зібрати повторно використовувані фрагменти обробки подій/даних у гнучкі конвеєри
         - Як гнучко підключати асинхронні сервіси один до одного з високою продуктивністю
         - Як надавати або використовувати інтерфейси, сумісні з Reactive Streams, для взаємодії зі сторонньою бібліотекою
-
-
-
 
 
 
