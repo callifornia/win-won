@@ -370,7 +370,10 @@
                 • Mailbox (Поштова скринька)
                 • Child Actors (Дочірні актори)
                 • Supervisor Strategy (Стратегія супервізора)
-            • ActorRef призначення якого підтримувати надсилання повідомлень
+            • ActorRef
+                • отримання посилання:
+                    • створення actor-ів
+                    • пошук через Receptionist
                 • кожен actor має доступ до свого reference через поле ActorContext.self
                 • цей reference можна включати у повідомлення до інших actor-ів, щоб отримувати відповіді назад
                 • типи actor reference, які підтримуються залежно від конфігурації actor system:
@@ -385,8 +388,30 @@
                     • Remote
                         • доступні через remote communication
                         • повідомлення до них автоматично серіалізуються і надсилаються у віддалену JVM
-
-
+                    • PromiseActorRef
+                        • akka.pattern.ask створює такий actor reference
+                        • спеціальне представлення Promise, яке завершується відповіддю від actor-а
+                    • DeadLetterActorRef
+                        • стандартна реалізація сервісу dead letters, куди Akka маршрутизує всі повідомлення, адресати яких зупинені або не існують
+                    • EmptyLocalActorRef
+                        • Akka повертає при пошуку неіснуючого локального actor path
+            • Actor Path
+                • akka://my-sys/user/service-a/worker1
+                • унікальна послідовність імен actor-ів та зв’язків між child і parent actor-ами
+                • Actor path складається з:
+                    • actor system
+                    • root guardian
+                    • шляху до конкретного actor-а
+            • ActorRef vs ActorPath
+                • Actor reference
+                    • вказує на конкретний actor instance
+                    • життєвий цикл reference збігається з життєвим циклом actor-а
+                • Actor path
+                    • представляє ім’я
+                    • actor за цим path може існувати або ні
+                    • сам path не має життєвого циклу
+                    • він ніколи не стає невалідним
+                • можна створити actor path без створення actor, але неможливо створити actor reference без відповідного actor path
             • State
                 • мають чітко визначений життєвий цикл:
                     • вони не знищуються автоматично, коли на них більше не посилаються
