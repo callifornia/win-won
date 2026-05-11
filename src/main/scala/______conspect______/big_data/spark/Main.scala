@@ -14,9 +14,18 @@ object Main {
 //    jdbc_parquet()
 //    write2Parquet()
 //    readTheMovies()
-    readAndCountTheMovie()
+//    readAndCountTheMovie()
+    readCars()
   }
 
+
+
+  def readCars(): Unit = {
+    val data = readJson("src/main/resources/spark/daniel/data/cars.json")
+    val regex = "volkswagen|vw"
+    data.show()
+//    val vwCarsDF =
+  }
 
   def readAndCountTheMovie(): Unit = {
     val data = readJson("src/main/resources/spark/daniel/data/movies.json")

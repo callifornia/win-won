@@ -20,7 +20,7 @@ object MainTutorial {
   }
 
 
-  ✅✅✅✅✅✅  // Functional Programing  ✅✅✅✅✅✅
+//  ✅✅✅✅✅✅  // Functional Programing  ✅✅✅✅✅✅
   /*
     https://doc.akka.io/libraries/akka-core/2.6/typed/guide/actors-motivation.html#the-challenge-of-encapsulation
 
@@ -123,7 +123,7 @@ object MainTutorial {
    */
 
 
-  ✅✅✅✅✅✅  // unapply  ✅✅✅✅✅✅
+//  ✅✅✅✅✅✅  // unapply  ✅✅✅✅✅✅
   {
     case class Pet(age: Int, name: String)
     object Pet {
@@ -151,7 +151,7 @@ object MainTutorial {
   }
 
 
-  ✅✅✅✅✅✅ // value classes ✅✅✅✅✅✅
+//  ✅✅✅✅✅✅ // value classes ✅✅✅✅✅✅
   {
     /*
 
@@ -179,7 +179,7 @@ object MainTutorial {
   }
 
 
-  ✅✅✅✅✅✅ // call by name ✅✅✅✅✅✅
+//  ✅✅✅✅✅✅ // call by name ✅✅✅✅✅✅
   {
     def byValueFunction(x: Int): Int = x + 1
     byValueFunction(3 + 2) /*     3 + 2 evaluated before method "byValueFunction" are going to be called        */
@@ -245,7 +245,7 @@ object MainTutorial {
 
 
 
-  ✅✅✅✅✅✅ // variants | covariant | contravariant ✅✅✅✅✅✅
+//  ✅✅✅✅✅✅ // variants | covariant | contravariant ✅✅✅✅✅✅
   {
     /*
        Dog is subtype of Animal
@@ -288,7 +288,7 @@ object MainTutorial {
   }
 
 
-  ✅✅✅✅✅✅ // null, Null, Nothing, None ✅✅✅✅✅✅
+//  ✅✅✅✅✅✅ // null, Null, Nothing, None ✅✅✅✅✅✅
   {
     /* null */
     val g: String = null  /* as in a Java world */
@@ -324,7 +324,7 @@ object MainTutorial {
 
 
 
-  ✅✅✅✅✅✅ // abstract class vs trait ✅✅✅✅✅✅
+//  ✅✅✅✅✅✅ // abstract class vs trait ✅✅✅✅✅✅
   {
     abstract class Person {
       def canFly: Boolean = true
@@ -355,7 +355,7 @@ object MainTutorial {
 
 
 
-   ✅✅✅✅✅✅   //  Blocking | Async | Non-blocking     ✅✅✅✅✅✅
+//   ✅✅✅✅✅✅   //  Blocking | Async | Non-blocking     ✅✅✅✅✅✅
   {
     /*  Blocking */
     def blockingCode(a: Int): Int = {
@@ -525,7 +525,7 @@ object MainTutorial {
 
 
 
-  ✅✅✅✅✅✅ // self type ✅✅✅✅✅✅
+//  ✅✅✅✅✅✅ // self type ✅✅✅✅✅✅
   {
     /*  Which mean everyone who extends Hospital MUST extends Builder  */
     trait Builder {
@@ -544,7 +544,7 @@ object MainTutorial {
 
 
   
-  ✅✅✅✅✅✅ // F-Bound polymorphism ✅✅✅✅✅✅
+//  ✅✅✅✅✅✅ // F-Bound polymorphism ✅✅✅✅✅✅
   /*
     Єто мощный объектно-ориентированный метод, который использует систему типов для кодирования ограничений на дженерики
     F-bounded polymorphism (a.k.a self-referential types, recursive type signatures, recursively bounded quantification)
@@ -567,7 +567,7 @@ object MainTutorial {
 
 
 
-  ✅✅✅✅✅✅ // Type classes ✅✅✅✅✅✅
+//  ✅✅✅✅✅✅ // Type classes ✅✅✅✅✅✅
   {
     /*
       Type classes
@@ -627,7 +627,7 @@ object MainTutorial {
 
 
 
-  ✅✅✅✅✅✅  // Functor  ✅✅✅✅✅✅
+//  ✅✅✅✅✅✅  // Functor  ✅✅✅✅✅✅
   {
     /*
       Functor
@@ -724,7 +724,7 @@ object MainTutorial {
 
 
 
-    ✅✅✅✅✅✅  // Monads   ✅✅✅✅✅✅
+//    ✅✅✅✅✅✅  // Monads   ✅✅✅✅✅✅
 
     /*
     Monads:
@@ -755,7 +755,7 @@ object MainTutorial {
 
 
 
-  ✅✅✅✅✅✅   // Semigroup     ✅✅✅✅✅✅
+//  ✅✅✅✅✅✅   // Semigroup     ✅✅✅✅✅✅
   {
     /*
     It's just a combine method which combines two values of the same type into the one:
@@ -797,7 +797,7 @@ object MainTutorial {
 
 
 
-  ✅✅✅✅✅✅   // Monoid     ✅✅✅✅✅✅
+//  ✅✅✅✅✅✅   // Monoid     ✅✅✅✅✅✅
 
   {
     /*
@@ -849,7 +849,7 @@ object MainTutorial {
 
 
 
-  ✅✅✅✅✅✅   // Loan - pattern     ✅✅✅✅✅✅
+//  ✅✅✅✅✅✅   // Loan - pattern     ✅✅✅✅✅✅
   {
     case class Session(url: String, isAlive: Boolean)
 
@@ -863,13 +863,13 @@ object MainTutorial {
   }
 
 
-  ✅✅✅✅✅✅   // Singleton     ✅✅✅✅✅✅
+//  ✅✅✅✅✅✅   // Singleton     ✅✅✅✅✅✅
   /*    In scala it's represented in one line just as object    */
   object Singleton
 
 
 
-  ✅✅✅✅✅✅   // Теория Cats     ✅✅✅✅✅✅
+//  ✅✅✅✅✅✅   // Теория Cats     ✅✅✅✅✅✅
 
   /*
       Cats       -  is a library which provides abstractions for functional programming in the Scala programming language

@@ -1,5 +1,8 @@
 package ______conspect______
 
+import cats.{FlatMap, Functor}
+import cats.implicits.{catsSyntaxOptionId, toFlatMapOps, toFunctorOps}
+
 
 object Kleysli {
 
