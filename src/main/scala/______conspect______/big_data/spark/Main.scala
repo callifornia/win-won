@@ -24,8 +24,7 @@ object Main {
       .groupBy("Major_Genre")
       .agg(
         count("*").as("count_of_moview"),
-        avg("IMDB_Rating").as("Rating_avg")
-      )
+        avg("IMDB_Rating").as("Rating_avg"))
       .show(100, truncate = false)
   }
 
@@ -55,12 +54,3 @@ object Main {
     write2DB(data, "ua", "cat_2")
   }
 }
-
-
-
-
-
-
-
-
-
