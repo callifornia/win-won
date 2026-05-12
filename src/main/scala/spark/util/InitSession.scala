@@ -20,6 +20,7 @@ trait InitSession {
     .master("local[*]")
     .config("spark.sql.extensions",            "io.delta.sql.DeltaSparkSessionExtension")
     .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
+//    .config("spark.sql.legacy.timeParserPolicy", "LEGACY")
     .config("spark.network.timeout", "600s")  // Increase network timeout
     .config("spark.rpc.askTimeout", "600s")   // Increase RPC timeout
     .config("spark.rpc.retry.max", "10")     // Increase RPC retries

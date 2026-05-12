@@ -15,10 +15,10 @@ Spark Structured API with DataFrames
     + Columns and Expressions: Exercises
     + DataFrame Aggregations
     + DataFrame Joins
-    Joins: Exercises
+    + Joins: Exercises
 
 Spark Types and Datasets
-    Working with Spark Types
+    + Working with Spark Types
     Advanced Spark Types
     Managing Nulls in Data
     Type-Safe Processing: Datasets
