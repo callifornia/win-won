@@ -1,7 +1,7 @@
 package ______conspect______.big_data.spark
 
 
-import org.apache.spark.sql.Column
+import org.apache.spark.sql.{Column, Dataset, Encoders}
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types._
 import spark.util.InitSession._
@@ -9,6 +9,7 @@ import util.Util.Spark._
 import spark.implicits._
 import util.Util.UdfFunctions
 
+import java.sql.Date
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -23,7 +24,25 @@ object Main {
     //    readTheMovies()
     //    readAndCountTheMovie()
     //    readCars()
-    movies()
+    //    movies()
+    cars()
+  }
+
+  case class Car(
+                  Name: String,
+                  Miles_per_Gallon: Double,
+                  Cylinders: Double,
+                  Displacement: Double,
+                  Horsepower: Double,
+                  Weight_in_lbs: Double,
+                  Acceleration: Double,
+                  Year: String,
+                  Origin: String)
+
+  def cars(): Unit = {
+    import spark.implicits._
+    val data = readJson("src/main/resources/spark/daniel/data/cars.json").as[Car]
+    data.show()
   }
 
 
@@ -35,18 +54,18 @@ object Main {
         $"Title",
         UdfFunctions.parseDate($"Release_Date").as("Actual_Release_Date"))
 
-    titleWithReleaseDate.show(100, truncate = false)
+//    titleWithReleaseDate.show(100, truncate = false)
 
+    val movieDateDF = titleWithReleaseDate
+      .select(
+        $"Title",
+        $"Actual_Release_Date")
+      .withColumn("Today", current_date())
+      .withColumn("Movie_Age", datediff($"Today", $"Actual_Release_Date"))
+      .withColumn("Right_now", current_timestamp())
 
-    //    val movieDateDF = moviesWithReleaseDate
-    //      .select(
-    //        $"Title",
-    //        $"Actual_Release")
-    //      .withColumn("Today", current_date())
-    //      .withColumn("Movie_Age", datediff($"Today", $"Actual_Release"))
-    //      .withColumn("Right_now", current_timestamp())
-    //
-    //    movieDateDF.show(100, truncate = false)
+//    movieDateDF.show(100, truncate = false)
+    movieDateDF.select("Right_now").distinct().show()
   }
 
 

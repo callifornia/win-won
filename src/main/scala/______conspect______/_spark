@@ -19,8 +19,8 @@ Spark Structured API with DataFrames
 
 Spark Types and Datasets
     + Working with Spark Types
-    Advanced Spark Types
-    Managing Nulls in Data
+    + Advanced Spark Types
+    + Managing Nulls in Data
     Type-Safe Processing: Datasets
     Datasets, Part 2 + Exercises
 
@@ -81,11 +81,31 @@ You ROCK!
 
     • narrow transformation - це коли в нас є DataFrame і ми робимо select якихось окремих колонок і в результаті в нас є новий DataFrame
       тільки з тими колонками котрі були вказані в select
-    • union and unionAll - unionAll це просто аліас
-    • shuffling - is more expensive operation
-    • left-semi-join  -  беруться з лівох ті, котрі intersect
-    • left-anti-join  -  diff -> беруться з лівої ті, котрих не має в правій
+    • union and unionAll  - unionAll це просто аліас
+    • shuffling           - is more expensive operation
+    • left-semi-join      - беруться з лівох ті, котрі intersect
+    • left-anti-join      - diff -> беруться з лівої ті, котрих не має в правій
+    • DataFrame.na:
+                    .drop          - видалить ті рядки котрі мають зачення null
+                    .fill(Map(
+                        "IMDB_" -> 0,
+                        "ORM_" -> 2
+                        ))   - замінить null в колонках IMDB_ на 0, ORM_ на 2
 
-
-
+    • DataFrame          - distributed collections of JVM objects
+    • DataFrame ~> case class
+        • definition:
+                case class Car(Name: String,                        // field name = column name
+                               Miles_per_Gallon: Option[Double],
+                               Year: String,
+                               Origin: String)
+        • uses:
+                import spark.implicits._
+                val data = readJson("src/data/example.json").as[Car]
+        • переваги:
+            • підтримка type information
+            • чистий та лаконічний код
+            • фільтрація та трасформація тяжка для використання в DataFrame/SQL
+        • не слід використовувати:
+            • performance is critical
 
