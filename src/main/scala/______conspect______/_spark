@@ -21,7 +21,7 @@ Spark Types and Datasets
     + Working with Spark Types
     + Advanced Spark Types
     + Managing Nulls in Data
-    Type-Safe Processing: Datasets
+    + Type-Safe Processing: Datasets
     Datasets, Part 2 + Exercises
 
 Spark SQL
@@ -89,10 +89,11 @@ You ROCK!
                     .drop          - видалить ті рядки котрі мають зачення null
                     .fill(Map(
                         "IMDB_" -> 0,
-                        "ORM_" -> 2
+                        "ORM_"  -> 2
                         ))   - замінить null в колонках IMDB_ на 0, ORM_ на 2
 
-    • DataFrame          - distributed collections of JVM objects
+    • DataFrame            - distributed collections of JVM objects
+    • Datasets(case class) - save types  distributed collections of JVM objects
     • DataFrame ~> case class
         • definition:
                 case class Car(Name: String,                        // field name = column name

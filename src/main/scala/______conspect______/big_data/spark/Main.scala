@@ -25,8 +25,33 @@ object Main {
     //    readAndCountTheMovie()
     //    readCars()
     //    movies()
-    cars()
+    //    cars()
+    players()
   }
+
+
+  case class Guitar(id: Long, model: String, make: String, guitarType: String)
+  case class GuitarPlayer(id: Long, name: String, guitars: Seq[Long], band: Long)
+  case class Bands(id: Long, name: String, hometown: String, year: Long)
+
+
+  def players(): Unit = {
+    val guitars       = readJson("src/main/resources/spark/daniel/data/guitars.json").as[Guitar]
+    val guitarPlayers = readJson("src/main/resources/spark/daniel/data/guitarPlayers.json").as[GuitarPlayer]
+    val bands         = readJson("src/main/resources/spark/daniel/data/bands.json").as[Bands]
+
+    val joined = guitarPlayers.joinWith(bands, guitarPlayers.col("band") === bands.col("id"))
+
+    guitarPlayers.show(truncate = false)
+    bands.show(truncate = false)
+    joined.show(truncate = false)
+  }
+
+
+
+
+
+
 
   case class Car(
                   Name: String,

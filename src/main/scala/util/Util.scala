@@ -45,7 +45,9 @@ object Util {
   }
 
 
+
   object Spark {
+
 
     def write2DB(data: DataFrame, schema: String, tableName: String)(implicit spark: SparkSession): Unit =
       data
@@ -54,16 +56,18 @@ object Util {
         .jdbc(connection.container.url + "?currentSchema=" + schema, tableName, connection.props)
 
 
+
     def readFromDB(schema: String, tableName: String)(implicit spark: SparkSession): DataFrame =
       spark
         .read
         .format("jdbc")
-        .option("driver", connection.container.driver)
-        .option("url", connection.container.url)
-        .option("user", connection.container.user)
+        .option("driver",   connection.container.driver)
+        .option("url",      connection.container.url)
+        .option("user",     connection.container.user)
         .option("password", connection.container.password)
         .option("dbtable", s"$schema.$tableName")
         .load()
+
 
 
     def readJson(path: String)(implicit spark: SparkSession): DataFrame =
@@ -74,6 +78,7 @@ object Util {
         .load(path)
 
 
+
     def readJson(path: String, schema: StructType)(implicit spark: SparkSession): DataFrame =
       spark
         .read
@@ -81,6 +86,7 @@ object Util {
         .schema(schema)
         .load(path)
   }
+
 
 
   object UdfFunctions {
