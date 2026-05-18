@@ -24,73 +24,59 @@ object MainTutorial {
   /*
     https://doc.akka.io/libraries/akka-core/2.6/typed/guide/actors-motivation.html#the-challenge-of-encapsulation
 
-   In Object Oriented languages we rarely think about threads or linear execution paths in general
-   We often envision a system as a network of object instances that react to method calls, modify their internal state,
-   then communicate with each other via method calls driving the whole application state forward:
-      -  CPUs are writing to cache lines instead of writing to memory directly
-      -  shipping cache lines across cores is a very costly operation
-      -  most of these caches are local to the CPU core
-      -  writes by one core are not visible by another core
-      -  cache line needs to be shipped to the other core’s cache
-      -  on the JVM, to be shared across threads using volatile or Atomic wrappers
-      -  an important difference between passing messages and calling methods is that messages have no return value
-      -  actor system can process as many messages simultaneously as the hardware will support
+    В об’єктно-орієнтованих мовах ми рідко замислюємося про потоки виконання або лінійні шляхи виконання загалом.
+    Ми часто уявляємо систему як мережу екземплярів об’єктів, які реагують на виклики методів, змінюють свій внутрішній стан,
+    а потім взаємодіють один з одним через виклики методів, просуваючи вперед стан усього застосунку:
 
+        • CPU записують дані в рядки кешу (cache lines), а не безпосередньо в пам’ять
+        • передача рядків кешу між ядрами є дуже дорогою операцією
+        • більшість цих кешів є локальними для ядра CPU
+        • записи, зроблені одним ядром, не є видимими для іншого ядра
+        • рядок кешу потрібно передати до кешу іншого ядра
+        • у JVM для спільного використання між потоками застосовують volatile або обгортки Atomic
+        • важлива відмінність між передаванням повідомлень і викликом методів полягає в тому, що повідомлення не мають значення, яке повертається
+        • actor-система може обробляти стільки повідомлень одночасно, скільки підтримує апаратне забезпечення
 
-    - functional programming    → work with a function as we work with a value
-    - function value            → can be passed around or return as a result
+        • functional programming        work with a function as we work with a value
+        • function value                can be passed around or return as a result
 
-    - pattern matching          → decomposition of an element
-    - partial function          → in other words it's pattern matching
+        • pattern matching              decomposition of an element
+        • partial function              in other words it's pattern matching
 
-    - higher kinder types       → when one type accept another type
-    - higher order function     → when one function accept another function
-    - inheritance model         → extends 1 class but lots of traits
-    - instruction vs expression:
+        • higher kinder types           when one type accept another type
+        • higher order function         when one function accept another function
+        • inheritance model             extends 1 class but lots of traits
+        • instruction vs expression
 
-              Expression                  →     produces a value
-              Instruction (statement)     →     performs an action
+        • Expression                    produces a value        →   2 + 3, x * 10
+        • Instruction (statement)       performs an action      →   let a = 10
 
-              Expression example:
-                  val x = 1 + 2
-                  val y = if (x > 2) "big" else "small"
-                  both return value ...
-              Instruction example:
-                  println("Hello")
-                  var x = 10
-                  x = x + 1
-
-    - method notation example:  1 + 2
-    - scala vision              → we think about program as one expression which evaluates and return a value which can be
-                                  complex like server application. Think in terms of expression instead of instructions(imperative approach).
-                                  We have an instruction problem which means evaluate the expression while maintaining type safety
-                                  and return the right value with the right type
-                                  Think of functions as values
-
-    - associativity             → a x (b x c) = (a x b) x c
-    - infix notation            → ability to use method without any dots or parentheses, fundamental feature in language
-    - auxiliary constructors    → overloaded constructor this()
-                                  must first call the primary constructor or another auxiliary constructor
-    - lifting                   → when we pass some method as if it were a function, Scala automatically converts it
-                                  to a function object
-
-    - scala prefixes            → all the parameters with val
-    - equals/hashCode           → implemented for you based on the given parameters
-    - companion object          → created with the appropriate apply method, which takes the same arguments as declared in the case class
-    - unapply                   → allow the class name to be used as an extractor for pattern matching
-    - sealed trait              → all the classes need to be in the same source file
-    - first-class citizens      → we can use functions as values or like normal variables
-    - default scala imports     → implicitly: java.lang._, scala._, scala.Predef._
-    - linearization             → This is an important concept in Scala that explains how Scala resolves methods when multiple traits are mixed
-                                  together. When a method is called, Scala looks for the implementation from left to right in this order
-                                  This solves the diamond problem found in multiple inheritance
-    - eta-expansion             → перетворення метода у функцію
-                                  val function = someMethod _
-                                  List(1,2,3,4).map(someMethod)
-
-    - function                  → is an instance of a function traits family: example: new Function[Int, Int]
-    - method                    → depends on a class or object where it defined where function is a plain object
-    - referential transparency  → це властивість виразу, коли його можна замінити на його значення без зміни поведінки програми.
+        • method notation example:      1 + 2
+        • scala vision                  ми розглядаємо програму як один вираз (expression), який обчислюється та повертає значення,
+                                        що може бути складним, наприклад серверним застосунком.
+                                        Потрібно мислити категоріями виразів, а не інструкцій (імперативний підхід)
+        • associativity                 a x (b x c) = (a x b) x c
+        • infix notation                ability to use method without any dots or parentheses, fundamental feature in language
+        • auxiliary constructors        overloaded constructor this()
+                                        must first call the primary constructor or another auxiliary constructor
+        • lifting                       when we pass some method as if it were a function, Scala automatically converts it
+                                        to a function object
+        • scala prefixes                all the parameters with val
+        • equals/hashCode               implemented for you based on the given parameters
+        • companion object              created with the appropriate apply method, which takes the same arguments as declared in the case class
+        • unapply                       allow the class name to be used as an extractor for pattern matching
+        • sealed trait                  all the classes need to be in the same source file
+        • first-class citizens          we can use functions as values or like normal variables
+        • default scala imports         implicitly: java.lang._, scala._, scala.Predef._
+        • linearization                 This is an important concept in Scala that explains how Scala resolves methods when multiple traits are mixed
+                                        together. When a method is called, Scala looks for the implementation from left to right in this order
+                                        This solves the diamond problem found in multiple inheritance
+        • eta-expansion                 перетворення метода у функцію
+                                            val function = someMethod _
+                                            List(1,2,3,4).map(someMethod)
+        • function                      is an instance of a function traits family: example: new Function[Int, Int]
+        • method                        depends on a class or object where it defined where function is a plain object
+        • referential transparency      це властивість виразу, коли його можна замінити на його значення без зміни поведінки програми
                     def add(a: Int, b: Int): Int = a + b
                     val five   = add(2, 3)
                     val _      = five + five
@@ -99,41 +85,73 @@ object MainTutorial {
 
                     /* referential transparency is not */
                     def showTime(): Long = System.currentTimeMillis()
+        • карирование                   перетворення функції з багатьма параметрами на ланцюжок функцій, де кожна функція приймає лише один параметр
+                                        def add(a: Int, b: Int): Int      ~>      def add(a: Int)(b: Int): Int
+        • substitution model:
+             sumOfSquares(3, 2 + 2)
+             sumOfSquares(3, 4)
+             square(3) + square(4)
+             3 * 3 + square(4)
+             9 + square(4)
+             9 + 4 * 4
+             9 + 16
+             25
 
-     - implicit lookup:
-          Look in current scope
-            - implicit defined in current scope
-            - imports explicit, wildcard
-          Look at associated types in
-            - companion object of a type
-            - companion object OtherClass
-            - companion object B
-            - any superclass of B
+      • implicit lookup:
+             Look in current scope
+               • implicit defined in current scope
+               • imports explicit, wildcard
+             Look at associated types in
+               • companion object of a type
+               • companion object OtherClass
+               • companion object B
+               • any superclass of B
 
-     - substitution model:
-          sumOfSquares(3, 2 + 2)
-          sumOfSquares(3, 4)
-          square(3) + square(4)
-          3 * 3 + square(4)
-          9 + square(4)
-          9 + 4 * 4
-          9 + 16
-          25
+      • Value Class
+            • спеціальний клас-обгортка над одним значенням, який дозволяє додати типобезпечність і методи без створення додаткового
+              об’єкта в пам’яті (у більшості випадків)
+            • успадковується від AnyVal
+            • class UserId(val value: String) extends AnyVal
+
+            • меншого використання пам’яті
+            • type safety без runtime cost
+            • меншого GC pressure
+
+      • call by name
+            • def byName(x: => Long): Unit
+            • going to be evaluated when it's going to be used inside that function "byName"
+            • call by name also used in a Future which allows to execute some functionality in some time in some thread
+            • Try as an example also implemented in such way: Try(throw new NullPointerExceptions)
+
+      • right associative method | because method in class MyClass_2 ended with a ":"
+                        class MyClass_2 {
+                            def ::(a: Int): Unit   = ???
+                            def ---:(b: Int): Unit = ???
+                        }
+                        val myClass = new MyClass_2
+                        123 :: myClass
+                        123 ---: myClass
+
+      • identity
+
+                        def identity[A](x: A): A = x
+                        val a = identity(5)        // Int
+                        val b = identity("hello")  // String
 
    */
 
 
-//  ✅✅✅✅✅✅  // unapply  ✅✅✅✅✅✅
+
+//  ✅✅✅✅✅✅   unapply   ✅✅✅✅✅✅
   {
     case class Pet(age: Int, name: String)
+    // unapply:     Pet ~> Option[Int, String]
     object Pet {
-      /*     case Pet               (age, name)             */
       def unapply(pet: Pet): Option[(Int, String)] =
         pet.age > 10 match {
           case true  => Some(10, "...")
           case false => Some(12, "...")
         }
-      /*     case Pet               (name)                  */
       def unapply(value: Int): Option[String] =
         value > 12 match {
           case true => Some("Zero")
@@ -151,63 +169,8 @@ object MainTutorial {
   }
 
 
-//  ✅✅✅✅✅✅ // value classes ✅✅✅✅✅✅
+//  ✅✅✅✅✅✅   call by name infinity list  ✅✅✅✅✅✅
   {
-    /*
-
-       case class BarCode(value: String) extends AnyVal {
-           def countryCode: Char = value.charAt(0)
-
-
-        Restriction:
-            - no runtime overhead, in heap we are going to have String instead of BarCode
-            - no vals only def
-            - only one constructors
-            - can not be extended
-            - can only extend universal trait (traits with just def and without initialization)
-            - instance of the BarCode is going to be created only if it in use in generic type:
-                          def show[T](agr: T): String = agr.toString
-                          show(BarCode("..."))
-
-                          Array[BarCode](BarCode("..."))
-
-                          BarCode("...") match {
-                            case BarCode(_) => println("...")
-                          }
-
-*/
-  }
-
-
-//  ✅✅✅✅✅✅ // call by name ✅✅✅✅✅✅
-  {
-    def byValueFunction(x: Int): Int = x + 1
-    byValueFunction(3 + 2) /*     3 + 2 evaluated before method "byValueFunction" are going to be called        */
-
-
-    def byNameFunction(x: => Int): Int = x + 1
-    byNameFunction(3 + 2) /*      3 + 2 are going to be evaluated when it's going to be used inside that function "byNameFunction".
-                                        in other words → call by need */
-
-    /*    example with reevaluation   */
-    def byValue(x: Long): Unit = {
-      println(x)
-      println(x)
-    }
-
-    def byName(x: => Long): Unit = {
-      println(x)
-      println(x)
-    }
-
-    byValue(System.nanoTime())
-    byName(System.nanoTime())
-
-
-    /*
-       example with infinity list where tail or in other words all structure evaluated when it's needed
-       that pattern is named as "call by need". It powerful in infinity collections
-    */
 
     abstract class MyList1[+T] {
       def head: T
@@ -230,40 +193,33 @@ object MainTutorial {
       }
     }
 
-
     val list = new NonEmptyList[Int](1, new NonEmptyList[Int](2, new NonEmptyList[Int](3, new NonEmptyList[Int](4, EmptyList))))
     list.head
     list.tail.tail.head
-
-
-    /*
-        - call by name also used in a Future which allows to execute some functionality in some time in some thread
-        - Try as an example also implemented in such way: Try(throw new NullPointerExceptions)
-    */
   }
 
 
 
 
-//  ✅✅✅✅✅✅ // variants | covariant | contravariant ✅✅✅✅✅✅
+//  ✅✅✅✅✅✅  variants | covariant | contravariant   ✅✅✅✅✅✅
   {
     /*
        Dog is subtype of Animal
        Is List[Dog] is subtype of List[Animal] = this is variant question
 
-       In case answer is YES         → it means Covariant | In Scala it marked as List[+A] */
-    class Animal
-    class Dog extends Animal
-    val _: List[Animal] = List.empty[Dog]
+       In case answer is YES           it means Covariant | In Scala it marked as List[+A] */
+            class Animal
+            class Dog extends Animal
+            val _: List[Animal] = List.empty[Dog]
 
-    /*   In case answer is NO         → it means Invariant where no relationships between List[Animal] and List[Dog].
+    /*   In case answer is NO           it means Invariant where no relationships between List[Animal] and List[Dog]
                                         In Scala it marked as List[A] */
-    class MyList[A]
-    val _: MyList[Animal] = new MyList[Animal]
+            class MyList[A]
+            val _: MyList[Animal] = new MyList[Animal]
 
-    /*    In case answer is HELL NO   → it means Contravariant. Where in Scala it marked as List[-A] */
-    class MyList_2[-A]
-    val _: MyList_2[Dog] = new MyList_2[Animal]
+    /*   In case answer is HELL NO     it means Contravariant. Where in Scala it marked as List[-A] */
+            class MyList_2[-A]
+            val _: MyList_2[Dog] = new MyList_2[Animal]
 
     /* example */
     trait Vet[-T] {
@@ -288,43 +244,55 @@ object MainTutorial {
   }
 
 
-//  ✅✅✅✅✅✅ // null, Null, Nothing, None ✅✅✅✅✅✅
+
+//  ✅✅✅✅✅✅  null, Null, Nothing, None  ✅✅✅✅✅✅
   {
-    /* null */
-    val g: String = null  /* as in a Java world */
-    val d: Null = null/* Null -> no methods
-                              -> no fields,
-                              -> can not be extended or instantiated  and only possible value is 'null'
-                         It's extends all references types
-                         AnyRef -> all reference types -> Null
+    /*
+         • null       як в Java
+         • Null       можливе тільки значення null
+                      не має методів
+                      полів
+         • Nothing    підтип усіх типів, NullPointerException, ???
+
+                      def someFunction(a: Nothing): Int      = ???
+                      def someFunction2(b: Nothing): Nothing = throw new NullPointerException
+
+                      /* use in covariant side */
+                      abstract class MyList2[+T]
+                      class MyListSpec[T] extends MyList2[T]
+                      object MyListSpecEmpty extends MyList2[Nothing]
+
+                                                        Any
+                                                       /   \
+                                                 AnyVal     AnyRef
+                                                    |        |
+                                            Int, Double     String,
+                                            Boolean...      List, User classes...
+                                               \             |
+                                               Null
+                                                   \        |
+                                                      Nothing
      */
-    val y: String = d
-
-    /* Unit is like a void in a java world*/
-    /* Nothing. Examples: throw new NullpointerException,  ??? no value at all */
-  }
-
-
-  // nothing
-  {
-    class MyClass
-    val a: String   = throw new NullPointerException
-    val b: Int      = throw new NullPointerException
-    val c: MyClass  = throw new NullPointerException
-
-    /* can we use Nothing ? */
-    def someFunction(a: Nothing): Int      = ???
-    def someFunction2(b: Nothing): Nothing = throw new NullPointerException
-
-    /* use in covariant side */
-    abstract class MyList2[+T]
-    class MyListSpec[T] extends MyList2[T]
-    object MyListSpecEmpty extends MyList2[Nothing]
   }
 
 
 
-//  ✅✅✅✅✅✅ // abstract class vs trait ✅✅✅✅✅✅
+//  ✅✅✅✅✅✅   abstract class vs trait   ✅✅✅✅✅✅
+   /*
+     • trait               для поведінки, mixin, добавляє можливість
+     • abstract class      для базового стану й ієрархії,
+
+     • можуть мати abstract fields/methods
+     • можуть мати non-abstract fields/methods
+
+     • можуть наслідуватися від SINGLE abstract class
+     • можуть наслідуватися від MULTIPLE traits
+     • abstract class може приймати аргументи в конструкторі
+     • trait не має конструктора
+     • note: представляти сущність як abstract class
+     • note: представляти поведінку як traits
+  */
+
   {
     abstract class Person {
       def canFly: Boolean = true
@@ -337,59 +305,33 @@ object MainTutorial {
       val canDrive: Boolean
       def discussWith(p: Person): String
     }
-
-    /*
-        - they can't be instantiated on their own
-        - may have abstract fields/methods
-        - may have non-abstract fields/methods
-
-        - can inherit from a SINGLE abstract class
-        - can inherit from MULTIPLE traits
-        - abstract class can take constructor arguments
-        - trait can't take constructor arguments
-        - note: represent things as a classes
-        - note: represent behavior as traits
-     */
   }
 
 
 
 
-//   ✅✅✅✅✅✅   //  Blocking | Async | Non-blocking     ✅✅✅✅✅✅
+//   ✅✅✅✅✅✅   Blocking, Non-blocking  |  Sync, Async   ✅✅✅✅✅✅
+
+  /*
+      • Синхронний (контекст обєктів)   - якщо викликаюча сторона не може виконуватися, доки метод не поверне значення або не викличе виняток
+      • Асинхронний (контекст обєктів)  - дозволяє викликаючій стороні виконуватися
+
+      • Блокування(контекст потоків)    - якщо затримка одного потоку може на невизначений термін затримувати деякі інші потоки
+      • Неблокування(контекст потоків)  - якщо потоки не очікують завершення інших потоків
+  * */
   {
-    /*  Blocking */
-    def blockingCode(a: Int): Int = {
-      Thread.sleep(10000)
-      23
-    }
-
-    blockingCode(23)
-    val _: Int = 33 /* will wait 10 seconds before evaluated */
+       // Синхронний  |  Блокування
+          def check() = 1 + 2
+          check()
+          println("Foo")            //  не виконається доки check() не виконується та не поверне результат
 
 
-    /* async blocking */
-    def asyncBlockingCode(a: Int): Future[Int] = Future {
-      Thread.sleep(1000)
-      12
-    }
-
-    asyncBlockingCode(123)
-    val _: Int = 123 /* evaluate immediate without any delay */
-
-
-    /*
-        async non-blocking when current thread or other one are not blocked
-        as an example akka actor which is basically data structure
-      */
-
-
-    /* right associative method */
-    class MyClass_2 {
-      def ::(a: Int): Unit = println("")
-    }
-    val myClass = new MyClass_2
-    123 :: myClass /* because method in class MyClass_2 ended with a ":" */
+      // Асинхронний  |  Неблокування
+          def check2(): Future[Int] = Future(1 + 2)
+          check2()
+          println("Foo")            //  виконається зразу і не буде чекати поки check2 виконається
   }
+
 
 
 
@@ -399,41 +341,6 @@ object MainTutorial {
     class MyAwesomeList[T]      /*  level - 1 type (type constructor) */
     class Function[F[_]]        /*  level - 2 type */
     class Meta[F[_[_]]]         /*  level - 3 type */
-  }
-
-
-  // custom while
-  {
-    def customWhile(bool: => Boolean)(function: => Unit): Unit =
-      bool match {
-        case true =>
-          function
-          customWhile(bool)(function)
-        case false => ()
-      }
-
-    var i = 3
-    customWhile(i > 0) {
-      println("Hello world")
-      i = i - 1
-    }
-  }
-
-
-  /*  Some interesting point around initialization  */
-  App.foo                     // in run we are "OK"
-  App.foo.bar.someMethod()    // in run "NullPointerException" тому що
-  // val foo = Foo(bar, baz) йде перед
-  // val bar = Bar()
-
-  case class Bar() { def someMethod(): String = "hi there ..." }
-  case class Baz()
-  case class Foo(bar: Bar, baz: Baz)
-
-  object App {
-    val foo = Foo(bar, baz)
-    val bar = Bar()
-    val baz = Baz()
   }
 
 
@@ -482,50 +389,109 @@ object MainTutorial {
 
 
   /*
-    ✅✅✅✅✅✅✅✅✅✅✅✅    Patterns     ✅✅✅✅✅✅✅✅✅✅✅✅
+    ✅✅✅✅✅✅✅✅✅✅✅✅    OOP     ✅✅✅✅✅✅✅✅✅✅✅✅
 
-    SOLID:
-      Single responsibility  - каждий клас должен иметь одну и только одну причину для изменения
-      Open closed            - открит для розширения, закрит для изменения (только дописивать)
-      Liskov substitution    - функции которие используют базовий тип должни без изменения использовать
-                               подтип
-      Interface segregation  - много интерфейсов лучше чем один большой
-      Dependency inversion   - зависимость на абстракции нет завимостей на конкретное
+    • Поліморфізм —  можливість працювати з різними типами даних через один і той самий інтерфейс або ім’я методу
 
+                                       trait Animal {
+                                         def sound(): String
+                                       }
 
-    Поліморфізм — це можливість працювати з різними типами даних через один і той самий інтерфейс або ім’я методу
-          --------------------------------------------------------------------------------------------------------
-          def identity[A](x: A): A = x
-
-          val a = identity(5)        // Int
-          val b = identity("hello")  // String
-          --------------------------------------------------------------------------------------------------------
-
-          trait Animal {
-            def sound(): String
-          }
-
-          class Dog extends Animal {
-            def sound() = "Woof"
-          }
-
-          class Cat extends Animal {
-            def sound() = "Meow"
-          }
+                  class Dog extends Animal {                  class Cat extends Animal {
+                    def sound() = "Woof"                        def sound() = "Meow"
+                  }                                           }
 
           def makeSound(animal: Animal): Unit = {
             println(animal.sound())
           }
 
-          makeSound(new Dog)
-          makeSound(new Cat)
+          makeSound(new Dog), makeSound(new Cat)
+      • Одна функція makeSound працює з різними типами Dog, Cat
 
-          Пояснення: Одна функція makeSound працює з різними типами (Dog, Cat)
+
+    • F-bound поліморфізм
+        • техніка типізації, коли тип обмежує сам себе
+        • клас повинен працювати лише зі своїм власним підтипом
+        • основна проблема — повернення “правильного” типу при наслідуванні
+        • приклад
+              без:
+                  trait Animal {
+                    def mate(other: Animal): Animal
+                  }
+                  class Dog extends Animal
+                  class Cat extends Animal
+
+                  dog.mate(cat) ~> бред
+              f-bound:
+                  trait Animal[A <: Animal[A]] {
+                    def mate(other: A): A
+                  }
+                  class Dog extends Animal[Dog]
+                  class Cat extends Animal[Cat]
+
+                  dog.mate(cat) ~> бред не компілиться
+                  dog.mate(dog) ~> компілиться
+  * */
+
+
+
+
+  /*
+    ✅✅✅✅✅✅✅✅✅✅✅✅    Patterns     ✅✅✅✅✅✅✅✅✅✅✅✅
+
+
+
+   SOLID:
+     Single responsibility  - каждий клас должен иметь одну и только одну причину для изменения
+     Open closed            - открит для розширения, закрит для изменения (только дописивать)
+     Liskov substitution    - функции которие используют базовий тип должни без изменения использовать
+                              подтип
+     Interface segregation  - много интерфейсов лучше чем один большой
+     Dependency inversion   - зависимость на абстракции нет завимостей на конкретное
+
 * */
 
 
 
-//  ✅✅✅✅✅✅ // self type ✅✅✅✅✅✅
+
+  // custom while
+  {
+    def customWhile(bool: => Boolean)(function: => Unit): Unit =
+      bool match {
+        case true =>
+          function
+          customWhile(bool)(function)
+        case false => ()
+      }
+
+    var i = 3
+    customWhile(i > 0) {
+      println("Hello world")
+      i = i - 1
+    }
+  }
+
+
+  /*  Some interesting point around initialization  */
+  App.foo                     // in run we are "OK"
+  App.foo.bar.someMethod()    // in run "NullPointerException" тому що
+  // val foo = Foo(bar, baz) йде перед
+  // val bar = Bar()
+
+  case class Bar() { def someMethod(): String = "hi there ..." }
+  case class Baz()
+  case class Foo(bar: Bar, baz: Baz)
+
+  object App {
+    val foo = Foo(bar, baz)
+    val bar = Bar()
+    val baz = Baz()
+  }
+
+
+
+
+  //  ✅✅✅✅✅✅ // self type ✅✅✅✅✅✅
   {
     /*  Which mean everyone who extends Hospital MUST extends Builder  */
     trait Builder {
@@ -544,26 +510,7 @@ object MainTutorial {
 
 
   
-//  ✅✅✅✅✅✅ // F-Bound polymorphism ✅✅✅✅✅✅
-  /*
-    Єто мощный объектно-ориентированный метод, который использует систему типов для кодирования ограничений на дженерики
-    F-bounded polymorphism (a.k.a self-referential types, recursive type signatures, recursively bounded quantification)
-    is a powerful object-oriented technique that leverages the type system to encode constraints on generics
-  * */
 
-  trait Pets[A <: Pets[A]] { this: A =>
-    def rename(str: String): A
-  }
-
-  case class Fish2(name: String) extends Pets[Fish2] {
-    def rename(str: String): Fish2 = copy(str)
-  }
-
-  case class Dog(name: String) extends Pets[Dog] {
-    def rename(str: String): Dog = copy(str)
-  }
-
-  class Mammut(name: String) extends Dog(name)
 
 
 
