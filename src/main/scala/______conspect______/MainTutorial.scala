@@ -509,10 +509,6 @@ object MainTutorial {
   }
 
 
-  
-
-
-
 
 //  ✅✅✅✅✅✅ // Type classes ✅✅✅✅✅✅
   {
@@ -574,7 +570,7 @@ object MainTutorial {
 
 
 
-//  ✅✅✅✅✅✅  // Functor  ✅✅✅✅✅✅
+//  ✅✅✅✅✅✅    Functor    ✅✅✅✅✅✅
   {
     /*
       Functor
@@ -590,15 +586,12 @@ object MainTutorial {
 
 
       In mathematical concept:
-        Functor       - defines transformations between categories.
+        Functor       - defines transformations between categories
                         in Scala - defines transformations between Scala types
         EndoFunctors  - defines transformations between same categories
                         F[A]  →  F[B]
 
-
-      Functor natural transformation is about:
-                  List => Option
-
+      Functor natural transformation is about: List => Option
 
       as an example:
         trait FunctorTrans[-F[_], +G[_]] {
@@ -615,12 +608,17 @@ object MainTutorial {
     */
 
 
+
     trait Functor[F[_]] {
       def map[A, B](container: F[A])(function: A => B): F[B]
     }
 
 
+
     object FunctorInstances {
+
+      type Id[A] = A
+
       implicit object optionFunctor extends Functor[Option] {
         override def map[A, B](container: Option[A])(function: A => B): Option[B] = container.map(function)
       }
@@ -637,7 +635,6 @@ object MainTutorial {
           }
       }
 
-      type Id[A] = A
       implicit object idFunctor extends Functor[Id] {
         def map[A, B](container: A)(function: A => B): B = function.apply(container)
       }
@@ -671,7 +668,7 @@ object MainTutorial {
 
 
 
-//    ✅✅✅✅✅✅  // Monads   ✅✅✅✅✅✅
+//    ✅✅✅✅✅✅   Monads   ✅✅✅✅✅✅
 
     /*
     Monads:
@@ -702,7 +699,7 @@ object MainTutorial {
 
 
 
-//  ✅✅✅✅✅✅   // Semigroup     ✅✅✅✅✅✅
+//  ✅✅✅✅✅✅   Semigroup   ✅✅✅✅✅✅
   {
     /*
     It's just a combine method which combines two values of the same type into the one:
@@ -744,7 +741,7 @@ object MainTutorial {
 
 
 
-//  ✅✅✅✅✅✅   // Monoid     ✅✅✅✅✅✅
+//  ✅✅✅✅✅✅   Monoid   ✅✅✅✅✅✅
 
   {
     /*
@@ -796,7 +793,7 @@ object MainTutorial {
 
 
 
-//  ✅✅✅✅✅✅   // Loan - pattern     ✅✅✅✅✅✅
+//  ✅✅✅✅✅✅   Loan - pattern   ✅✅✅✅✅✅
   {
     case class Session(url: String, isAlive: Boolean)
 
@@ -810,13 +807,13 @@ object MainTutorial {
   }
 
 
-//  ✅✅✅✅✅✅   // Singleton     ✅✅✅✅✅✅
+//  ✅✅✅✅✅✅   Singleton   ✅✅✅✅✅✅
   /*    In scala it's represented in one line just as object    */
   object Singleton
 
 
 
-//  ✅✅✅✅✅✅   // Теория Cats     ✅✅✅✅✅✅
+//  ✅✅✅✅✅✅   Теория Cats   ✅✅✅✅✅✅
 
   /*
       Cats       -  is a library which provides abstractions for functional programming in the Scala programming language
@@ -826,6 +823,7 @@ object MainTutorial {
           import cats.instances.int._
           import cats.syntax.eq._
           import cats.implicits._
+
 
       Тео́рия катего́рий — раздел математики, изучающий свойства отношений между математическими объектами,
                          не зависящие от внутренней структуры объектов
@@ -1008,6 +1006,4 @@ object MainTutorial {
           assembly                        - plugin and command which we run via sbt console which allow us to build jar file
           java -jar core-assembly-1.0.jar - run jar file
     */
-
-
 }
