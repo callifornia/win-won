@@ -181,7 +181,7 @@
                 SELECT Name
                 FROM Salary
                 WHERE Amount > (SELECT Amount FROM Salary WHERE Name = 'Вася')
-        • могут использоваться в SELECT, WHERE
+        • могут использоваться в SELECT, FROM, WHERE, JOIN, ORDER BY, GROUP BY, HAVING, INSERT, UPDATE, DELETE,
                 SELECT список_колонок,
                 	( SELECT список_колонок
                 	  FROM список_таблиц
@@ -191,6 +191,27 @@
                 	( SELECT список_колонок
                 	  FROM список_таблиц
                 	  WHERE условия )
+       • Скалярні
+            • 1 рядок, 1 колонку
+            • SELECT (SELECT MAX(price) FROM products)
+       • Row subquery
+            • приклад
+            SELECT *
+            FROM users
+            WHERE (first_name, last_name) = (
+                SELECT first_name, last_name
+                FROM employees
+                WHERE id = 1
+            )
+       • Table subquery
+            SELECT *
+            FROM (
+                SELECT * FROM users
+            ) t
+
+
+
+
        • с точки зрения взаимодействия с внешним запросом различают два основных вида подзапросов: коррелированные и некоррелированные
             • некоррелированные
                 • подзапросы выполняются независимо от основного запроса
@@ -207,7 +228,11 @@
                         • спочатку виконається основний SELECT
                         • потім виконається внутрішній котрий буде використовувати дані із основного
 
-
+    • EXISTS наличия той или иной информации
+        • получения списка клиентов, не открывших ни одного счета
+            SELECT *
+            FROM Clients c
+            WHERE NOT EXISTS( SELECT 1 FROM Accounts a WHERE a.ClientID = c.ClientID )
 
 
 
