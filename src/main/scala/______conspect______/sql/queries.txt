@@ -224,11 +224,229 @@
                         • спочатку виконається основний SELECT
                         • потім виконається внутрішній котрий буде використовувати дані із основного
 
+
     • EXISTS наличия той или иной информации
         • получения списка клиентов, не открывших ни одного счета
             SELECT *
             FROM Clients c
             WHERE NOT EXISTS( SELECT 1 FROM Accounts a WHERE a.ClientID = c.ClientID )
+
+
+    • ?????????????
+      ?????????????
+      ?????????????
+      ????????????? оконные функции (OVER)
+
+
+    • GROUP BY
+        • разделяет таблицу на наборы данных
+        • понятие группировки неразрывно связано с понятием агрегатных функций
+        • агрегатные функции
+            • выполняют вычисление на наборе значений и возвращают одиночное значение
+            • детерминирование возвращают одну и ту же величину при каждом их вызове на одном и том же наборе входных значений
+            • если используется в выборке без GROUP BY, то она применяется ко всем записям выборки, иначе для каждой группы в отдельности
+            • используєтся в SELECT, HAVING, Как оконные функции (OVER), подзапросах
+        • позволяет разделить таблицу на наборы данных
+        • агрегирующие функции вычисляют для каждого набора итоговое значение
+        • єти значения называются агрегирующим вектором
+        • значение NULL - строки составят в результатах запроса собственную группу
+        • приклад:
+                        SELECT dbid, sum(size)
+                        FROM sysusages                          FROM ~> WHERE ~> GROUP BY ~> SELECT
+                        WHERE crdate > "2005-01-01"
+                        GROUP BY dbid
+
+        • HAVING & WHERE
+            •  WHERE фільтрує рядки до GROUP BY                                 FROM  ~>  WHERE    ~>  GROUP BY  ~>  SELECT
+            •  WHERE не можна використовувати агрегати
+            •  HAVING фільтрує группи після GROUP BY                            FROM  ~>  GROUP BY  ~>  WHERE    ~>  SELECT
+            •  HAVING зазвичай застосовується до агрегатів
+                        SELECT    dbid, sum(size)
+                        FROM      sysusages
+                        GROUP BY  dbid
+                        HAVING    sum(size) > 1000
+            • приклад комбінування
+                        SELECT       dbid, sum(size)
+                        FROM         sysusages                                  FROM  ~>  WHERE  ~>  GROUP BY  ~>  HAVING  ~>  SELECT
+                        WHERE        crdate > '2005-01-01'
+                        GROUP BY     dbid
+                        HAVING       sum(size) > 1000;
+            • приклад
+                        SELECT  dbid, crdate, size
+                        FROM    sysusages                                       FROM  ~>  WHERE  ~>  HAVING  ~>  SELECT
+                        WHERE   crdate < ‘2005-01-01’
+                        HAVING  size > avg(size)
+
+
+    • TABLE
+        • тимчасові
+        • постійні
+        ..........................
+        • тимчасові
+            • видні тільки в сесії або транзакціях               ~>       CREATE TEMP TABLE test(id int)
+            • після завершення сесії таблиця видаляється
+            • можна створювати індекси
+            • використовується
+                • проміжні результати, кешування проміжних даних
+
+        • постійні
+            • ALTER TABLE
+                • OWNER TO postgres
+                • SET SCHEMA archive
+                • DISABLE TRIGGER ALL
+                • ENABLE TRIGGER ALL
+                • RENAME TO app_users
+                • ADD PRIMARY KEY (id)
+                • ADD CONSTRAINT fk_user
+                    • FOREIGN KEY (user_id)   REFERENCES users(id)
+                    • UNIQUE(email)
+                    • CHECK (price > 0)
+                • DROP CONSTRAINT uq_email
+                • ADD COLUMN
+                • DROP COLUMN
+                • ALTER COLUMN age TYPE bigint
+                • ALTER COLUMN email SET  NOT NULL
+                • ALTER COLUMN email DROP NOT NULL
+                • RENAME COLUMN fullname TO full_name;
+            • CREATE
+                CREATE TABLE orders (
+                    id SERIAL PRIMARY KEY,
+                    user_id INT REFERENCES users(id) ON DELETE CASCADE
+                );
+
+    • INSERT
+
+        • INSERT INTO users (id, name)
+          VALUES (1, 'John'), (2, 'Alice'), (3, 'Bob')
+          ON CONFLICT (id)
+          DO NOTHING;
+
+        • INSERT INTO archive_users (id, name)
+          SELECT id, name
+          FROM users
+          WHERE active = false
+          ON CONFLICT (id)
+          DO NOTHING;
+
+    • UPDATE
+        • PostgreSQL ставить row-level lock під час зміни даних, це потрібно для:
+            • concurrency
+            • transactions
+            • deadlocks
+
+        • звичайний
+            UPDATE    users
+            SET       active = true
+            WHERE     id = 1
+            RETURNING *;
+
+        • з іншої таблиці
+            UPDATE orders o
+            SET    status = 'expired'
+            FROM   customers c
+            WHERE  o.customer_id = c.id
+            AND    c.active = false;
+
+    • DELETE
+            DELETE FROM users
+            WHERE id = 10
+            RETURNING *;
+
+    • TRUNCATE
+            TRUNCATE TABLE users CASCADE
+            найсильніший lock
+            блокує всі reads/writes
+
+    • DELETE vs TRUNCATE vs DROP
+
+
+         DELETE                                      TRUNCATE                                      DROP
+       ----------------------------------------- ----------------------------------------------- ------------------------------
+         таблиця залишається                         всі рядки видаляються                         повністю видаляє таблицю
+         структура залишається                       структура таблиці залишається                 (CASCADE) залежні objects
+         можна видаляти вибірково через WHERE        працює дуже швидко
+         видалення йде row-by-row                    PostgreSQL фактично перестворює storage
+
+
+    • Индекс
+        • повишение производительности поиска
+        • формируются из одного или нескольких столбцов таблици и указателей на соответствующие строки
+        • индекс имеет структуру, оптимизированную под поиск - например, сбалансированного дерева
+        • B-Tree index - default index
+            • CREATE INDEX idx_users_email ON users(email)
+            • = < > <= => BETWEEN ORDER BY LIKE 'abc%'
+        • Unique Index
+            • CREATE UNIQUE INDEX idx_users_email_unique ON users(email)
+        • Composite index (для кількох колонок)
+            • CREATE INDEX idx_orders_user_status ON orders(user_id, status)
+        • Partial Index - лише на частину таблиці
+            • CREATE INDEX idx_active_users ON users(email) WHERE active = true
+        • Expression Index
+            • CREATE INDEX idx_lower_email ON users(LOWER(email))
+        • GIN (json, array, full text search)
+            • CREATE INDEX idx_products_data ON products USING GIN(data)
+            • SELECT * FROM products WHERE data @> '{"color":"red"}'
+        • HASH
+            • CREATE INDEX idx_users_email_hash ON users USING HASH(email)
+        • GiST (геодані, ranges, full-text, nearest-neighbor)
+            • CREATE INDEX idx_locations ON places USING GIST(location)
+        • Список індексів
+            • SELECT * FROM pg_indexes WHERE tablename = 'users'
+
+
+    • View
+        • віртуальна таблиця, побудована на основі SQL-запиту
+        • при зверненні PostgreSQL виконує цей запит
+        • використовується
+            • спрощення складних запитів            • безпека доступу
+            • приховування складної логіки          • агрегації та звіти
+            • database API                          •     abstraction layer
+        • створення та використання
+            • створення
+                CREATE VIEW     active_users AS
+                SELECT          id, name
+                FROM            users
+                WHERE           active = true
+            • використання
+                SELECT * FROM active_users          фактично виконується        SELECT id, name FROM users WHERE active = true
+       • типи
+            • звичайний view                               • матеріалізований view
+                • дані НЕ зберігаються                         • результат запиту фізично зберігається
+                • дані оновлюються автоматично                 • дані НЕ оновлюються автоматично
+                • SQL виконується кожного разу                     REFRESH MATERIALIZED VIEW sales_stats
+                • якщо оновити через UPDATE
+                  оновиться базова таблиця
+
+            • рекурсивний view
+                • CREATE RECURSIVE VIEW employee_tree AS
+                • використовується для
+                    • дерев, категорій, organizational hierarchy
+
+            • WITH CHECK OPTION
+                • є таблиця:    CREATE TABLE users (id SERIAL, name TEXT, active BOOLEAN)
+                • є view:       CREATE VIEW active_users AS
+                                SELECT      *
+                                FROM        users
+                                WHERE       active = true
+                • оновлення через view:
+                                UPDATE  active_users
+                                SET     active = false
+                                WHERE   id = 1
+                • UPDATE пройде успішно але після цього користувач із id = 1 зникне із view оскільки було оновлення active = false
+                  Щоб цього уникнути потрібно створити view ось так:
+
+                • CREATE VIEW active_users AS
+                  SELECT *
+                  FROM   users
+                  WHERE  active = true
+                  WITH CHECK OPTION
+
+
+
+
+
+
+
 
 
 
