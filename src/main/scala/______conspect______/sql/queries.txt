@@ -164,6 +164,7 @@
         JOIN master..sysprocesses b ON b.spid = p.blocked_spid
 
 
+
     🔶 Объединения
         • внешние LEFT OUTER, RIGHT OUTER
             • ANSI
@@ -176,6 +177,7 @@
                 WHERE a.ClientID =* c.ClientID
 
         • внутрение
+
 
 
     🔶 Подзапросы
@@ -240,6 +242,7 @@
       ????????????? оконные функции (OVER)
 
 
+
     🔶 GROUP BY
         • разделяет таблицу на наборы данных
         • понятие группировки неразрывно связано с понятием агрегатных функций
@@ -278,6 +281,7 @@
                         FROM    sysusages                                       FROM  ~>  WHERE  ~>  HAVING  ~>  SELECT
                         WHERE   crdate < ‘2005-01-01’
                         HAVING  size > avg(size)
+
 
 
     🔶 TABLE
@@ -367,6 +371,7 @@
          структура залишається                       структура таблиці залишається                 (CASCADE) залежні objects
          можна видаляти вибірково через WHERE        працює дуже швидко
          видалення йде row-by-row                    PostgreSQL фактично перестворює storage
+
 
 
     🔶 нормальні форми - правила організації таблиць
@@ -468,6 +473,7 @@
             • SELECT * FROM pg_indexes WHERE tablename = 'users'
 
 
+
     🔶 View
         • віртуальна таблиця, побудована на основі SQL-запиту
         • при зверненні PostgreSQL виконує цей запит
@@ -543,6 +549,7 @@
             • migration flexibility
 
 
+
     🔶 Транзакции
         • група SQL-операцій, які виконуються як єдине ціле
         • BEGIN
@@ -601,6 +608,7 @@
         • відновлення системи
 
 
+
     🔶 Курсор
         • механізм котрий дщозволяє читати результат поступово, рядком за рядком або порціями (батчами)
         • зроблено замість того щоб не завантажувати весь результат одразу в памʼять
@@ -619,6 +627,7 @@
         • не використовуй cursor коли: маленькі result set, звичайний CRUD
 
 
+
     🔶 Процедури - це код, який
         • зберігається в БД
         • виконує набір дій
@@ -628,12 +637,54 @@
             • IF
             • transaction control
             • exception handling
+        • головна ідея business logic inside database
+        • У PostgreSQL є:
+            • procedure(команда): не/повертає значення, commit/rollback, може викликати себе, call proc_1()     ~>      CALL process_orders()
+                transaction orchestration
+            • function (вираз):  обовязково повертає значення, можна в select юзати, SELECT f()                 ~>      SELECT calculate_tax(100)
+
+        • PL/pgSQL для процедур: if, for loop, while, Variables, Exception handling
+        • створити процедуру
+                                create or replace procedure p(INOUT x int)
+                                language plpgsql
+                                as $$
+                                begin
+                                    x := x + 1;
+                                end;
+                                $$;
 
 
 
-
-
-
+    🔶 Трігер
+        • механізм, який автоматично запускає код при: INSERT, UPDATE, DELETE, TRUNCATE або інших подіях
+        • вішається на таблицю, view
+        • ідея: event happens ~> automatically runs function
+        • складається з:
+                trigger function
+                trigger object
+        • виконується до/після операції
+        • викликається для кожної row
+        • якщо декілька трігерів - порядок не гарантується
+        • вкл/викл
+            alter table users ENABLE  TRIGGER trg_name;
+            alter table users DISABLE TRIGGER trg_name;
+        • виконуються всередині транзакції
+        • NEW + OLD - UPDATE
+        • NEW       - INSERT
+        • OLD       - DELETE
+        • як варіант вішати на updated_at
+        • приклад
+            trigger function                                trigger
+                CREATE FUNCTION  set_updated_at()               CREATE TRIGGER    trg_users_updated_at
+                RETURNS trigger                                 BEFORE UPDATE
+                LANGUAGE plpgsql                                ON                users
+                AS $$                                           FOR EACH ROW
+                BEGIN                                           EXECUTE FUNCTION  set_updated_at();
+                    NEW.updated_at := now();
+                    RETURN NEW;
+                END;
+                $$;
+        • soft delete, notifications, updated_at
 
 
 
@@ -661,45 +712,6 @@
 ....................        Продовжити дальше тут із Google Documents       ............................
 ....................        Продовжити дальше тут із Google Documents       ............................
 ....................        Продовжити дальше тут із Google Documents       ............................
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
