@@ -162,6 +162,8 @@
         SELECT p.spid, p.status, b.spid, b.hostname, b.cmd
         FROM master..sysprocesses p
         JOIN master..sysprocesses b ON b.spid = p.blocked_spid
+
+
     🔶 Объединения
         • внешние LEFT OUTER, RIGHT OUTER
             • ANSI
@@ -174,6 +176,8 @@
                 WHERE a.ClientID =* c.ClientID
 
         • внутрение
+
+
     🔶 Подзапросы
         • вложение одного запроса внутрь другого
         • при этом внутренний запрос возвращает информацию, которую использует внешний запрос
@@ -201,13 +205,11 @@
             WHERE (first_name, last_name) = (
                 SELECT first_name, last_name
                 FROM employees
-                WHERE id = 1
-            )
+                WHERE id = 1)
+
        • Table subquery
             SELECT *
-            FROM (
-                SELECT * FROM users
-            ) t
+            FROM ( SELECT * FROM users) t
        • с точки зрения взаимодействия с внешним запросом различают два основных вида подзапросов: коррелированные и некоррелированные
             • некоррелированные
                 • подзапросы выполняются независимо от основного запроса
@@ -555,7 +557,7 @@
             I — Isolation:      не повинні ламати одна одну
             D — Durability:     після COMMIT дані не губляться
         • за замовчуванням PostgreSQL:  BEGIN ~> EXECUTE ~> COMMIT
-        • “міні rollback” всередині транзакції
+        • міні rollback всередині транзакції
             Для:
                 • batch processing
                 • partial recovery
@@ -617,6 +619,15 @@
         • не використовуй cursor коли: маленькі result set, звичайний CRUD
 
 
+    🔶 Процедури - це код, який
+        • зберігається в БД
+        • виконує набір дій
+        • може містити:
+            • SQL
+            • loops
+            • IF
+            • transaction control
+            • exception handling
 
 
 
