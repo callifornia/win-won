@@ -359,13 +359,90 @@
 
     • DELETE vs TRUNCATE vs DROP
 
-
          DELETE                                      TRUNCATE                                      DROP
        ----------------------------------------- ----------------------------------------------- ------------------------------
          таблиця залишається                         всі рядки видаляються                         повністю видаляє таблицю
          структура залишається                       структура таблиці залишається                 (CASCADE) залежні objects
          можна видаляти вибірково через WHERE        працює дуже швидко
          видалення йде row-by-row                    PostgreSQL фактично перестворює storage
+
+
+    • нормальні форми - правила організації таблиць
+        • спосіб уникнути хаосу в даних
+        • уникати дублювання даних
+        • уникати аномалій
+        • підтримувати цілісність
+        • робити схему логічною
+
+        • 1 нормальна форма: кожне поле має містити одне значення (не список, не масив)
+            погано:                                правильно:
+                -----------------------                ----------             ----------------
+                id | name | phones                     id | name              user_id | phone
+                -----------------------                ----------             ----------------
+                1  | Ivan | 111,222,333                1  | Ivan              1       | 111
+                                                                              1       | 222
+                                                                              1       | 333
+
+
+        • 2 нормальна форма: прибирає дублювання
+                всі non-key columns повинні залежати від УСЬОГО primary key
+            погано                                                 правильно
+              ----------------------------------------               ----------          -----------------------
+              student_id | course_id | student_name                  id | name           student_id | course_id
+              ----------------------------------------               ----------          -----------------------
+              1          | 10        | Ivan                          1  | Ivan           1          | 10
+              1          | 11        | Ivan                                              1          | 11
+
+
+        • 3 нормальна форма: коли в нас є дублювання двох колоно, вони повинні бути рознесені по двох таблицях
+            погано                                                правильно
+                employees                                           departments                         employees
+                ------------------------------------                ------------------------            -------------------
+                id | department_id | department_name                id | department_name                id | department_id
+                ------------------------------------                ------------------------            -------------------
+                1  | 10            | IT                             10 |  IT                            1  |  10
+                2  | 10            | IT                             2  |  10
+
+
+       • 4 нормальна форма
+            погано                                          нормально
+                users
+                ------------------------                     users                skills               language
+                user | skill | language                         ----------           -----------          ---------------
+                ------------------------                        id  | user            id | skill           id | language
+                Ivan | Go    | English                          ----|-----           -----------          ---------------
+                Ivan | Go    | German                            1  | Ivan             1 | Go               1 | English
+                Ivan | Rust  | English                                                 2 | Rust             2 | German
+                Ivan | Rust  | German
+
+                                                                 users_skills                       users_language
+                                                                     --------------------               --------------------
+                                                                      user_id | skill_id                 user_id | skill_id
+                                                                     --------------------               --------------------
+                                                                         1    | 1                           1    | 1
+                                                                         2    | 2                           2    | 2
+
+
+                                                                            final_table
+                                                                               ----------------------------------
+                                                                                user_id | skill_id | language_id
+                                                                               ----------------------------------
+                                                                                   1    |    1     |    1
+                                                                                   1    |    1     |    2
+                                                                                   1    |    2     |    1
+                                                                                   1    |    2     |    2
+
+       • 1NF    одне поле - одне значення
+         2NF    нема partial dependency
+         3NF    нема транзитивної залежності
+            якщо:   A -> B   то   A -> C       транзитивна залежність
+                    B -> C
+         4NF    нема незалежної багатозначної залежностві
+
+
+
+
+
 
 
     • Индекс
@@ -397,10 +474,6 @@
     • View
         • віртуальна таблиця, побудована на основі SQL-запиту
         • при зверненні PostgreSQL виконує цей запит
-        • використовується
-            • спрощення складних запитів            • безпека доступу
-            • приховування складної логіки          • агрегації та звіти
-            • database API                          •     abstraction layer
         • створення та використання
             • створення
                 CREATE VIEW     active_users AS
@@ -410,28 +483,45 @@
             • використання
                 SELECT * FROM active_users          фактично виконується        SELECT id, name FROM users WHERE active = true
        • типи
-            • звичайний view                               • матеріалізований view
-                • дані НЕ зберігаються                         • результат запиту фізично зберігається
-                • дані оновлюються автоматично                 • дані НЕ оновлюються автоматично
-                • SQL виконується кожного разу                     REFRESH MATERIALIZED VIEW sales_stats
+            • звичайний view
+                • дані НЕ зберігаються
+                • дані оновлюються автоматично
+                • SQL виконується кожного разу
                 • якщо оновити через UPDATE
                   оновиться базова таблиця
+
+            • матеріалізований view
+                • результат запиту фізично зберігається
+                • snapshot результату
+                • дані НЕ оновлюються автоматично, потрібно:   REFRESH MATERIALIZED VIEW sales_stats
 
             • рекурсивний view
                 • CREATE RECURSIVE VIEW employee_tree AS
                 • використовується для
-                    • дерев, категорій, organizational hierarchy
+                    • дерева, графи, категорій, organizational hierarchy
+
+            • темп view
+                • живе лише в рамках session
+                  CREATE TEMP VIEW temp_data AS SELECT ...
+
+            • можна оновлювати коли не має:
+                • GROUP BY, aggregates, DISTINCT, UNION, складних JOIN
 
             • WITH CHECK OPTION
+                • обмеження для VIEW, яке не дозволяє INSERT або UPDATE (через view), що не відповідають умовам view
+                • якщо view показує тільки “дозволені” рядки, то WITH CHECK OPTION гарантує, що через це view ти не зможеш записати “заборонені” дані
+                • не дозволяй через VIEW записати дані, які це VIEW потім не покаже
                 • є таблиця:    CREATE TABLE users (id SERIAL, name TEXT, active BOOLEAN)
                 • є view:       CREATE VIEW active_users AS
                                 SELECT      *
                                 FROM        users
                                 WHERE       active = true
+
                 • оновлення через view:
                                 UPDATE  active_users
                                 SET     active = false
                                 WHERE   id = 1
+
                 • UPDATE пройде успішно але після цього користувач із id = 1 зникне із view оскільки було оновлення active = false
                   Щоб цього уникнути потрібно створити view ось так:
 
@@ -440,6 +530,81 @@
                   FROM   users
                   WHERE  active = true
                   WITH CHECK OPTION
+
+                • INSERT INTO active_users (id, name, active)
+                  VALUES (1, 'Ivan', false);
+
+                • отримаємо помилку: ERROR: new row violates check option
+
+                • WITH LOCAL    CHECK OPTION            - перевіряє лише умову поточного view
+                • WITH CASCADED CHECK OPTION (дефолт)   - перевіряє всі умови у ланцюжку view
+
+       • використовується
+            • спрощення складних запитів            • безпека доступу
+            • приховування складної логіки          • агрегації та звіти
+            • database API                          • abstraction layer
+            • migration flexibility
+
+    • Транзакции
+        • група SQL-операцій, які виконуються як єдине ціле
+        • BEGIN
+          ...
+          COMMIT
+        • навіщо потрібні транзакції
+            • гроші знялись але не зарахувалися
+            • перехід із одного узгодженого стану в інший
+        • ACID — фундамент транзакцій
+            A — Atomicity:      або все або нічого
+            C — Consistency:    не повинна порушувати constraints: PK, FK, CHECK, UNIQUE
+            I — Isolation:      не повинні ламати одна одну
+            D — Durability:     після COMMIT дані не губляться
+        • за замовчуванням PostgreSQL:  BEGIN ~> EXECUTE ~> COMMIT
+        • “міні rollback” всередині транзакції
+            Для:
+                • batch processing
+                • partial recovery
+                • complex workflows
+
+            BEGIN
+                INSERT INTO users VALUES (1)
+                SAVEPOINT s1
+                INSERT INTO users VALUES (2)
+                ROLLBACK TO s1
+            COMMIT;
+        • ISOLATION LEVELS
+            • BEGIN TRANSACTION ISOLATION LEVEL SERIALIZABLE
+            ??? • read uncommited бачить не закомічені дані інших транзакцій
+            • read commited   бачить тільки закомічені дані
+                можливе фантомне читання:
+                    транзакція 1 відкрита                  транзакція 2 відкрита
+                        прочитала дані
+                                                               оновила дані
+                                                               закомітила
+                        прочитала ще раз, дані інші
+            • repeatable read
+            • serializable - транзакції виконуються одна за одною
+
+        • Deadlock - транзакції чекають одна одну
+            • postgres автоматично вбивае одну із них
+
+        • Locks
+            • row locks                 SELECT * FROM users FOR UPDATE
+            • table locks
+            • advisory locks
+
+        • транзакції мають бути
+            • короткі
+            • швидкі
+            • обробляй rollback
+
+        • ізольоване виконання
+        • гарантія консистентності
+        • конроль багатопоточності
+        • відновлення системи
+
+
+
+
 
 
 
