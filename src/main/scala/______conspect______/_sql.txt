@@ -283,6 +283,25 @@
                         HAVING  size > avg(size)
 
 
+    🔶 Window function
+        • функції які виконують обчислення над набором рядків але не схлопують rows як GROUP BY
+        •   GROUP_BY                        Window function (calculated value for each row)
+            many rows -> one row            many rows -> many rows
+
+            приклад                     GROUP_BY                Window function
+            ---------------             -----                  ----------------------
+             name | salary               avg                    name | salary |  avg
+            ---------------             -----                  ----------------------
+              A   |  100                 200                      A   |  100    | 200
+              B   |  200                                          B   |  200    | 200
+              C   |  300                                          C   |  300    | 200
+
+
+
+
+
+
+
 
     🔶 TABLE
         • тимчасові
