@@ -285,8 +285,60 @@
 
     🔶 Window function
         • функції які виконують обчислення над набором рядків але не схлопують rows як GROUP BY
-        •   GROUP_BY                        Window function (calculated value for each row)
-            many rows -> one row            many rows -> many rows
+        • аналізувати сусідні рядки
+        • фактично OVER і говорить що це windows function
+        • SUM(salary) - це aggregate        |       SUM(salary) OVER (...)
+        • логіка
+                • визначає partition
+                • сортує rows
+                • створює “window frame”
+                • виконує функцію
+                
+        • Window functions
+
+            Агрегаційні функції
+                SUM()                                                              SELECT month, revenue, SUM(revenue) OVER (ORDER BY month) AS running_total FROM sales
+                AVG()                                                              AVG(salary) OVER (PARTITION BY department)
+                COUNT(*)                                                           COUNT(*) OVER ()
+                MIN/MAX                                                            MAX(salary) OVER (PARTITION BY department)
+
+            Рангові функції
+                ROW_NUMBER()                Просто унікальний номер                ROW_NUMBER() OVER (ORDER BY salary DESC)
+                RANK()                      Однакові значення → однаковий rank     RANK()       OVER (ORDER BY salary DESC)
+                                                                                                           salary      rank
+                                                                                                            100          1
+                                                                                                            100          1
+                                                                                                             90          3
+                DENSE_RANK()                Без пропусків                          DENSE_RANK() OVER (ORDER BY salary DESC)
+                                                                                                           salary      rank
+                                                                                                            100          1
+                                                                                                            100          1
+                                                                                                             90          2
+
+            Навігаційні функції
+                LAG()                       Попередній рядок                       SELECT month, revenue, LAG(revenue, 1) OVER (ORDER BY month) AS prev_revenue FROM sales
+                                            можна задавати                                  month       revenue         prev
+                                            офсет                                            Jan          100           NULL
+                                                                                             Feb          200           100
+                                                                                             Mar          300           200
+                LEAD()                      Наступний рядок                        LEAD(revenue, 1) OVER (ORDER BY month)
+                                            можна задавати                                  month       revenue         prev
+                                            офсет                                            Jan          100           200
+                                                                                             Feb          200           300
+                                                                                             Mar          300           NULL
+
+                
+
+
+
+
+
+
+
+
+
+            GROUP_BY                    many rows -> one row
+            Window function             many rows -> many rows (calculated value for each row)
 
             приклад                     GROUP_BY                Window function
             ---------------             -----                  ----------------------
@@ -296,8 +348,13 @@
               B   |  200                                          B   |  200    | 200
               C   |  300                                          C   |  300    | 200
 
-
-
+        • синтаксис
+            function_name(...) OVER (                   SELECT
+                PARTITION BY ...                            employee, department, salary,
+                ORDER BY ...                                AVG(salary) OVER (
+                ROWS/RANGE ...                                  PARTITION BY department) AS avg_dep_salary
+            )                                           FROM employees;
+                                                         
 
 
 
