@@ -1,4 +1,4 @@
-package ______conspect______.algorithm
+package ______conspect______.code_algorithm
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -263,25 +263,6 @@ object Poligon {
     array.update(end, tmp)
     i
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

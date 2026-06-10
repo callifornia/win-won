@@ -1,4 +1,4 @@
-package ______conspect______.algorithm
+package ______conspect______.code_algorithm
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -15,88 +15,13 @@ object Tutorial {
   }
 
 
-
-  /*
-
-       ######## DataStructure and Algorithm ########
-       https://www.youtube.com/watch?v=CBYHwZcbD-s
-
-   Big O notation
-
-          |   O(n^2)   O(n^2)
-          |     .      .                              O (n log n)            O(n^2)
-          |     .     .                                 - quickSort            - insertSort
-          |     .    .                                  - mergeSort            - selectionSor
-          |     .   .                                   - heapSort             - bubbleSort
-          |    .  .
-          |   . .
-          |  .
-          |_______________________________
-
-
-
-      space
-
-          |                O(n)
-          |                .                          O(1)                         O(n log(n))           O(n)
-          |              .                              - insertSort                 - quickSort           - mergeSort
-          |            .                                - selectionSort
-          |          .        .     .   O(log n)        - bubbleSort
-          |        .     .
-          |      .   .
-          |    .  .
-          |  ......................  O (1)
-          |_______________________________
-
-
-   */
-
-
   // Big O notation
   {
-    /* https://www.youtube.com/watch?v=ZRdOb4yR0kk
-
-        Big O - показивает верхнюю межу складності виконання алгоритма в залежності від вхвідних параметрів
-        Ми не беремо до уваги константи та "неважну" складність
-
-        додавання - послідовність дій
-        множення  - вложеність дій
-        log N     - для алгоритма де на конжній ітерації береться половина елементів
-
-
-        О(N^2 + N^2)            = O(N^2)
-        О(N^2 + N)              = O(N^2)
-        О(N + logN)             = O(N)
-        O(5 * 2^N + 10*N^100)   = O(2^N)     2^N - растет гараздо бистрее чем N^100
-
-
-       O (big 0): In academia, big O describes an upper bound on the time
-           An algorithm that prints all the values in an array could be described as O(N),
-           but it could also be described as O(N2), O(N3) ... therefore they are upper
-           bounds on the runtime
-            X <= 1, 000 or X <= 1,000,000. It's technically true
-
-
-      `0` (big omega): In academia, `0` is the equivalent concept but for lower bound.
-               Printing the values in an array is O(N) as well as O(log N) and 0(1).
-               After all, you know that it won't be faster than those runtimes.
-
-
-      `E` (big theta): In academia, `E` means both O and `0`. That is, an algorithm is E(N) if it is both O(N) and
-                 `0`( N). 0 gives a tight bound on runtime.
-
-
-       Рекурсивна фунція яка рахує сумму чисел:
-            у випадку коли N = 3 функція викличе себе 3 рази
-            у випадку коли N = 4 функція викличе себе 4 рази
-            Швидкодія:   О (N)
-     */
 
     def sum(n: Int): Int = n match {
       case 1 => 1
       case b => b + sum(b - 1)
     }
-
 
 
     /*  Функція котра пробігається по всьому масиву і додає два числа
