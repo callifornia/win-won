@@ -149,6 +149,7 @@
     • DELETE   видалити ресурс
     • PATCH    частково змінити ресурс
 
+
     • 200 OK                        - deleted successfully (with response body)
     • 201 Created                   - resource successfully created (most important)
     • 204 No Content                - deleted successfully (no response body)
@@ -160,6 +161,7 @@
     • 409 Conflict                  - version conflict
     • 422 Unprocessable Entity      - validation error
     • 500 Internal Server Error     - server issue
+
 
     Method           Success codes             Common Errors
       GET               200,304                    400,404,403,401

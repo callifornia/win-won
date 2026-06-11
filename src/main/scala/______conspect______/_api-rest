@@ -23,28 +23,6 @@
 
 
 
-
-
-
-REST APIs (Representational State Transfer APIs):
-    • Way for different software systems to communicate over the web using standard HTTP methods.
-      They’re one of the most common approaches for building web services
-    • REST API follows the principles of Representational State Transfer (REST), an architectural style that uses simple HTTP requests
-      to access and manipulate data
-
-Key Concepts:
-    • Everything is treated as a resource
-    • Each resource is identified by a URL
-
-HTTP Methods:
-    • GET       - retrieve data
-    • POST      - create new data
-    • PUT       - update entire resource
-    • PATCH     - update partial resource
-    • DELETE    - remove data
-
-
-
 ----------------------------------------------------------------------------------------------------
 
 🔐 Authentication (AuthN)
@@ -129,18 +107,15 @@ Rest API pagination - це спосіб повертати великі спис
     • Keyset pagination
         GET /users?after_id=100&limit=10
 
-
 ⚡ Best practices ⚡
     • використовуй limit (наприклад, max 100)
     • додавай sorting (важливо для cursor pagination)
     • повертай metadata (total, next page)
     • використовуй consistent ordering (наприклад, по created_at)
 
-
 Statelessness:
     • each request is independent
     • the server does not store client state between requests
-
 
 Data modelling skills with structured, relational data:
     • зазвичай означає, що людина добре вміє проєктувати структуру даних — особливо для структурованих систем
@@ -149,14 +124,8 @@ Data modelling skills with structured, relational data:
     • будувати логічну і фізичну схему БД
     • оптимізувати структуру для швидкості і масштабованості
 
-
 Structured data:
     • таблиці (рядки + колонки)
     • типи даних (int, string, date)
     • обмеження (constraints)
-
-
-
-
-
 
