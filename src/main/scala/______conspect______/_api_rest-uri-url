@@ -1,8 +1,43 @@
+✅✅✅ Rest API  ✅✅✅
+    • архітектурний стиль побудови веб-сервісів
+    • використовує HTTP для обміну даними між клієнтом і сервером
+    • усі працюють через єдиний інтерфейс
+    • все представляється як ресурс: /users, /products, /orders, /comments
+    • зазвичай реалізує операції CRUD
+    • найчастіше REST API використовує JSON
+    • складається з:
+            URI ресурсу                         GET /api/users/15 HTTP/1.1
+            HTTP-методу                         Host:          example.com
+            Заголовків                          Authorization: Bearer token123
+            Тіла (не завжди)                    Accept:        application/json
+
+    • ресурси мають URI:                     /users/15
+    • операції виконуються HTTP-методами:    (GET, POST, PUT, DELETE)
+    • дані зазвичай передаються у форматі:   JSON
+    • кожен запит незалежний:                stateless
+    • використовується для:                  вебсайтів, мобільних додатків, мікросервісів і серверів
+
+
+Rest API pagination - це спосіб повертати великі списки даних частинами, щоб не перевантажувати сервер і клієнт
+    • Offset-based (page/offset + limit)
+        GET /users?page=2&limit=10
+        GET /users?offset=10&limit=10
+    • Cursor-based pagination (рекомендовано)
+        GET /users?cursor=abc123&limit=10
+            • сервер повертає nextCursor
+            • клієнт використовує його для наступного запиту
+            • не можна легко перейти на довільну сторінку
+    • Keyset pagination
+        GET /users?after_id=100&limit=10
+
+
+
 ✅✅✅   URL-URI-URN   ✅✅✅
 
-    URI            ідентифікатор ресурсу:
+    URI            ідентифікатор ресурсу
      ├── URL       локатор ресурсу, не тільки ідентифікує 
      └── URN       називає ресурс, але не каже, де він знаходиться
+
 
     URI:
         https://example.com/users/123
@@ -20,6 +55,8 @@
     В HTTP розбивається на:
         GET /products/15 HTTP/1.1               URI
         Host: example.com                       Host
+
+
 
 
 
@@ -95,17 +132,6 @@
     • single sign-on (SSO)
 
 
-Rest API pagination - це спосіб повертати великі списки даних частинами, щоб не перевантажувати сервер і клієнт
-    • Offset-based (page/offset + limit)
-        GET /users?page=2&limit=10
-        GET /users?offset=10&limit=10
-    • Cursor-based pagination (рекомендовано)
-        GET /users?cursor=abc123&limit=10
-            • сервер повертає nextCursor
-            • клієнт використовує його для наступного запиту
-            • не можна легко перейти на довільну сторінку
-    • Keyset pagination
-        GET /users?after_id=100&limit=10
 
 ⚡ Best practices ⚡
     • використовуй limit (наприклад, max 100)
