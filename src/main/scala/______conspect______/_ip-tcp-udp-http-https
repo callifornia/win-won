@@ -100,6 +100,7 @@
                         0D 0A
 
 
+
 ✅✅✅ HTTPS ✅✅✅
     • HTTP ~> дані передаються відкрито будь-хто між вами та сервером може прочитати або змінити незашифрований HTTP-трафік
          провайдер, адміністратор Wi-Fi, зловмисник у мережі
@@ -147,5 +148,22 @@
 
 
 
+✅✅✅ HTTP ✅✅✅
+    • 200 OK                        - deleted successfully (with response body)
+    • 201 Created                   - resource successfully created (most important)
+    • 204 No Content                - deleted successfully (no response body)
+    • 304 Not Modified              - cached version is still valid
+    • 400 Bad Request               - invalid request
+    • 401 Unauthorized              - not authenticated
+    • 403 Forbidden                 - not allowed
+    • 404 Not Found                 - resource not found
+    • 409 Conflict                  - version conflict
+    • 422 Unprocessable Entity      - validation error
+    • 500 Internal Server Error     - server issue
 
-
+    Method           Success codes             Common Errors
+      GET               200,304                    400,404,403,401
+      POST              201                        400,401,403,409,422
+      PUT               200,204                    400,404,    409
+      PATCH             200,204                    400,404,422
+      DELETE            200,204                    400,401,403,404

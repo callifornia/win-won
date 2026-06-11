@@ -1,3 +1,31 @@
+✅✅✅   URL-URI-URN   ✅✅✅
+
+    URI            ідентифікатор ресурсу:
+     ├── URL       локатор ресурсу, не тільки ідентифікує 
+     └── URN       називає ресурс, але не каже, де він знаходиться
+
+    URI:
+        https://example.com/users/123
+        mailto:alex@example.com
+        tel:+380501234567
+        urn:isbn:9780131103627
+
+    URL(де він знаходиться, як до нього звернутися):
+        https://example.com:433/products/15
+        scheme://authority/path?query#fragment
+
+    URN:
+        urn:isbn:9780131103627
+
+    В HTTP розбивається на:
+        GET /products/15 HTTP/1.1               URI
+        Host: example.com                       Host
+
+
+
+
+
+
 REST APIs (Representational State Transfer APIs):
     • Way for different software systems to communicate over the web using standard HTTP methods.
       They’re one of the most common approaches for building web services
@@ -15,57 +43,6 @@ HTTP Methods:
     • PATCH     - update partial resource
     • DELETE    - remove data
 
-🔹 GET (Retrieve data)
-    • 200 OK                        - request successful, data returned
-    • 304 Not Modified              - cached version is still valid
-    • 400 Bad Request               - invalid request format
-    • 401 Unauthorized              - authentication required
-    • 403 Forbidden                 - access denied
-    • 404 Not Found                 - resource doesn’t exist
-    • 500 Internal Server Error     - server issue
-
-🔹 POST (Create resource)
-    • 201 Created                   - Resource successfully created (most important)
-    • 200 OK                        - Sometimes used if returning result without creating new resource
-    • 400 Bad Request               - Invalid input data
-    • 401 Unauthorized              - Not authenticated
-    • 403 Forbidden                 - Not allowed to create
-    • 409 Conflict                  - Resource already exists
-    • 422 Unprocessable Entity      - Validation errors
-    • 500 Internal Server Error     - Server issue
-
-🔹 PUT (Update entire resource)
-    • 200 OK                        - Successfully updated
-    • 204 No Content                - Updated successfully, no response body
-    • 400 Bad Request               - Invalid data
-    • 404 Not Found                 - Resource not found
-    • 409 Conflict                  - Version conflict
-    • 500 Internal Server Error     - Server issue
-
-🔹 PATCH (Partial update)
-    • 200 OK                        - Successfully updated
-    • 204 No Content                - Updated, no response body
-    • 400 Bad Request               - Invalid patch data
-    • 404 Not Found                 - Resource not found
-    • 422 Unprocessable Entity      - Validation error
-    • 500 Internal Server Error     - Server issue
-
-🔹 DELETE (Remove resource)
-    • 200 OK                        - Deleted successfully (with response body)
-    • 204 No Content                - Deleted successfully (no response body)
-    • 400 Bad Request               - Invalid request
-    • 401 Unauthorized              - Not authenticated
-    • 403 Forbidden                 - Not allowed
-    • 404 Not Found                 - Resource not found
-    • 500 Internal Server Error     - Server issue
-
-
-   Method           Success codes             Common Errors
-     GET               200,304                    400,401,403,404
-     POST              201                        400,401,403,409,422
-     PUT               200,204                    400,404,409
-     PATCH             200,204                    400,404,422
-     DELETE            200,204                    400,401,403,404
 
 
 ----------------------------------------------------------------------------------------------------
