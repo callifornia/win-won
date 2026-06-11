@@ -58,9 +58,8 @@ Rest API pagination - це спосіб повертати великі спис
 
 
 
-
-
 ----------------------------------------------------------------------------------------------------
+
 
 🔐 Authentication (AuthN)
     • who are you?
@@ -68,6 +67,7 @@ Rest API pagination - це спосіб повертати великі спис
         • token
         • biometrics
     • logging into Google with your email and password
+
 
 
 🛡️ Authorization (AuthZ)
@@ -78,9 +78,11 @@ Rest API pagination - це спосіб повертати великі спис
     • but maybe you can’t edit it
 
 
+
 🔹 Simple Analogy
     • Authentication    - Showing your passport (proves identity)
     • Authorization     - Boarding pass (determines where you can go)
+
 
 
 🔹 In APIs
@@ -88,9 +90,11 @@ Rest API pagination - це спосіб повертати великі спис
     • Authorization     - Role-based access (admin, user), scopes
 
 
+
 🔐 API key:
     • it answers: “Who is making this request?”
     • send API keys in headers, not URLs
+
 
 
 🔐 OAuth Token:
@@ -119,6 +123,7 @@ Rest API pagination - це спосіб повертати великі спис
         • токен можна відкликати в будь-який момент
 
 
+
 🔐 JWT: Простими словами
     Уяви, що це як “цифровий пропуск”:
         • сервер видає тобі JWT після логіну
@@ -139,9 +144,13 @@ Rest API pagination - це спосіб повертати великі спис
     • повертай metadata (total, next page)
     • використовуй consistent ordering (наприклад, по created_at)
 
+
+
 Statelessness:
     • each request is independent
     • the server does not store client state between requests
+
+
 
 Data modelling skills with structured, relational data:
     • зазвичай означає, що людина добре вміє проєктувати структуру даних — особливо для структурованих систем
@@ -150,8 +159,9 @@ Data modelling skills with structured, relational data:
     • будувати логічну і фізичну схему БД
     • оптимізувати структуру для швидкості і масштабованості
 
+
+
 Structured data:
     • таблиці (рядки + колонки)
     • типи даних (int, string, date)
     • обмеження (constraints)
-
