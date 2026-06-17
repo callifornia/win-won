@@ -1,6 +1,15 @@
-abstract class Foo(a: String)
 
 
-val b = new Foo("asd") {}
+val start = 0
+val step = 1460
+val end = 10000
 
-b.a
+val start_2 = 8760
+val end_2   = 20000
+
+
+start to end by step map println
+start_2 until end_2 by step map println
+
+
+
