@@ -27,7 +27,6 @@
 
 
 
-
 ✅✅✅✅✅✅ Delta Lake  ✅✅✅✅✅
     • df.write.option("mergeSchema", "true").mode("append").format("delta").save("tmp/fun_people")
     • spark.read.format("delta").option("versionAsOf", version).load("...")
