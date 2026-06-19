@@ -182,7 +182,7 @@ MapReduce Program:
 ✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅ Yarn Architecture ✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅
 
 MapReduce job:
-pic: src/main/resources/pictures/big_data/hadoop/Screenshot 2026-04-22 at 16.46.01.png
+pic: src/main/resources/pictures/big_data/hadoop/Screenshot 2026-04-18 at 12.45.07.png
 pic: src/main/resources/pictures/big_data/hadoop/Screenshot 2026-04-22 at 16.51.26.png
 
 pic: src/main/resources/pictures/big_data/hadoop/Screenshot 2026-04-22 at 17.14.40.png
@@ -203,7 +203,8 @@ Explanation:
         • is responsible for performing the job
     • Data Node & Node manager lives in one machine
     • pic: src/main/resources/pictures/big_data/hadoop/Screenshot 2026-04-22 at 17.21.55.png
-
+    • NameNode → логи NameNode на сервері NameNode.
+    • DataNode → логи DataNode на кожному сервері DataNode.
 
 
 ✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅ Hadoop & Hadoop Ecosystem ✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅

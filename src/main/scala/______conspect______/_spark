@@ -93,7 +93,7 @@ You ROCK!
                         ))   - замінить null в колонках IMDB_ на 0, ORM_ на 2
 
     • DataFrame            - distributed collections of JVM objects
-    • Datasets(case class) - save types  distributed collections of JVM objects
+    • Datasets(case class) - distributed collections of JVM objects (save types)
     • DataFrame ~> case class
         • definition:
                 case class Car(Name: String,                        // field name = column name
