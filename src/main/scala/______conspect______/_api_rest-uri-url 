@@ -60,4 +60,3 @@ Rest API pagination - це спосіб повертати великі спис
     В HTTP розбивається на:
         GET /products/15 HTTP/1.1               URI
         Host: example.com                       Host
-
