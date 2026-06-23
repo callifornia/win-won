@@ -1,16 +1,3 @@
-
-                             🔑 BigData 🔑
-
-    • structured         • semi-structured                  • un-structured
-      tables               json, xml, csv, email              log, audio, video, image
-
-
-
-    • Volume:     lots of devices generate data
-    • Variety:    Data can be different, structured, semi-structured, un-structured
-    • Velocity:   People generate the data
-    • Value:      Extract useful value from those data which will help company to grow
-
 DataAnalytics:
     •   Identifying the problem which we are going to solve
     •   Designing Data requirements. What data we do need to have just to be able solve the problem
