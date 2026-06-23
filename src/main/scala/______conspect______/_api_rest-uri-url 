@@ -19,6 +19,7 @@
 
 
 
+
 Rest API pagination - це спосіб повертати великі списки даних частинами, щоб не перевантажувати сервер і клієнт
     • Offset-based (page/offset + limit)
         GET /users?page=2&limit=10
