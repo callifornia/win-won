@@ -1,0 +1,167 @@
+✅✅✅ Rest API  ✅✅✅
+    • архітектурний стиль побудови веб-сервісів
+    • використовує HTTP для обміну даними між клієнтом і сервером
+    • усі працюють через єдиний інтерфейс
+    • все представляється як ресурс: /users, /products, /orders, /comments
+    • зазвичай реалізує операції CRUD
+    • найчастіше REST API використовує JSON
+    • складається з:
+            URI ресурсу                         GET /api/users/15 HTTP/1.1
+            HTTP-методу                         Host:          example.com
+            Заголовків                          Authorization: Bearer token123
+            Тіла (не завжди)                    Accept:        application/json
+
+    • ресурси мають URI:                     /users/15
+    • операції виконуються HTTP-методами:    (GET, POST, PUT, DELETE)
+    • дані зазвичай передаються у форматі:   JSON
+    • кожен запит незалежний:                stateless
+    • використовується для:                  вебсайтів, мобільних додатків, мікросервісів і серверів
+
+
+Rest API pagination - це спосіб повертати великі списки даних частинами, щоб не перевантажувати сервер і клієнт
+    • Offset-based (page/offset + limit)
+        GET /users?page=2&limit=10
+        GET /users?offset=10&limit=10
+    • Cursor-based pagination (рекомендовано)
+        GET /users?cursor=abc123&limit=10
+            • сервер повертає nextCursor
+            • клієнт використовує його для наступного запиту
+            • не можна легко перейти на довільну сторінку
+    • Keyset pagination
+        GET /users?after_id=100&limit=10
+
+
+
+✅✅✅   URL-URI-URN   ✅✅✅
+
+    URI            ідентифікатор ресурсу
+     ├── URL       локатор ресурсу, не тільки ідентифікує
+     └── URN       називає ресурс, але не каже, де він знаходиться
+
+
+    URI:
+        https://example.com/users/123
+        mailto:alex@example.com
+        tel:+380501234567
+        urn:isbn:9780131103627
+
+    URL(де він знаходиться, як до нього звернутися):
+        https://example.com:433/products/15
+        scheme://authority/path?query#fragment
+
+    URN:
+        urn:isbn:9780131103627
+
+    В HTTP розбивається на:
+        GET /products/15 HTTP/1.1               URI
+        Host: example.com                       Host
+
+
+
+----------------------------------------------------------------------------------------------------
+
+
+🔐 Authentication (AuthN)
+    • who are you?
+        • username/password
+        • token
+        • biometrics
+    • logging into Google with your email and password
+
+
+
+🛡️ Authorization (AuthZ)
+    • what are you allowed to do?
+    • defines permissions and roles
+    • controls access to resources
+    • you can view a file
+    • but maybe you can’t edit it
+
+
+
+🔹 Simple Analogy
+    • Authentication    - Showing your passport (proves identity)
+    • Authorization     - Boarding pass (determines where you can go)
+
+
+
+🔹 In APIs
+    • Authentication    - API key, OAuth token, JWT
+    • Authorization     - Role-based access (admin, user), scopes
+
+
+
+🔐 API key:
+    • it answers: “Who is making this request?”
+    • send API keys in headers, not URLs
+
+
+
+🔐 OAuth Token:
+    • це як тимчасовий пропуск у будівлю:
+        • ти не даєш свій паспорт (пароль)
+        • тобі видають пропуск (токен)
+        • він діє обмежений час і має обмежені права
+
+    • це спеціальний цифровий “ключ доступу”, який використовується в протоколі OAuth 2.0 для безпечної авторизації між сервісами без передачі пароля
+      замість того, щоб давати сайту свій логін і пароль, ти даєш йому токен, який дозволяє виконувати лише певні дії
+
+    • кроки:
+        • натискаєш “Увійти через Google”
+        • перекидає на Google, де ти підтверджуєш доступ
+        • Google видає сайту OAuth Token
+        • Сайт використовує цей токен, щоб отримати потрібні дані (наприклад, ім’я чи email)
+
+    • що містить токен:
+        • ідентифікує користувача
+        • визначає, що дозволено робити (scope)
+        • має термін дії (expiration time)
+
+    • чому це безпечно
+        • пароль не передається стороннім сервісам
+        • доступ можна обмежити (наприклад, тільки читання)
+        • токен можна відкликати в будь-який момент
+
+
+
+🔐 JWT: Простими словами
+    Уяви, що це як “цифровий пропуск”:
+        • сервер видає тобі JWT після логіну
+        • ти надсилаєш його з кожним запитом
+        • сервер перевіряє підпис і довіряє даним усередині
+
+
+Де використовується:
+    • авторизація користувачів (login/session)
+    • API (особливо REST)
+    • single sign-on (SSO)
+
+
+
+⚡ Best practices ⚡
+    • використовуй limit (наприклад, max 100)
+    • додавай sorting (важливо для cursor pagination)
+    • повертай metadata (total, next page)
+    • використовуй consistent ordering (наприклад, по created_at)
+
+
+
+Statelessness:
+    • each request is independent
+    • the server does not store client state between requests
+
+
+
+Data modelling skills with structured, relational data:
+    • зазвичай означає, що людина добре вміє проєктувати структуру даних — особливо для структурованих систем
+    • правильно визначати сутності (entities) — наприклад: User, Order, Product
+    • описувати зв’язки між ними (1:1, 1:N, N:M)
+    • будувати логічну і фізичну схему БД
+    • оптимізувати структуру для швидкості і масштабованості
+
+
+
+Structured data:
+    • таблиці (рядки + колонки)
+    • типи даних (int, string, date)
+    • обмеження (constraints)
