@@ -82,6 +82,7 @@ You ROCK!
             • df.repartition("country")                 Partition 1           Partition 2
                                                                  UA                    US
                                                                  UA                    US
+
     • coalesce
             • зменшує кількість партицій
             • зазвичай без повного shuffle
@@ -93,19 +94,19 @@ You ROCK!
               щоб усі записи з одним і тим самим ключом були в одному partition
             • запис проміжних файлів на диск
             • читання цих файлів tasks
-            • серіалізацію/десеріалізацію даних
+            • серіалізацію/десеріалізацію даних (дані передаються по мережі)
             • одна з найдорожчих операцій у Spark
             • cаме тому правильний partitioning дуже важливий
             • приклад
-                  таблиця:       user_id |   order_id
-                                ---------|------------
-                                   1     |     A
-                                   2     |     B
-                                   1     |     C
-                                   2     |     D
+                  таблиця:                 user_id |   order_id
+                                          ---------|------------
+                                             1     |     A
+                                             2     |     B
+                                             1     |     C
+                                             2     |     D
 
-                  виконуємо:    df.groupBy("user_id").count()
-                    для підрахунку Spark повинен зібрати всі записи одного user_id в одному partition
+                  виконуємо:              df.groupBy("user_id").count()
+                  для підрахунку Spark повинен зібрати всі записи одного user_id в одному partition
 
                                  до shuffle:                        після shuffle:
                                      partition 0:     1, A              partition 0:     1, A
@@ -116,20 +117,21 @@ You ROCK!
 
                   тепер кожен executor може локально виконати агрегацію
 
-
-
-
-
-
-
-        ??? tasks ???
-
-
-
-    • lazy evaluation:
-        • він будує план виконання і запускає обчислення лише тоді, коли потрібен результат
+            • df.explain("formatted"),
+            • output: Exchange
+                    == Physical Plan ==
+                    Exchange hashpartitioning(customer_id, 200)
+                    +- Scan parquet
+                    Exchange hashpartitioning(customer_id, 200)
+                    +- Scan parquet
+                    ShuffledHashJoin
+            • для великих таблиць ГБ/ТБ саме shuffle часто займає найбільшу частину часу виконання Spark job
+            • викликається в: repartition, join, distinct, dropDuplicates, sort, groupBy, orderBy, cube, rollup, window
+            • Shuffle Read або Shuffle Write - саме перерозподіл даних є головною вартістю виконання
+              
     • transformation - описує як отримати новий DataFrame
     • actions (show/count/collect/write) - стартує spark джобу
+
     • narrow transformation
         • коли в нас є DataFrame і ми робимо select якихось окремих колонок і в результаті в нас є новий DataFrame
           тільки з тими колонками котрі були вказані в select
@@ -138,6 +140,7 @@ You ROCK!
                         partition 1     ~>      partition 1
                         partition 2     ~>      partition 2
                         partition 3     ~>      partition 3
+
     • wide transformations
         • коли в нас є декілька DataFrame і ми їх обєднюємо і отримуємо один
         • join, groupBy, groupByKey, sortByKey, orderBy, reduceByKey, aggregateByKey, distinct, repartition
@@ -145,7 +148,6 @@ You ROCK!
                         partition 1 ---|
                                        | ---> Shuffle ---> New Partitions
                         partition 2 ---|
-
 
     • Broadcast Hash Join
         • найголовніша перевага - немає великого shuffle
@@ -214,21 +216,11 @@ You ROCK!
                     customer_id=3                          HashMap.get(3)
 
 
-
-
-
-
-
-
-
-    • Як працює shufle ???
     • виконання
         • під час виконання DataFrame/Dataset або Spark SQL запиту дані проходять через кілька етапів планування
-
         • основна ідея
             • Spark спочатку розуміє що потрібно зробити
-            •  а потім вирішує як саме це виконати найефективніше
-
+            • а потім вирішує як саме це виконати найефективніше
         • схема
             🟡 SQL/DataFrame API    ~>   🟡 Unresolved Logical Plan            ~>            🟡 Physical Plan                                ~>      🟡 Executed Physical Plan           ~>   Result
                                              будується дерево операцій:                         • вибирає конкретні алгоритми виконання                 • Spark генерує реальні задачі          • df.explain("extended")
@@ -250,58 +242,24 @@ You ROCK!
                                               • Constant Folding:    where amount > (50 + 50)   ~>   where amount > 100
                                               • Join Reordering:     для декількох join порядок join може змінитися
 
+            -----------------------------------------------------------------------------
             План                             Призначення
+            -----------------------------------------------------------------------------
+             Unresolved Logical Plan          Представити запит як дерево операцій
+             Analyzed Logical Plan            Перевірити таблиці, колонки, типи
+             Optimized Logical Plan           Застосувати оптимізації Catalyst
+             Physical Plan                    Вибрати конкретні алгоритми виконання
+             Adaptive Physical Plan           Перебудувати план на основі реальних даних
+             Executed Physical Plan           Запустити stages/tasks на кластері
             ------------------------------------------------------------------------------
-            Unresolved Logical Plan          Представити запит як дерево операцій
-            Analyzed Logical Plan            Перевірити таблиці, колонки, типи
-            Optimized Logical Plan           Застосувати оптимізації Catalyst
-            Physical Plan                    Вибрати конкретні алгоритми виконання
-            Adaptive Physical Plan           Перебудувати план на основі реальних даних
-            Executed Physical Plan           Запустити stages/tasks на кластері
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    • lazy evaluations: spark чекає до останнього моменту, щоб виконати перетворення DF
-        - Перед тим як виконувати щось spark робить:
-            - spark компілює the DF transformation into the graph before running any code
-            - логічний план = граф залежностей для DataFrame
-            - фізичний план = оптимізовує порядок кроків котрі необхідні для нодів на кластері
-            - оптимізація: обєднання декільки where в один
 
     • spark read:
-            spark.option("mode") ---> FailFast      - якість даних критична
-                                                    - throw an Exception коли є некоректні рядки
-
-                                 ---> Permissive    - не падає при помилках
-                                                    - кладуться в спеціальну колонку (_corrupt_record)
-                                                    - підходить, коли важливо зчитати максимум даних, навіть якщо частина “крива”
-
-                                 ---> DropMalformed - ігнорує (викидає) некоректні рядки
-                                                    - вони просто не потрапляють у DataFrame
-                                                    - підходить, коли погані дані не потрібні взагалі
-            .option("dateFormat", "...")
-            .option("header", "true")
-            .option("sep", ",")
-            .option("nullValue", "")
-
-
+        spark.option("mode")
+            FailFast      - якість даних критична, Exception коли є некоректні рядки
+            Permissive    - не падає при помилках, кладуться в спеціальну колонку (_corrupt_record)
+                          - підходить, коли важливо зчитати максимум даних, навіть якщо частина “крива”
+            DropMalformed - ігнорує (викидає) некоректні рядки, вони просто не потрапляють у DataFrame
+                          - підходить, коли погані дані не потрібні взагалі
 
     • union and unionAll  - unionAll це просто аліас
     • shuffling           - is more expensive operation
