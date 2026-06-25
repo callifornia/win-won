@@ -89,9 +89,42 @@ You ROCK!
             • df.coalesce(2)                            було: 8 partitions      стало: 2 partitions
 
     • shuffle
-            • перерозподіл даних між вузлами
+            • перерозподіл даних між нодами по ключу таким чином
+              щоб усі записи з одним і тим самим ключом були в одному partition
+            • запис проміжних файлів на диск
+            • читання цих файлів tasks
+            • серіалізацію/десеріалізацію даних
             • одна з найдорожчих операцій у Spark
             • cаме тому правильний partitioning дуже важливий
+            • приклад
+                  таблиця:       user_id |   order_id
+                                ---------|------------
+                                   1     |     A
+                                   2     |     B
+                                   1     |     C
+                                   2     |     D
+
+                  виконуємо:    df.groupBy("user_id").count()
+                    для підрахунку Spark повинен зібрати всі записи одного user_id в одному partition
+
+                                 до shuffle:                        після shuffle:
+                                     partition 0:     1, A              partition 0:     1, A
+                                                      2, B                               1, С
+
+                                     partition 1:     1, C              partition 1:     2, B
+                                                      2, D                               2, D
+
+                  тепер кожен executor може локально виконати агрегацію
+
+
+
+
+
+
+
+        ??? tasks ???
+
+
 
     • lazy evaluation:
         • він будує план виконання і запускає обчислення лише тоді, коли потрібен результат
@@ -114,7 +147,6 @@ You ROCK!
                         partition 2 ---|
 
 
-
     • Broadcast Hash Join
         • найголовніша перевага - немає великого shuffle
         • Spark копіює (broadcast) маленьку таблицю на всі executors                   Executor 1                                  Executor 2
@@ -128,7 +160,6 @@ You ROCK!
         • якщо таблиця менша за поріг, Spark може автоматично вибрати Broadcast Hash Join
         • orders.join(broadcast(customers), "customer_id")
         • df.explain(true)   ~>   BroadcastHashJoin
-
 
 
     • Sort Merge Join
@@ -161,6 +192,27 @@ You ROCK!
                             
             • операція дуже ефективна після сортування
         • недоліки: дорогий shuffle означає передачу великих обсягів даних мережею
+
+
+    • Shuffle Hash Join
+        • робить shuffle обох таблиць за ключем     JOIN
+        • у кожному partition вибирає меншу сторону JOIN
+        • будує для неї HashMap
+        • проходить по більшій стороні та шукає збіги в HashMap
+        • приклад
+            таблиця:
+                orders      500 GB
+                customers   50 GB   занадто велика для Broadcast, але в кожному partition після shuffle може бути достатньо маленькою для побудови HashMap
+
+            крок 1: shuffle перерозподіляє дані (після цього всі рядки з однаковим ключем опиняються в одному partition)
+            крок 2: вибирається менша таблиця та будується HashMap
+            крок 3: вибирається більша таблиця та проходиться по ній і вибирається із меншої значення
+
+                orders - велика тбл.             із маленької вибирається
+                    customer_id=2                          HashMap.get(2)
+                    customer_id=1                          HashMap.get(1)
+                    customer_id=3                          HashMap.get(3)
+
 
 
 
