@@ -86,12 +86,74 @@ You ROCK!
             • зменшує кількість партицій
             • зазвичай без повного shuffle
             • працює швидше
-            • df.coalesce(2)                            було: 8 partitions   стало: 2 partitions
+            • df.coalesce(2)                            було: 8 partitions      стало: 2 partitions
 
     • shuffle
             • перерозподіл даних між вузлами
             • одна з найдорожчих операцій у Spark
             • cаме тому правильний partitioning дуже важливий
+
+    • lazy evaluation:
+        • він будує план виконання і запускає обчислення лише тоді, коли потрібен результат
+    • transformation - описує як отримати новий DataFrame
+    • actions (show/count/collect/write) - стартує spark джобу
+    • narrow transformation
+        • коли в нас є DataFrame і ми робимо select якихось окремих колонок і в результаті в нас є новий DataFrame
+          тільки з тими колонками котрі були вказані в select
+        • select, map, flatMap, filter, withColumn, union, mapPartitions
+        • вихідний partition залежить від одного вхідного partition, дані між вузлами не переміщуються (немає shuffle)
+                        partition 1     ~>      partition 1
+                        partition 2     ~>      partition 2
+                        partition 3     ~>      partition 3
+    • wide transformations
+        • коли в нас є декілька DataFrame і ми їх обєднюємо і отримуємо один
+        • join, groupBy, groupByKey, sortByKey, orderBy, reduceByKey, aggregateByKey, distinct, repartition
+        • один вихідний partition може залежати від багатьох вхідних partitions, для цього Spark виконує shuffle — переміщення даних між executors
+                        partition 1 ---|
+                                       | ---> Shuffle ---> New Partitions
+                        partition 2 ---|
+
+
+
+    • виконання
+        • під час виконання DataFrame/Dataset або Spark SQL запиту дані проходять через кілька етапів планування
+
+        • основна ідея
+            • Spark спочатку розуміє що потрібно зробити
+            •  а потім вирішує як саме це виконати найефективніше
+
+        • схема
+            SQL/DataFrame API       ~>   Unresolved Logical Plan                 ~>   Physical Plan   ~>   Executed Physical Plan   ~>   Result
+                                          - будує дерево операцій
+                                                Project(customer_id)
+                                                  Filter(amount > 100)
+                                                    Relation(orders)
+                                        
+
+
+
+                               ~> Analyzed   Logical Plan
+                               ~> Optimized  Logical Plan
+
+             
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     • lazy evaluations: spark чекає до останнього моменту, щоб виконати перетворення DF
@@ -100,8 +162,7 @@ You ROCK!
             - логічний план = граф залежностей для DataFrame
             - фізичний план = оптимізовує порядок кроків котрі необхідні для нодів на кластері
             - оптимізація: обєднання декільки where в один
-    • transformation - описує як отримати новий DataFrame
-    • actions (show/count) - стартує spark джобу
+
     • spark read:
             spark.option("mode") ---> FailFast      - якість даних критична
                                                     - throw an Exception коли є некоректні рядки
@@ -119,8 +180,7 @@ You ROCK!
             .option("nullValue", "")
 
 
-    • narrow transformation - це коли в нас є DataFrame і ми робимо select якихось окремих колонок і в результаті в нас є новий DataFrame
-      тільки з тими колонками котрі були вказані в select
+
     • union and unionAll  - unionAll це просто аліас
     • shuffling           - is more expensive operation
     • left-semi-join      - беруться з лівох ті, котрі intersect
