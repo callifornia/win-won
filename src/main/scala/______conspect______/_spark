@@ -115,6 +115,61 @@ You ROCK!
 
 
 
+    • Broadcast Hash Join
+        • найголовніша перевага - немає великого shuffle
+        • Spark копіює (broadcast) маленьку таблицю на всі executors                   Executor 1                                  Executor 2
+        • велику таблицю залишає розподіленою                                           ├─ Orders Partition 1                       ├─ Orders Partition 2
+        • завдяки цьому не потрібен дорогий shuffle для обох таблиць                    └─ Customers HashMap (broadcast)            └─ Customers HashMap (broadcast)
+        • будує в пам’яті Hash Map по id
+        • кожен partition таблиці orders локально виконує lookup у цій Hash Map                              Executor 3
+                                                                                                              ├─ Orders Partition 3
+                                                                                                              └─ Customers HashMap (broadcast)
+        • spark.conf.get("spark.sql.autoBroadcastJoinThreshold")
+        • якщо таблиця менша за поріг, Spark може автоматично вибрати Broadcast Hash Join
+        • orders.join(broadcast(customers), "customer_id")
+        • df.explain(true)   ~>   BroadcastHashJoin
+
+
+
+    • Sort Merge Join
+        • використовує для великих таблиць, коли їх не можна ефективно broadcast-ити зазвичай по дефолту
+        • дані обох таблиць перерозподіляються (shuffle) за ключем JOIN
+        • усередині кожного partition дані сортуються за ключем
+        • Spark проходить по відсортованих даних і виконує merge-подібне об’єднання (join)
+        • приклад
+            таблиці:                    дані:                                     запит:
+              orders      500 GB           orders          |  customers             SELECT *
+              customers   300 GB           ----------------|--------------          FROM orders o
+                                           customer_id=1   |     id=1               JOIN customers c
+                                           customer_id=2   |     id=2               ON o.customer_id = c.id
+                                           customer_id=3   |     id=3               
+
+            • після shuffle всі записи з ключем 1 потраплять в один partition, з ключем 2 — в інший
+                            Partition 0:                     Partition 1:
+                              orders(customer_id=1)            orders(customer_id=2)
+                              customers(id=1)                  customers(id=2)
+
+            • дані сортуються (можна пройти обидва набори лише один раз)
+                            orders:     1 2 3 4 5
+                            customers:  1 2 3 4 5
+
+            • мердж
+                            1 == 1 -> join
+                            2 == 2 -> join
+                            3 == 3 -> join
+                            ...
+                            
+            • операція дуже ефективна після сортування
+        • недоліки: дорогий shuffle означає передачу великих обсягів даних мережею
+
+
+
+
+
+
+
+
+    • Як працює shufle ???
     • виконання
         • під час виконання DataFrame/Dataset або Spark SQL запиту дані проходять через кілька етапів планування
 
@@ -123,19 +178,34 @@ You ROCK!
             •  а потім вирішує як саме це виконати найефективніше
 
         • схема
-            SQL/DataFrame API       ~>   Unresolved Logical Plan                 ~>   Physical Plan   ~>   Executed Physical Plan   ~>   Result
-                                          - будує дерево операцій
-                                                Project(customer_id)
-                                                  Filter(amount > 100)
-                                                    Relation(orders)
-                                        
+            🟡 SQL/DataFrame API    ~>   🟡 Unresolved Logical Plan            ~>            🟡 Physical Plan                                ~>      🟡 Executed Physical Plan           ~>   Result
+                                             будується дерево операцій:                         • вибирає конкретні алгоритми виконання                 • Spark генерує реальні задачі          • df.explain("extended")
+                                                 Project(customer_id)                           • логічно це просто JOIN але фізично:                       * Stages
+                                                    Filter(amount > 100)                            Broadcast Hash Join                                     * Tasks
+                                                        Relation(orders)                            Sort Merge Join                                         * Shuffle
+                                                                                                    Shuffle Hash Join                                       * Exchange
+                                         🟡 Analyzed Logical Plan                               • один логічний план може мати кілька                   • запускає їх на executor’ах
+                                            перевіряє:                                            можливих фізичних планів, Spark оцінює
+                                                • існування таблиць/колонок                       їхню вартість і вибирає найкращий
+                                                • типи даних
+                                                • функції
+                                                • aliases
 
+                                        🟡 Optimized  Logical Plan
+                                            використовуються правила оптимізації:
+                                              • Predicate Pushdown:  фільтр виконується ще під час читання даних
+                                              • Column Pruning:      якщо потрібен лише customer_id інші колонки читатися не будуть
+                                              • Constant Folding:    where amount > (50 + 50)   ~>   where amount > 100
+                                              • Join Reordering:     для декількох join порядок join може змінитися
 
-
-                               ~> Analyzed   Logical Plan
-                               ~> Optimized  Logical Plan
-
-             
+            План                             Призначення
+            ------------------------------------------------------------------------------
+            Unresolved Logical Plan          Представити запит як дерево операцій
+            Analyzed Logical Plan            Перевірити таблиці, колонки, типи
+            Optimized Logical Plan           Застосувати оптимізації Catalyst
+            Physical Plan                    Вибрати конкретні алгоритми виконання
+            Adaptive Physical Plan           Перебудувати план на основі реальних даних
+            Executed Physical Plan           Запустити stages/tasks на кластері
 
 
 
