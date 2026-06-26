@@ -179,8 +179,8 @@ You ROCK!
 
             • після shuffle всі записи з ключем 1 потраплять в один partition, з ключем 2 — в інший
                             Partition 0:                     Partition 1:
-                              orders(customer_id=1)            orders(customer_id=2)
-                              customers(id=1)                  customers(id=2)
+                              orders.customer_id=1            orders.customer_id=2
+                              customers.id=1                  customers.id=2
 
             • дані сортуються (можна пройти обидва набори лише один раз)
                             orders:     1 2 3 4 5
@@ -215,6 +215,48 @@ You ROCK!
                     customer_id=1                          HashMap.get(1)
                     customer_id=3                          HashMap.get(3)
 
+    • Stage
+        • група задач (tasks)
+        • виконуватися паралельно без необхідності shuffle
+        • Spark будує виконання
+            • cтворює граф усіх операцій DAG
+            • аналізує, де потрібен shuffle
+            • розбиває DAG на Stages
+            • в Stages створюються Tasks
+            • схематично
+                Job (DAG)
+                 ├── Stage 0
+                 │     ├── Task 1
+                 │     ├── Task 2
+                 │     └── Task 3
+                 │
+                 └── Stage 1
+                       ├── Task 1
+                       ├── Task 2
+                       └── Task 3
+        • новий Stage з’являється лише тоді, коли виникає shuffle
+            • narrow transformations не створює оскільки не має shuffle
+            • wide  transformations створює оскільки є shuffle
+        • приклад
+                      df                               Stage 0
+                        .filter($"age" > 18)               filter
+                        .select("country")                 select          Stage 1
+                        .groupBy("country")                    ↓ Shuffle       groupBy
+                        .count()                                               count                Stage 2
+                        .orderBy(desc("count"))                                    ↓ Shuffle            orderBy
+
+            • stage 0 — читання + filter + select
+            • stage 1 — агрегація
+            • stage 2 — сортування
+
+        • Job    - запускається дією (count(), collect(), save())
+        • Stage  - частина Job між двома shuffle
+        • Task   - виконання Stage для однієї партиції, наприклад 4 partition 4 task на кожну партицію
+        • Розуміння Stage допомагає:
+            • знаходити причини повільного виконання (найчастіше через shuffle)
+            • аналізувати виконання в Spark UI, де можна побачити Jobs → Stages → Tasks
+            • оптимізувати запити, зменшуючи кількість wide transformations і shuffle
+
 
     • виконання
         • під час виконання DataFrame/Dataset або Spark SQL запиту дані проходять через кілька етапів планування
@@ -224,8 +266,8 @@ You ROCK!
         • схема
             🟡 SQL/DataFrame API    ~>   🟡 Unresolved Logical Plan            ~>            🟡 Physical Plan                                ~>      🟡 Executed Physical Plan           ~>   Result
                                              будується дерево операцій:                         • вибирає конкретні алгоритми виконання                 • Spark генерує реальні задачі          • df.explain("extended")
-                                                 Project(customer_id)                           • логічно це просто JOIN але фізично:                       * Stages
-                                                    Filter(amount > 100)                            Broadcast Hash Join                                     * Tasks
+                                                 Project(customer_id)                           • логічно це просто JOIN але фізично:                       * Tasks
+                                                    Filter(amount > 100)                            Broadcast Hash Join                                     * Stages
                                                         Relation(orders)                            Sort Merge Join                                         * Shuffle
                                                                                                     Shuffle Hash Join                                       * Exchange
                                          🟡 Analyzed Logical Plan                               • один логічний план може мати кілька                   • запускає їх на executor’ах
