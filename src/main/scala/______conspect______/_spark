@@ -144,6 +144,7 @@ You ROCK!
                 • баланс навантаження між executor’ами
                 • загальна продуктивність Spark-застосунку
 
+
     🪙 repartition
                 • змінює кількість партицій (по кількості / по колонках)
                 • df.rdd.repartition(20)
@@ -168,6 +169,7 @@ You ROCK!
             • зазвичай без повного shuffle
             • працює швидше
             • df.coalesce(2)                            було: 8 partitions      стало: 2 partitions
+
 
     🪙 shuffle
             • перерозподіл даних між нодами по ключу таким чином
@@ -211,7 +213,6 @@ You ROCK!
               
     🪙 transformation - описує як отримати новий DataFrame
     🪙 actions (show/count/collect/write) - стартує spark джобу
-
     🪙 narrow transformation
         • коли в нас є DataFrame і ми робимо select якихось окремих колонок і в результаті в нас є новий DataFrame
           тільки з тими колонками котрі були вказані в select
@@ -294,6 +295,7 @@ You ROCK!
                     customer_id=2                          HashMap.get(2)
                     customer_id=1                          HashMap.get(1)
                     customer_id=3                          HashMap.get(3)
+
 
     🪙 Stage
         • група задач (tasks)
@@ -394,5 +396,4 @@ You ROCK!
                         "IMDB_" -> 0,
                         "ORM_"  -> 2
                         ))   - замінить null в колонках IMDB_ на 0, ORM_ на 2
-
 
