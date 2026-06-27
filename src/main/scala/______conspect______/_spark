@@ -49,7 +49,7 @@ You ROCK!
 ✅✅✅   Spark   ✅✅✅
     • Spark знає типи не під час компілювання
 
-    • RDD, Dataset, DataFrame
+    🪙 RDD, Dataset, DataFrame
         • основні абстракції для роботи з даними
         • відрізняються рівнем абстракції, продуктивністю та типобезпекою
 
@@ -129,7 +129,7 @@ You ROCK!
                                                   ETL або аналітичні пайплайни
 
 
-    • partitioning:
+    🪙 partitioning:
             • ділить дані partitions для паралельної обробки на різних ядрах або вузлах кластера
             • 100 GB
                 ├── partition 1                 Executor 1  ~>  Partition 1
@@ -146,7 +146,14 @@ You ROCK!
                 • баланс навантаження між executor’ами
                 • загальна продуктивність Spark-застосунку
 
-    • repartitionBy  (або Hive-style partitioning)
+    🪙 repartition
+                • змінює кількість партицій (по кількості / по колонках)
+                • df.rdd.repartition(20)
+                • df.repartition("country")                 Partition 1           Partition 2
+                                                                     UA                    US
+                                                                     UA                    US
+
+    🪙 repartitionBy  (або Hive-style partitioning)
             • df.write.partitionBy("country").parquet("/data/output")
             • на диску буде:
                 output/
@@ -157,20 +164,14 @@ You ROCK!
             • коли прочитаєш:           spark.read.parquet("/data/output").filter("country = 'UA'")
               Spark прочитає тільки:    "output/country=UA/"
 
-    • repartition
-            • змінює кількість партицій (по кількості / по колонках)
-            • df.rdd.repartition(20)
-            • df.repartition("country")                 Partition 1           Partition 2
-                                                                 UA                    US
-                                                                 UA                    US
 
-    • coalesce
+    🪙 coalesce
             • зменшує кількість партицій
             • зазвичай без повного shuffle
             • працює швидше
             • df.coalesce(2)                            було: 8 partitions      стало: 2 partitions
 
-    • shuffle
+    🪙 shuffle
             • перерозподіл даних між нодами по ключу таким чином
               щоб усі записи з одним і тим самим ключом були в одному partition
             • запис проміжних файлів на диск
@@ -210,10 +211,10 @@ You ROCK!
             • викликається в: repartition, join, distinct, dropDuplicates, sort, groupBy, orderBy, cube, rollup, window
             • Shuffle Read або Shuffle Write - саме перерозподіл даних є головною вартістю виконання
               
-    • transformation - описує як отримати новий DataFrame
-    • actions (show/count/collect/write) - стартує spark джобу
+    🪙 transformation - описує як отримати новий DataFrame
+    🪙 actions (show/count/collect/write) - стартує spark джобу
 
-    • narrow transformation
+    🪙 narrow transformation
         • коли в нас є DataFrame і ми робимо select якихось окремих колонок і в результаті в нас є новий DataFrame
           тільки з тими колонками котрі були вказані в select
         • select, map, flatMap, filter, withColumn, union, mapPartitions
@@ -222,7 +223,7 @@ You ROCK!
                         partition 2     ~>      partition 2
                         partition 3     ~>      partition 3
 
-    • wide transformations
+    🪙 wide transformations
         • коли в нас є декілька DataFrame і ми їх обєднюємо і отримуємо один
         • join, groupBy, groupByKey, sortByKey, orderBy, reduceByKey, aggregateByKey, distinct, repartition
         • один вихідний partition може залежати від багатьох вхідних partitions, для цього Spark виконує shuffle — переміщення даних між executors
@@ -230,7 +231,7 @@ You ROCK!
                                        | ---> Shuffle ---> New Partitions
                         partition 2 ---|
 
-    • Broadcast Hash Join
+    🪙 Broadcast Hash Join
         • найголовніша перевага - немає великого shuffle
         • Spark копіює (broadcast) маленьку таблицю на всі executors                   Executor 1                                  Executor 2
         • велику таблицю залишає розподіленою                                           ├─ Orders Partition 1                       ├─ Orders Partition 2
@@ -245,7 +246,7 @@ You ROCK!
         • df.explain(true)   ~>   BroadcastHashJoin
 
 
-    • Sort Merge Join
+    🪙 Sort Merge Join
         • використовує для великих таблиць, коли їх не можна ефективно broadcast-ити зазвичай по дефолту
         • дані обох таблиць перерозподіляються (shuffle) за ключем JOIN
         • усередині кожного partition дані сортуються за ключем
@@ -277,7 +278,7 @@ You ROCK!
         • недоліки: дорогий shuffle означає передачу великих обсягів даних мережею
 
 
-    • Shuffle Hash Join
+    🪙 Shuffle Hash Join
         • робить shuffle обох таблиць за ключем     JOIN
         • у кожному partition вибирає меншу сторону JOIN
         • будує для неї HashMap
@@ -296,7 +297,7 @@ You ROCK!
                     customer_id=1                          HashMap.get(1)
                     customer_id=3                          HashMap.get(3)
 
-    • Stage
+    🪙 Stage
         • група задач (tasks)
         • виконуватися паралельно без необхідності shuffle
         • Spark будує виконання
@@ -339,7 +340,7 @@ You ROCK!
             • оптимізувати запити, зменшуючи кількість wide transformations і shuffle
 
 
-    • виконання
+    🪙 виконання
         • під час виконання DataFrame/Dataset або Spark SQL запиту дані проходять через кілька етапів планування
         • основна ідея
             • Spark спочатку розуміє що потрібно зробити
@@ -376,7 +377,8 @@ You ROCK!
              Executed Physical Plan           Запустити stages/tasks на кластері
             ------------------------------------------------------------------------------
 
-    • spark read:
+
+    🪙 spark read:
         spark.option("mode")
             FailFast      - якість даних критична, Exception коли є некоректні рядки
             Permissive    - не падає при помилках, кладуться в спеціальну колонку (_corrupt_record)
@@ -384,32 +386,13 @@ You ROCK!
             DropMalformed - ігнорує (викидає) некоректні рядки, вони просто не потрапляють у DataFrame
                           - підходить, коли погані дані не потрібні взагалі
 
-    • union and unionAll  - unionAll це просто аліас
-    • shuffling           - is more expensive operation
-    • left-semi-join      - беруться з лівох ті, котрі intersect
-    • left-anti-join      - diff -> беруться з лівої ті, котрих не має в правій
-    • DataFrame.na:
+    🪙 union and unionAll  - unionAll це просто аліас
+    🪙 shuffling           - is more expensive operation
+    🪙 left-semi-join      - беруться з лівох ті, котрі intersect
+    🪙 left-anti-join      - diff -> беруться з лівої ті, котрих не має в правій
+    🪙 DataFrame.na:
                     .drop          - видалить ті рядки котрі мають зачення null
                     .fill(Map(
                         "IMDB_" -> 0,
                         "ORM_"  -> 2
                         ))   - замінить null в колонках IMDB_ на 0, ORM_ на 2
-
-    • DataFrame            - distributed collections of JVM objects
-    • Datasets(case class) - distributed collections of JVM objects (save types)
-    • DataFrame ~> case class
-        • definition:
-                case class Car(Name: String,                        // field name = column name
-                               Miles_per_Gallon: Option[Double],
-                               Year: String,
-                               Origin: String)
-        • uses:
-                import spark.implicits._
-                val data = readJson("src/data/example.json").as[Car]
-        • переваги:
-            • підтримка type information
-            • чистий та лаконічний код
-            • фільтрація та трасформація тяжка для використання в DataFrame/SQL
-        • не слід використовувати:
-            • performance is critical
-
