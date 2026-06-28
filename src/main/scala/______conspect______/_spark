@@ -54,16 +54,18 @@ You ROCK!
 
     🪙 Архітектура
 
-                                               Driver                     ......   запускає Spark-додаток, будує DAG, планує виконання
-                                                  |
-                                           Cluster Manager                ......   розподіляє ресурси між вузлами:  Spark Standalone, YARN або Kubernetes
-                                          /        |       \
-                                    Worker 1    Worker 2   Worker 3       ......   машина, яка надає CPU, RAM, HDD
-                                       |           |         |
-                                   Executors   Executors  Executors       ......   процес, запущений на Worker, який безпосередньо виконує задачі
-                                       |           |         |
-                                     Tasks       Tasks     Tasks          ......   найменша одиниця роботи, яку виконує Executor
+                                       Driver                     ......   запускає Spark-додаток, будує DAG, планує виконання
+                                          |
+                                   Cluster Manager                ......   розподіляє ресурси між вузлами:  Spark Standalone, YARN, Kubernetes
+                                  /        |       \
+                            Worker 1    Worker 2   Worker 3       ......   машина, яка надає CPU, RAM, HDD
+                               |           |         |
+                           Executors   Executors  Executors       ......   процес, запущений на Worker, який безпосередньо виконує задачі
+                               |           |         |
+                             Tasks       Tasks     Tasks          ......   найменша одиниця роботи, яку виконує Executor
 
+        • загальна картина
+            📈 src/main/resources/spark/conspect/spark_flow.png
 
         • як це працює:
             • запускаємо:   df.groupBy("country").count().show()
@@ -77,13 +79,13 @@ You ROCK!
             • Результати повертаються Driver
 
 
-    🪙 Driver
+    🪙 Driver process JVM
         • головний process Spark-додатка, який керує всім виконанням програми
         • координує роботу всіх інших компонентів кластера
             • відстежує/повторно запускає Tasks
             • збирає результати виконання та повертає користувачеві
         • створює SparkSession
-        • будує DAG
+        • будує DAG (DAG Scheduler)
         • оптимізує план виконання
         • розбиває роботу на Stages і Tasks
         • розподіляє Tasks між Executors
@@ -102,23 +104,83 @@ You ROCK!
                     контролює виконання
 
         • аналогія
-            • Driver      прораб, який складає план, розподіляє завдання та контролює виконання
-            • Executors   бригади будівельників
-            • Tasks       окремі роботи (наприклад, залити фундамент або звести стіну)
-            • Workers     будівельні майданчики
+            • Driver        прораб, який складає план, розподіляє завдання та контролює виконання
+            • Executors     бригади будівельників
+            • Tasks         окремі роботи (наприклад, залити фундамент/звести стіну)
+            • Workers       будівельні майданчики
+
+        • журнали котрі допомагають аналізувати що робиться
+
+            -----------------------------------------------------------------------------------------------------------------------
+              • SparkContext — запуск і завершення застосунку
+              • CoarseGrainedSchedulerBackend або відповідний backend (Standalone, YARN, Kubernetes) — взаємодія з Cluster Manager
+              • HeartbeatReceiver — отримання heartbeat від Executor-ів
+              • DAGScheduler — створення та планування Job і Stage
+              • TaskScheduler — розподіл Task між Executor-ами
+              • BlockManagerMaster — керування кешованими блоками даних
+              • MapOutputTracker — інформація про Shuffle
+
+
+        • логи
+
+            --------------------------------------------------------------------------------------------------------------------------------
+              Scheduler logs            Driver повідомляє про створення Job         INFO DAGScheduler:          Got job 3
+                                        Створення Stage                             INFO DAGScheduler:          Submitting Stage 5
+                                        Запуск TaskSet                              INFO TaskSchedulerImpl:     Adding task set 5.0
+
+              Executor Logs             Під час запуску Executor-ів                 INFO YarnSchedulerBackend:  Registered executor 4
+                                                                                    WARN ExecutorLostFailure
+
+              RPC                       Driver постійно спілкується з Executors     Received heartbeat from executor 5
+
+              Task Execution                                                        Finished task 8.0 in stage 2.0
+                                                                                    Starting task 15
+
+              SQL Logs                                                              == Physical Plan ==
+                                                                                    HashAggregate
+                                                                                    Exchange
+                                                                                    Project
+                                                                                    Filter
+
+              Broadcast                                                             Created broadcast 15
+              Shuffle                                                               ShuffleMapStage
+
+              GC                                                                    Full GC
+              User Logs                logger.info("Start processing")              INFO Start processing
+
+
+
+    🪙 Cluster Manager
+        • це зовнішня система керування ресурсами, яка працює незалежно від Driver
+        • реалізований як окремий процес або набір процесів
+        • диспетчер ресурсів кластера
+        • менеджить Executors (запускає\реєструє\де-реєструє)
+        • приклад
+            • Driver запускає Spark-застосунок
+            • Driver звертається до Cluster Manager із запитом, наприклад:
+                "Мені потрібно 3 Executor-и, кожен із 4 CPU та 8 GB пам’яті"
+            • Cluster Manager перевіряє, які вузли мають вільні ресурси
+            • На цих вузлах запускає Executors
+            • Відправляє Executors до Driver
+            • Driver надсилає до Executors Tasks для виконання
+            • Driver отримує результати роботи Tasks від Executors
+        • типи
+            • Apache YARN      - популярний у кластерах Hadoop
+            • Kubernetes       - запускає Driver та Executor-и у контейнерах (Pods)
+            • Spark Standalone - вбудований у Spark, простий для налаштування
 
 
 
     🪙 DAG
-        • план виконання вашої програми
+        • опис того що потрібно зробити
         • описує залежності між операціями
         • DAG дозволяє Spark:
             • уникати зайвих читань даних
             • оптимізувати виконання (наприклад, об’єднувати операції)
             • виконувати незалежні частини графа паралельно
             • відновлювати обчислення після збоїв, використовуючи інформацію про залежності
-        • залежності мають напрямок
-                                    Read → Filter → GroupBy → Sum
+        • залежності мають напрямок:
+                                         Read → Filter → GroupBy → Sum
         • циклів немає
             • кожна операція виконується один раз у визначеному порядку
             • такого бути не може          A → B → C
@@ -137,9 +199,9 @@ You ROCK!
 
 
     🪙 Executor ~ Partition ~ Tasks
-       • Executor    JVM-процес який виконує задачі Spark на Worker
-       • Task        одиниця роботи яка обробляє одну partition
-       • Partition   логічний шматок даних
+                            • Executor    JVM-процес який виконує задачі Spark на Worker
+                            • Task        одиниця роботи яка обробляє одну partition
+                            • Partition   логічний шматок даних
 
        • Partition
            • найменша одиниця даних яку Spark обробляє незалежно
@@ -159,8 +221,7 @@ You ROCK!
                          +------------------------------------------------------+
 
 
-
-       • Task
+       • Task(process)
            • одна копія вашого коду, яка виконується над однією partition
            • 1 Task = 1 Partition
 
@@ -174,11 +235,12 @@ You ROCK!
                                            Task 10 (df.filter(_.age > 18))     ~>      Partition 10
 
 
-       • Executor містить:
+       • Executor(process) містить:
            • певну кількість CPU cores
            • RAM/heap memory
            • кеш для даних (cache/persist)
            • виконує tasks
+           • зберігає дані в пам’яті
            • якщо executor має 4 core то він може виконувати паралельно 4 tasks
 
 
@@ -192,6 +254,87 @@ You ROCK!
                                Хвиля 2:   Task31 ... Task60
                                Хвиля 3:   Task61 ... Task90
                                Хвиля 4:   Task91 ... Task120
+
+
+    🪙 Catalyst Optimizer, компонент class
+        • вирішує як краще виконати запит
+        • оптимізує DataFrame/Dataset/Spark SQL
+        • працює з логічними та фізичними планами
+        • використовує
+            • Predicate Pushdown
+            • Column Pruning
+            • Constant Folding
+            • Join Reordering
+            • Expression Simplification
+            • Cost Based Optimization (CBO)
+            • Whole Stage Code Generation
+
+
+    🪙 DAGScheduler, компонент class
+        • після того як Catalyst вже створив фізичний план, роботу бере на себе DAGScheduler
+        • будує DAG виконання
+        • знаходить Shuffle
+        • розбиває Job на Stage
+        • передає Stage у TaskScheduler
+        • приклад
+                                                    DAGScheduler бачить                    результат
+                        RDD1
+                          ↓
+                         map                            map                                 Stage 1
+                          ↓                             ↓                                      ↓
+                        filter                          filter                              Shuffle
+                          ↓                         --- Shuffle ---                            ↓
+                        reduceByKey                     reduceByKey                         Stage 2
+                          ↓                             ↓
+                        save                            save
+
+
+    🪙 TaskScheduler, компонент class
+        • отримує Stage від DAGScheduler
+        • розбиває його на окремі Task
+
+
+    🪙 Scheduler backend, компонент class
+        • serialize Task
+        • відправляє Task на Executors
+        • комунікує з Executors
+            • heartbeat
+            • task Running/Finished/Failed
+            • приймає ці повідомлення та передає їх TaskScheduler
+        • звертається до Cluster Manager із запитом
+            • need 8 Executors
+            • отримує їх
+        • запускає невиконані Task повторно
+        • збирає ці результати та передає їх DAGScheduler
+        • є різні реалізації залежно від середовища
+            • LocalSchedulerBackend                 local[*]
+            • StandaloneSchedulerBackend
+            • YarnSchedulerBackend
+            • KubernetesClusterSchedulerBackend
+
+
+
+                                   ------------     Spark Application
+                                  |                         │
+                                  |                         ▼
+                                  |                  Catalyst Optimizer
+                                  |                         │
+                                  |                         ▼
+                                  |                    DAGScheduler
+                Driver process    |                         │
+                                  |                         ▼
+                                  |                   TaskScheduler
+                                  |                         │
+                                  |                         ▼
+                                  |                  SchedulerBackend
+                                   ------------             │
+                                                            ▼
+                                                      Cluster Manager
+                                                            │
+                                                            ▼
+                                                        Executors
+
+
 
 
     🪙 RDD, Dataset, DataFrame
