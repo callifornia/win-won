@@ -54,15 +54,15 @@ You ROCK!
 
     🪙 Архітектура
 
-                                               Driver                              запускає Spark-додаток, будує DAG, планує виконання
+                                               Driver                     ......   запускає Spark-додаток, будує DAG, планує виконання
                                                   |
-                                           Cluster Manager                         розподіляє ресурси між вузлами:  Spark Standalone, YARN або Kubernetes
+                                           Cluster Manager                ......   розподіляє ресурси між вузлами:  Spark Standalone, YARN або Kubernetes
                                           /        |       \
-                                    Worker 1    Worker 2   Worker 3                машина, яка надає CPU, RAM, HDD
+                                    Worker 1    Worker 2   Worker 3       ......   машина, яка надає CPU, RAM, HDD
                                        |           |         |
-                                   Executors   Executors  Executors                процес, запущений на Worker, який безпосередньо виконує задачі
+                                   Executors   Executors  Executors       ......   процес, запущений на Worker, який безпосередньо виконує задачі
                                        |           |         |
-                                     Tasks       Tasks     Tasks                   найменша одиниця роботи, яку виконує Executor
+                                     Tasks       Tasks     Tasks          ......   найменша одиниця роботи, яку виконує Executor
 
 
         • як це працює:
