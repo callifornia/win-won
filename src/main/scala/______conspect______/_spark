@@ -1,8 +1,8 @@
-
 - REST APIs (pagination, rate limiting, token-based authentication)
 - Strong data modelling skills with structured, relational data
 - Solid SQL knowledge Experience operating data pipelines in production environments
 - Який досвід ви шукаєте ?
+
 
 
 Spark Structured API with DataFrames
@@ -17,6 +17,7 @@ Spark Structured API with DataFrames
     + DataFrame Joins
     + Joins: Exercises
 
+
 Spark Types and Datasets
     + Working with Spark Types
     + Advanced Spark Types
@@ -24,10 +25,12 @@ Spark Types and Datasets
     + Type-Safe Processing: Datasets
     Datasets, Part 2 + Exercises
 
+
 Spark SQL
     The Spark SQL Shell
     Programmatic Spark SQL
     Spark SQL: Exercises
+
 
 Spark Low-Level
     RDDs
@@ -35,6 +38,7 @@ Spark Low-Level
     Practical Spark
     How Spark Runs on a Cluster
     Deploying Spark Applications on a Cluster
+
 
 A Real Big Data Project
     A Big Data Problem
@@ -50,6 +54,7 @@ You ROCK!
     🪙 RDD, Dataset, DataFrame
         • основні абстракції для роботи з даними
         • відрізняються рівнем абстракції, продуктивністю та типобезпекою
+
 
         -----------------------------------------------------------------------------------------------------------
                                             RDD                    Dataset                DataFrame
@@ -91,17 +96,19 @@ You ROCK!
             • поєднує переваги RDD та DataFrame
             • опис
                             case class Person(                val ds = Seq(
-                                id: Int,                                   Person(1,"Ivan",25),
+                                id:   Int,                                 Person(1,"Ivan",25),
                                 name: String,                              Person(2,"Anna",30)
-                                age: Int)                              ).toDS()
+                                age:  Int)                              ).toDS()
 
                                             ds.filter(_.age > 25)
 
 
             • Runtime/Compilation
                                 DataFrame               <>      Dataset
+
                                   df.select("agge")     <>        ds.map(_.agge)
                                   впаде в Runtime       <>        не скомпілиться
+
 
             • побудова плана та оптимізаці
                     --------------------------------------------------------------------------------------------
@@ -121,19 +128,77 @@ You ROCK!
          --------------------------------------------------------------------------------------------------------------
           RDD                                     DataFrame                                    DataSet
          --------------------------------------------------------------------------------------------------------------
-          потрібні низькорівневі операції         працюєте з таблицями                         хочете типобезпеку
-          використовується значно рідше           використовуєте SQL                           використовуєте case class
-                                                  потрібна максимальна продуктивність
-                                                  ETL або аналітичні пайплайни
+          • потрібні низькорівневі операції         • працюєте з таблицями                         • хочете типобезпеку
+          • використовується значно рідше           • використовуєте SQL                           • використовуєте case class
+                                                    • потрібна максимальна продуктивність
+                                                    • ETL або аналітичні пайплайни
 
+
+    🪙 Executor ~ Partition ~ Tasks
+        • Executor    JVM-процес який виконує задачі Spark на Worker
+        • Task        одиниця роботи яка обробляє одну partition
+        • Partition   логічний шматок даних
+
+        • Partition
+            • найменша одиниця даних яку Spark обробляє незалежно
+            • є файл розміром 1 ГБ. Spark може розбити його на 10 partition по 100 МБ по ключу
+            • можуть оброблятися паралельно
+            • чим більше partition тим більше потенційного паралелізму
+            • приклад
+                users.csv містить в собі 1 000 000 рядків
+                spark.read.csv("users.csv")
+                Spark розбив файл на 4 partitions
+
+                          +------------------------------------------------------+
+                          | Partition 1 | 1 - 250 000          | 250 000 rows    |
+                          | Partition 2 | 250 001 - 500 000    | 250 000 rows    |
+                          | Partition 3 | 500 001 - 750 000    | 250 000 rows    |
+                          | Partition 4 | 750 001 - 1 050 000  | 250 000 rows    |
+                          +------------------------------------------------------+
+
+
+
+        • Task
+            • одна копія вашого коду, яка виконується над однією partition
+            • 1 Task = 1 Partition
+
+            ----------------------------------------------------------------------------------------
+              приклад                       як виглядає
+            ----------------------------------------------------------------------------------------
+              df.filter(df.age > 18)        Task 1 (df.filter(_.age > 18))      ~>      Partition 1
+                                            Task 2 (df.filter(_.age > 18))      ~>      Partition 2
+                                            Task 3 (df.filter(_.age > 18))      ~>      Partition 3
+                                            ...
+                                            Task 10 (df.filter(_.age > 18))     ~>      Partition 10
+
+
+        • Executor містить:
+            • певну кількість CPU cores
+            • RAM/heap memory
+            • кеш для даних (cache/persist)
+            • виконує tasks
+            • якщо executor має 4 core то він може виконувати паралельно 4 tasks
+
+
+        • приклад:
+            • Dataset має 100 partitions           одночасно можуть виконуватися 20 tasks (5 × 4)
+            • кластер має 5 executors              кожен task обробляє одну partition
+            • кожен executor має 4 cores
+
+        • Spark працює хвилями:
+                                Хвиля 1:   Task 1 ... Task 30
+                                Хвиля 2:   Task31 ... Task60
+                                Хвиля 3:   Task61 ... Task90
+                                Хвиля 4:   Task91 ... Task120
+        
 
     🪙 partitioning:
             • ділить дані partitions для паралельної обробки на різних ядрах або вузлах кластера
             • 100 GB
-                ├── partition 1                 Executor 1  ~>  Partition 1
-                ├── partition 2                 Executor 2  ~>  Partition 2
-                ├── partition 3                 Executor 3  ~>  Partition 3
-                ├── partition 4                 Executor 4  ~>  Partition 4
+                ├── partition 1
+                ├── partition 2
+                ├── partition 3
+                ├── partition 4
                 ...
             • df.rdd.getNumPartitions()            output: 8  (Spark створив 8 частин даних)
             • орієнтуються на кількість CPU core
@@ -251,12 +316,12 @@ You ROCK!
         • усередині кожного partition дані сортуються за ключем
         • Spark проходить по відсортованих даних і виконує merge-подібне об’єднання (join)
         • приклад
-            таблиці:                    дані:                                     запит:
-              orders      500 GB           orders          |  customers             SELECT *
-              customers   300 GB           ----------------|--------------          FROM orders o
-                                           customer_id=1   |     id=1               JOIN customers c
-                                           customer_id=2   |     id=2               ON o.customer_id = c.id
-                                           customer_id=3   |     id=3               
+            • таблиці:                    дані:                                     запит:
+                 orders      500 GB           orders          |  customers             SELECT *
+                 customers   300 GB           ----------------|--------------          FROM orders o
+                                              customer_id=1   |     id=1               JOIN customers c
+                                              customer_id=2   |     id=2               ON o.customer_id = c.id
+                                              customer_id=3   |     id=3
 
             • після shuffle всі записи з ключем 1 потраплять в один partition, з ключем 2 — в інший
                             Partition 0:                     Partition 1:
@@ -283,18 +348,18 @@ You ROCK!
         • будує для неї HashMap
         • проходить по більшій стороні та шукає збіги в HashMap
         • приклад
-            таблиця:
-                orders      500 GB
-                customers   50 GB   занадто велика для Broadcast, але в кожному partition після shuffle може бути достатньо маленькою для побудови HashMap
+            • таблиця:
+                 orders      500 GB
+                 customers   50 GB   занадто велика для Broadcast, але в кожному partition після shuffle може бути достатньо маленькою для побудови HashMap
 
-            крок 1: shuffle перерозподіляє дані (після цього всі рядки з однаковим ключем опиняються в одному partition)
-            крок 2: вибирається менша таблиця та будується HashMap
-            крок 3: вибирається більша таблиця та проходиться по ній і вибирається із меншої значення
+            • крок 1: shuffle перерозподіляє дані (після цього всі рядки з однаковим ключем опиняються в одному partition)
+            • крок 2: вибирається менша таблиця та будується HashMap
+            • крок 3: вибирається більша таблиця та проходиться по ній і вибирається із меншої значення
 
-                orders - велика тбл.             із маленької вибирається
-                    customer_id=2                          HashMap.get(2)
-                    customer_id=1                          HashMap.get(1)
-                    customer_id=3                          HashMap.get(3)
+                             orders - велика тбл.             із маленької вибирається
+                                 customer_id=2                          HashMap.get(2)
+                                 customer_id=1                          HashMap.get(1)
+                                 customer_id=3                          HashMap.get(3)
 
 
     🪙 Stage
