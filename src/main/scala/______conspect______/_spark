@@ -64,10 +64,22 @@ You ROCK!
                                |           |         |
                              Tasks       Tasks     Tasks          ......   найменша одиниця роботи, яку виконує Executor
 
-        • загальна картина
-            📈 src/main/resources/spark/conspect/spark_flow.png
+
+        • Driver
+            • SparkContext
+                • запитує ресурси в Cluster Manager
+                • Cluster Manager на воркер нодах ранить Executors
+                • повертає Driver Executors
+            • DAGScheduler
+                •
+
+
+
+
+
 
         • як це працює:
+            📈 src/main/resources/spark/conspect/spark_flow.png
             • запускаємо:   df.groupBy("country").count().show()
             • Driver
                 • будує DAG
@@ -85,7 +97,7 @@ You ROCK!
             • відстежує/повторно запускає Tasks
             • збирає результати виконання та повертає користувачеві
         • створює SparkSession
-        • будує DAG (DAG Scheduler)
+        • будує DAG
         • оптимізує план виконання
         • розбиває роботу на Stages і Tasks
         • розподіляє Tasks між Executors
