@@ -51,10 +51,11 @@ You ROCK!
 
 
 ✅✅✅   Spark   ✅✅✅
-
     🪙 Архітектура
 
+
                                        Driver                     ......   запускає Spark-додаток, будує DAG, планує виконання
+                                          |                                SparkSession, DAG Scheduler, Task Scheduler
                                           |
                                    Cluster Manager                ......   розподіляє ресурси між вузлами:  Spark Standalone, YARN, Kubernetes
                                   /        |       \
@@ -63,19 +64,6 @@ You ROCK!
                            Executors   Executors  Executors       ......   процес, запущений на Worker, який безпосередньо виконує задачі
                                |           |         |
                              Tasks       Tasks     Tasks          ......   найменша одиниця роботи, яку виконує Executor
-
-
-        • Driver
-            • SparkContext
-                • запитує ресурси в Cluster Manager
-                • Cluster Manager на воркер нодах ранить Executors
-                • повертає Driver Executors
-            • DAGScheduler
-                •
-
-
-
-
 
 
         • як це працює:
@@ -91,6 +79,7 @@ You ROCK!
             • Результати повертаються Driver
 
 
+
     🪙 Driver process JVM
         • головний process Spark-додатка, який керує всім виконанням програми
         • координує роботу всіх інших компонентів кластера
@@ -103,18 +92,18 @@ You ROCK!
         • розподіляє Tasks між Executors
         • контролює виконання
         • збирає та повертає результати користувачу
-        • приклад
-                    створюється Driver-процес:       SparkSession.builder.appName("MyApp").getOrCreate()
-                    створює DAG:                     spark.read.csv("data.csv").filter("age > 18").count()
-                    аналізує всі трансформації:      spark.read.csv("data.csv").filter("age > 18").count()
-                    оптимізує план виконання:
-                                                     об’єднує сумісні операції
-                                                     усуває зайві обчислення
-                                                     визначає порядок виконання
-                    розбиває DAG на Stages і Tasks
-                    розподіляє/надсилає Tasks між Executors
-                    контролює виконання
-
+        • загальний план виконання программи
+                    • створюється Driver-процес:       SparkSession.builder.appName("MyApp").getOrCreate()
+                    • Catalyst                         будує логічний і фізичний плани !!!!!! ПРОДОВЖЕННЯ ТУТ !!!!!
+                                    оптимізує план виконання:
+                                                         • аналізує всі трансформації
+                                                         • об’єднує сумісні операції
+                                                         • усуває зайві обчислення
+                                                         • визначає порядок виконання
+                    • DAGScheduler                      формує DAG виконання для запуску в кластері
+                                                        розбиває DAG на Stages і Tasks
+                    • TaskScheduler                     розподіляє/надсилає Tasks між Executors
+                    • контролює виконання
         • аналогія
             • Driver        прораб, який складає план, розподіляє завдання та контролює виконання
             • Executors     бригади будівельників
@@ -159,6 +148,7 @@ You ROCK!
 
               GC                                                                    Full GC
               User Logs                logger.info("Start processing")              INFO Start processing
+
 
 
 
@@ -646,7 +636,7 @@ You ROCK!
             • оптимізувати запити, зменшуючи кількість wide transformations і shuffle
 
 
-    🪙 виконання
+    🪙 виконання (підняти на верх)
         • під час виконання DataFrame/Dataset або Spark SQL запиту дані проходять через кілька етапів планування
         • основна ідея
             • Spark спочатку розуміє що потрібно зробити
