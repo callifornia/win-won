@@ -81,22 +81,40 @@ You ROCK!
 
 
         • загальний план виконання программи
-                            • створюється Driver-процес:       SparkSession.builder.appName("MyApp").getOrCreate()
-                            • Catalyst                         будує логічний і фізичний плани !!!!!! ПРОДОВЖЕННЯ ТУТ !!!!!
-                                                               оптимізує план виконання:
-                                                                 • аналізує всі трансформації
-                                                                 • об’єднує сумісні операції
-                                                                 • усуває зайві обчислення
-                                                                 • визначає порядок виконання
-                            • DAGScheduler                      формує DAG виконання для запуску в кластері
-                                                                розбиває DAG на Stages і Tasks
-                            • TaskScheduler                     розподіляє/надсилає Tasks між Executors
-                            • контролює виконання
-                • аналогія
-                    • Driver        прораб, який складає план, розподіляє завдання та контролює виконання
-                    • Executors     бригади будівельників
-                    • Tasks         окремі роботи (наприклад, залити фундамент/звести стіну)
-                    • Workers       будівельні майданчики
+            Spark Application  ▷  SparkSession  ▷  SparkContext
+                 ▼
+                читається код трансформації (map, filter, join, groupBy ...)
+                виклик action               (count, collect, save, show ...)
+                 ▼
+            Catalyst (Spark SQL Engine)
+              unresolved   logical plan
+              resolved     logical plan
+                 ▼
+            Catalyst Optimizer
+              optimized logical plan
+              physical plan
+                 ▼
+            DAGScheduler
+              будує DAG виконання
+              ділить Job на Stages
+            TaskScheduler
+              створює Tasks
+                 ▼
+            SchedulerBackend
+              взаємодіє з Cluster Manager
+              відправляє Task на виконання
+                 ▼
+            Cluster Manager (YARN, Standalone, Kubernetes)
+              Executors
+                 ▼
+              Виконання Tasks
+            Результат повертається Driver
+
+        • аналогія
+            • Driver        прораб, який складає план, розподіляє завдання та контролює виконання
+            • Executors     бригади будівельників
+            • Tasks         окремі роботи (наприклад, залити фундамент/звести стіну)
+            • Workers       будівельні майданчики
 
 
 
@@ -113,15 +131,11 @@ You ROCK!
         • контролює виконання
         • збирає та повертає результати користувачу
 
-
-
-
-
         • журнали котрі допомагають аналізувати що робиться
 
             -----------------------------------------------------------------------------------------------------------------------
               • SparkContext — запуск і завершення застосунку
-              • CoarseGrainedSchedulerBackend або відповідний backend (Standalone, YARN, Kubernetes) — взаємодія з Cluster Manager
+              • SchedulerBackend або відповідний backend (Standalone, YARN, Kubernetes) — взаємодія з Cluster Manager
               • HeartbeatReceiver — отримання heartbeat від Executor-ів
               • DAGScheduler — створення та планування Job і Stage
               • TaskScheduler — розподіл Task між Executor-ами
@@ -174,9 +188,9 @@ You ROCK!
             • Driver надсилає до Executors Tasks для виконання
             • Driver отримує результати роботи Tasks від Executors
         • типи
+            • Spark Standalone - вбудований у Spark, простий для налаштування
             • Apache YARN      - популярний у кластерах Hadoop
             • Kubernetes       - запускає Driver та Executor-и у контейнерах (Pods)
-            • Spark Standalone - вбудований у Spark, простий для налаштування
 
 
 
@@ -189,12 +203,75 @@ You ROCK!
             • виконувати незалежні частини графа паралельно
             • відновлювати обчислення після збоїв, використовуючи інформацію про залежності
         • залежності мають напрямок:
-                                         Read → Filter → GroupBy → Sum
+                                        Read → Filter → GroupBy → Sum
         • циклів немає
             • кожна операція виконується один раз у визначеному порядку
             • такого бути не може          A → B → C
                                            ↑       |
                                            └───────┘
+
+
+
+    🪙 Catalyst Optimizer, компонент class
+        • працює з логічними та фізичними планами
+        • вирішує як краще виконати запит
+        • оптимізує DataFrame, Dataset, Spark SQL
+        • використовує
+            • Predicate Pushdown
+            • Column Pruning
+            • Constant Folding
+            • Join Reordering
+            • Expression Simplification
+            • Cost Based Optimization (CBO)
+            • Whole Stage Code Generation
+
+
+
+    🪙 DAGScheduler, компонент class
+        • після того як Catalyst вже створив фізичний план, роботу бере на себе DAGScheduler
+        • будує DAG виконання
+        • знаходить Shuffle
+        • розбиває Job на Stage
+        • передає Stage у TaskScheduler
+        • приклад
+                                                    DAGScheduler бачить                    результат
+                       --------------------------------------------------------------------------------
+                        RDD1
+                          ↓
+                         map                            map                                 Stage 1
+                          ↓                             ↓                                      ↓
+                        filter                          filter                              Shuffle
+                          ↓                         --- Shuffle ---                            ↓
+                        reduceByKey                     reduceByKey                         Stage 2
+                          ↓                             ↓
+                        save                            save
+
+
+
+    🪙 TaskScheduler, компонент class
+        • отримує Stage від DAGScheduler
+        • розбиває його на окремі Task
+
+
+
+    🪙 SchedulerBackend, компонент class                                            -------   Spark Application
+        • serialize Task                                                           |                  ▼
+        • відправляє Task на Executors                                       D     |          Catalyst Optimizer
+        • комунікує з Executors                                              r     |                  ▼
+            • heartbeat                                                      i     |             DAGScheduler
+            • task Running/Finished/Failed                                   v     |                  ▼
+            • приймає ці повідомлення та передає їх TaskScheduler            e     |             TaskScheduler
+        • звертається до Cluster Manager із запитом                          r     |                  ▼
+            • need 8 Executors                                                     |           SchedulerBackend
+            • отримує їх                                                            --------          ▼
+        • запускає невиконані Task повторно                                                     Cluster Manager
+        • збирає ці результати та передає їх DAGScheduler                                             ▼
+        • є різні реалізації залежно від середовища                                                Executors
+            • LocalSchedulerBackend                 local[*]
+            • StandaloneSchedulerBackend
+            • YarnSchedulerBackend
+            • KubernetesClusterSchedulerBackend
+
 
 
     🪙 Worker
@@ -207,146 +284,150 @@ You ROCK!
             • ці ресурси використовують Executors
 
 
-    🪙 Executor ~ Partition ~ Tasks
-                            • Executor    JVM-процес який виконує задачі Spark на Worker
-                            • Task        одиниця роботи яка обробляє одну partition
-                            • Partition   логічний шматок даних
 
-       • Partition
-           • найменша одиниця даних яку Spark обробляє незалежно
-           • є файл розміром 1 ГБ. Spark може розбити його на 10 partition по 100 МБ по ключу
-           • можуть оброблятися паралельно
-           • чим більше partition тим більше потенційного паралелізму
-           • приклад
-               users.csv містить в собі 1 000 000 рядків
-               spark.read.csv("users.csv")
-               Spark розбив файл на 4 partitions
-
-                         +------------------------------------------------------+
-                         | Partition 1 | 1 - 250 000          | 250 000 rows    |
-                         | Partition 2 | 250 001 - 500 000    | 250 000 rows    |
-                         | Partition 3 | 500 001 - 750 000    | 250 000 rows    |
-                         | Partition 4 | 750 001 - 1 050 000  | 250 000 rows    |
-                         +------------------------------------------------------+
+    🪙 Executor(process) містить
+        • JVM-процес який виконує задачі Spark на Worker
+        • певну кількість CPU cores
+        • RAM/heap memory
+        • кеш для даних (cache/persist)
+        • виконує tasks
+        • зберігає дані в пам’яті
+        • якщо executor має 4 core то він може виконувати паралельно 4 tasks
 
 
-       • Task(process)
-           • одна копія вашого коду, яка виконується над однією partition
-           • 1 Task = 1 Partition
 
-           ----------------------------------------------------------------------------------------
-             приклад                       як виглядає
-           ----------------------------------------------------------------------------------------
-             df.filter(df.age > 18)        Task 1 (df.filter(_.age > 18))      ~>      Partition 1
-                                           Task 2 (df.filter(_.age > 18))      ~>      Partition 2
-                                           Task 3 (df.filter(_.age > 18))      ~>      Partition 3
-                                           ...
-                                           Task 10 (df.filter(_.age > 18))     ~>      Partition 10
+    🪙 Job    - запускається дією (count(), collect(), save())
 
 
-       • Executor(process) містить:
-           • певну кількість CPU cores
-           • RAM/heap memory
-           • кеш для даних (cache/persist)
-           • виконує tasks
-           • зберігає дані в пам’яті
-           • якщо executor має 4 core то він може виконувати паралельно 4 tasks
 
-
-       • приклад:
-           • Dataset має 100 partitions           одночасно можуть виконуватися 20 tasks (5 × 4)
-           • кластер має 5 executors              кожен task обробляє одну partition
-           • кожен executor має 4 cores
-
-       • Spark працює хвилями:
-                               Хвиля 1:   Task 1 ... Task 30
-                               Хвиля 2:   Task31 ... Task60
-                               Хвиля 3:   Task61 ... Task90
-                               Хвиля 4:   Task91 ... Task120
-
-
-    🪙 Catalyst Optimizer, компонент class
-        • вирішує як краще виконати запит
-        • оптимізує DataFrame/Dataset/Spark SQL
-        • працює з логічними та фізичними планами
-        • використовує
-            • Predicate Pushdown
-            • Column Pruning
-            • Constant Folding
-            • Join Reordering
-            • Expression Simplification
-            • Cost Based Optimization (CBO)
-            • Whole Stage Code Generation
-
-
-    🪙 DAGScheduler, компонент class
-        • після того як Catalyst вже створив фізичний план, роботу бере на себе DAGScheduler
-        • будує DAG виконання
-        • знаходить Shuffle
-        • розбиває Job на Stage
-        • передає Stage у TaskScheduler
+    🪙 Stage
+        • частина Job між двома shuffle
+        • містить групу задач (tasks)                                                          Job (DAG)
+        • виконуватися паралельно без необхідності shuffle                              ├── Stage 0
+        • Spark будує виконання                                                         │     ├── Task 1
+            • cтворює граф усіх операцій DAG                                            │     ├── Task 2
+            • аналізує, де потрібен shuffle                                             │     └── Task 3
+            • розбиває DAG на Stages                                                    │
+            • в Stages створюються Tasks                                                └── Stage 1
+            • схематично                                                                      ├── Task 1
+        • новий Stage з’являється лише тоді, коли виникає shuffle                             ├── Task 2
+            • narrow transformations не створює оскільки не має shuffle                       └── Task 3
+            • wide  transformations створює оскільки є shuffle
         • приклад
-                                                    DAGScheduler бачить                    результат
-                        RDD1
-                          ↓
-                         map                            map                                 Stage 1
-                          ↓                             ↓                                      ↓
-                        filter                          filter                              Shuffle
-                          ↓                         --- Shuffle ---                            ↓
-                        reduceByKey                     reduceByKey                         Stage 2
-                          ↓                             ↓
-                        save                            save
+                      df                                            Stage 0
+                        .filter($"age" > 18)                            filter
+                        .select("country")                              select           Stage 1
+                        .groupBy("country")                                 ↓ Shuffle        groupBy
+                        .count()                                                             count            Stage 2
+                        .orderBy(desc("count"))                                                  ↓ Shuffle        orderBy
 
+            • stage 0 — читання + filter + select
+            • stage 1 — агрегація
+            • stage 2 — сортування
 
-    🪙 TaskScheduler, компонент class
-        • отримує Stage від DAGScheduler
-        • розбиває його на окремі Task
-
-
-    🪙 Scheduler backend, компонент class
-        • serialize Task
-        • відправляє Task на Executors
-        • комунікує з Executors
-            • heartbeat
-            • task Running/Finished/Failed
-            • приймає ці повідомлення та передає їх TaskScheduler
-        • звертається до Cluster Manager із запитом
-            • need 8 Executors
-            • отримує їх
-        • запускає невиконані Task повторно
-        • збирає ці результати та передає їх DAGScheduler
-        • є різні реалізації залежно від середовища
-            • LocalSchedulerBackend                 local[*]
-            • StandaloneSchedulerBackend
-            • YarnSchedulerBackend
-            • KubernetesClusterSchedulerBackend
+        • Розуміння stage допомагає:
+            • знаходити причини повільного виконання (найчастіше через shuffle)
+            • аналізувати виконання в Spark UI, де можна побачити Jobs → Stages → Tasks
+            • оптимізувати запити, зменшуючи кількість wide transformations і shuffle
 
 
 
-                                   ------------     Spark Application
-                                  |                         │
-                                  |                         ▼
-                                  |                  Catalyst Optimizer
-                                  |                         │
-                                  |                         ▼
-                                  |                    DAGScheduler
-                Driver process    |                         │
-                                  |                         ▼
-                                  |                   TaskScheduler
-                                  |                         │
-                                  |                         ▼
-                                  |                  SchedulerBackend
-                                   ------------             │
-                                                            ▼
-                                                      Cluster Manager
-                                                            │
-                                                            ▼
-                                                        Executors
+    🪙 Task(process)
+        • одна копія вашого коду, яка виконується над однією partition
+        • одиниця роботи яка обробляє одну partition
+        • 1 Task = 1 Partition
+
+        ----------------------------------------------------------------------------------------
+          приклад                       як виглядає
+        ----------------------------------------------------------------------------------------
+          df.filter(df.age > 18)        Task 1 (df.filter(_.age > 18))      ~>      Partition 1
+                                        Task 2 (df.filter(_.age > 18))      ~>      Partition 2
+                                        Task 3 (df.filter(_.age > 18))      ~>      Partition 3
+                                        ...
+                                        Task 10 (df.filter(_.age > 18))     ~>      Partition 10
 
 
 
+    🪙 Partition
+        • найменша одиниця даних яку Spark обробляє незалежно
+        • логічний шматок даних
+        • є файл розміром 1 ГБ. Spark може розбити його на 10 partition по 100 МБ по ключу
+        • можуть оброблятися паралельно
+        • чим більше partition тим більше потенційного паралелізму
+        • приклад
+            users.csv містить в собі 1 000 000 рядків
+            spark.read.csv("users.csv")
+            Spark розбив файл на 4 partitions
 
-    🪙 RDD, Dataset, DataFrame
+                      +------------------------------------------------------+
+                      | Partition 1 | 1 - 250 000          | 250 000 rows    |
+                      | Partition 2 | 250 001 - 500 000    | 250 000 rows    |
+                      | Partition 3 | 500 001 - 750 000    | 250 000 rows    |
+                      | Partition 4 | 750 001 - 1 050 000  | 250 000 rows    |
+                      +------------------------------------------------------+
+
+
+    🪙 Приклад
+        • Dataset має 100 partitions           одночасно можуть виконуватися 20 tasks (5 × 4)
+        • кластер має 5 executors              кожен task обробляє одну partition
+        • кожен executor має 4 cores
+
+        • Spark працює хвилями:
+                                   Хвиля 1:   Task 1 ... Task 30
+                                   Хвиля 2:   Task31 ... Task60
+                                   Хвиля 3:   Task61 ... Task90
+                                   Хвиля 4:   Task91 ... Task120
+
+
+    🪙 Read:
+        spark.option("mode")
+            FailFast      - якість даних критична, Exception коли є некоректні рядки
+            Permissive    - не падає при помилках, кладуться в спеціальну колонку (_corrupt_record)
+                          - підходить, коли важливо зчитати максимум даних, навіть якщо частина “крива”
+            DropMalformed - ігнорує (викидає) некоректні рядки, вони просто не потрапляють у DataFrame
+                          - підходить, коли погані дані не потрібні взагалі
+
+
+    
+    🪙 Виконання DataFrame, Dataset, Spark SQL
+        • під час виконання DataFrame/Dataset або Spark SQL запиту дані проходять через кілька етапів планування
+        • основна ідея
+            • Spark спочатку розуміє що потрібно зробити
+            • а потім вирішує як саме це виконати найефективніше
+        • схема
+            🟡 SQL/DataFrame API    ~>   🟡 Unresolved Logical Plan            ~>         🟡 Physical Plan                                ~>      🟡 Executed Physical Plan           ~>   Result
+                                             будується дерево операцій:                      • вибирає конкретні алгоритми виконання                 • Spark генерує реальні задачі          • df.explain("extended")
+                                                 Project(customer_id)                        • логічно це просто JOIN але фізично:                       * Tasks
+                                                    Filter(amount > 100)                         Broadcast Hash Join                                     * Stages
+                                                        Relation(orders)                         Sort Merge Join                                         * Shuffle
+                                                                                                 Shuffle Hash Join                                       * Exchange
+                                         🟡 Analyzed Logical Plan                            • один логічний план може мати кілька                   • запускає їх на executor’ах
+                                            перевіряє:                                         можливих фізичних планів, Spark оцінює
+                                                • існування таблиць/колонок                    їхню вартість і вибирає найкращий
+                                                • типи даних
+                                                • функції
+                                                • aliases
+
+                                        🟡 Optimized  Logical Plan
+                                            використовуються правила оптимізації:
+                                              • Predicate Pushdown:  фільтр виконується ще під час читання даних
+                                              • Column Pruning:      якщо потрібен лише customer_id інші колонки читатися не будуть
+                                              • Constant Folding:    where amount > (50 + 50)   ~>   where amount > 100
+                                              • Join Reordering:     для декількох join порядок join може змінитися
+
+            -----------------------------------------------------------------------------
+             План                             Призначення
+            -----------------------------------------------------------------------------
+             Unresolved Logical Plan          Представити запит як дерево операцій
+             Analyzed Logical Plan            Перевірити таблиці, колонки, типи
+             Optimized Logical Plan           Застосувати оптимізації Catalyst
+             Physical Plan                    Вибрати конкретні алгоритми виконання
+             Adaptive Physical Plan           Перебудувати план на основі реальних даних
+             Executed Physical Plan           Запустити stages/tasks на кластері
+            ------------------------------------------------------------------------------
+
+
+    🪙 RDD, Dataset, DataFrame (entity)
         • основні абстракції для роботи з даними
         • відрізняються рівнем абстракції, продуктивністю та типобезпекою
 
@@ -397,12 +478,11 @@ You ROCK!
 
                                             ds.filter(_.age > 25)
 
-
             • Runtime/Compilation
-                                DataFrame               <>      Dataset
-
-                                  df.select("agge")     <>        ds.map(_.agge)
-                                  впаде в Runtime       <>        не скомпілиться
+                                 DataFrame                     Dataset
+                                --------------------------------------------------
+                                 df.select("agge")             ds.map(_.agge)
+                                 впаде в Runtime               не скомпілиться
 
 
             • побудова плана та оптимізаці
@@ -423,100 +503,102 @@ You ROCK!
          --------------------------------------------------------------------------------------------------------------
           RDD                                     DataFrame                                    DataSet
          --------------------------------------------------------------------------------------------------------------
-          • потрібні низькорівневі операції         • працюєте з таблицями                         • хочете типобезпеку
-          • використовується значно рідше           • використовуєте SQL                           • використовуєте case class
-                                                    • потрібна максимальна продуктивність
-                                                    • ETL або аналітичні пайплайни
+           • потрібні низькорівневі операції       • працюєте з таблицями                       • хочете типобезпеку
+          ь• використовується значно рідше         • використовуєте SQL                         • використовуєте case class
+                                                   • потрібна максимальна продуктивність
+                                                   • ETL або аналітичні пайплайни
 
 
-
-    🪙 partitioning:
-            • ділить дані partitions для паралельної обробки на різних ядрах або вузлах кластера
-            • 100 GB
-                ├── partition 1
-                ├── partition 2
-                ├── partition 3
-                ├── partition 4
-                ...
-            • df.rdd.getNumPartitions()            output: 8  (Spark створив 8 частин даних)
-            • орієнтуються на кількість CPU core
-            • від нього залежить
-                • швидкість join
-                • швидкість groupBy
-                • кількість shuffle
-                • баланс навантаження між executor’ами
-                • загальна продуктивність Spark-застосунку
-
-
-    🪙 repartition
-                • змінює кількість партицій (по кількості / по колонках)
-                • df.rdd.repartition(20)
-                • df.repartition("country")                 Partition 1           Partition 2
-                                                                     UA                    US
-                                                                     UA                    US
-
-    🪙 repartitionBy  (або Hive-style partitioning)
-            • df.write.partitionBy("country").parquet("/data/output")
-            • на диску буде:
-                output/
-                    ├── country=UA/
-                    │   ├── part-000.parquet
-                    ├── country=US/
-                    │   ├── part-001.parquet
-            • коли прочитаєш:           spark.read.parquet("/data/output").filter("country = 'UA'")
-              Spark прочитає тільки:    "output/country=UA/"
+    🪙 partitioning (концепція)
+        • ділить дані partitions для паралельної обробки на різних ядрах або вузлах кластера
+        • 100 GB
+            ├── partition 1
+            ├── partition 2
+            ├── partition 3
+            ├── partition 4
+            ...
+        • df.rdd.getNumPartitions()            output: 8  (Spark створив 8 частин даних)
+        • орієнтуються на кількість CPU core
+        • від нього залежить
+            • швидкість join
+            • швидкість groupBy
+            • кількість shuffle
+            • баланс навантаження між executor’ами
+            • загальна продуктивність Spark-застосунку
 
 
-    🪙 coalesce
-            • зменшує кількість партицій
-            • зазвичай без повного shuffle
-            • працює швидше
-            • df.coalesce(2)                            було: 8 partitions      стало: 2 partitions
+    🪙 repartition (функція)
+        • змінює кількість партицій (по кількості / по колонках)
+        • df.rdd.repartition(20)
+        • df.repartition("country")                 Partition 1           Partition 2
+                                                             UA                    US
+                                                             UA                    US
 
 
-    🪙 shuffle
-            • перерозподіл даних між нодами по ключу таким чином
-              щоб усі записи з одним і тим самим ключом були в одному partition
-            • запис проміжних файлів на диск
-            • читання цих файлів tasks
-            • серіалізацію/десеріалізацію даних (дані передаються по мережі)
-            • одна з найдорожчих операцій у Spark
-            • cаме тому правильний partitioning дуже важливий
-            • приклад
-                  таблиця:                 user_id |   order_id
-                                          ---------|------------
-                                             1     |     A
-                                             2     |     B
-                                             1     |     C
-                                             2     |     D
+    🪙 repartitionBy  (або Hive-style partitioning, функція)
+        • df.write.partitionBy("country").parquet("/data/output")
+        • на диску буде:
+            output/
+                ├── country=UA/
+                │   ├── part-000.parquet
+                ├── country=US/
+                │   ├── part-001.parquet
+        • коли прочитаєш:           spark.read.parquet("/data/output").filter("country = 'UA'")
+          Spark прочитає тільки:    "output/country=UA/"
 
-                  виконуємо:              df.groupBy("user_id").count()
-                  для підрахунку Spark повинен зібрати всі записи одного user_id в одному partition
 
-                                 до shuffle:                        після shuffle:
-                                     partition 0:     1, A              partition 0:     1, A
-                                                      2, B                               1, С
+    🪙 coalesce (функція)
+        • зменшує кількість партицій
+        • зазвичай без повного shuffle
+        • працює швидше
+        • df.coalesce(2)                            було: 8 partitions      стало: 2 partitions
 
-                                     partition 1:     1, C              partition 1:     2, B
-                                                      2, D                               2, D
 
-                  тепер кожен executor може локально виконати агрегацію
+    🪙 shuffle (концепція)
+        • перерозподіл даних між нодами по ключу таким чином
+          щоб усі записи з одним і тим самим ключом були в одному partition
+        • запис проміжних файлів на диск
+        • читання цих файлів tasks
+        • серіалізацію/десеріалізацію даних (дані передаються по мережі)
+        • одна з найдорожчих операцій у Spark
+        • cаме тому правильний partitioning дуже важливий
+        • приклад
+              таблиця:                 user_id |   order_id
+                                      ---------|------------
+                                         1     |     A
+                                         2     |     B
+                                         1     |     C
+                                         2     |     D
 
-            • df.explain("formatted"),
-            • output: Exchange
-                    == Physical Plan ==
-                    Exchange hashpartitioning(customer_id, 200)
-                    +- Scan parquet
-                    Exchange hashpartitioning(customer_id, 200)
-                    +- Scan parquet
-                    ShuffledHashJoin
-            • для великих таблиць ГБ/ТБ саме shuffle часто займає найбільшу частину часу виконання Spark job
-            • викликається в: repartition, join, distinct, dropDuplicates, sort, groupBy, orderBy, cube, rollup, window
-            • Shuffle Read або Shuffle Write - саме перерозподіл даних є головною вартістю виконання
-              
+              виконуємо:              df.groupBy("user_id").count()
+              для підрахунку Spark повинен зібрати всі записи одного user_id в одному partition
+
+                             до shuffle:                        після shuffle:
+                                 partition 0:     1, A              partition 0:     1, A
+                                                  2, B                               1, С
+
+                                 partition 1:     1, C              partition 1:     2, B
+                                                  2, D                               2, D
+
+              тепер кожен executor може локально виконати агрегацію
+
+        • df.explain("formatted"),
+        • output: Exchange
+                == Physical Plan ==
+                Exchange hashpartitioning(customer_id, 200)
+                +- Scan parquet
+                Exchange hashpartitioning(customer_id, 200)
+                +- Scan parquet
+                ShuffledHashJoin
+        • для великих таблиць ГБ/ТБ саме shuffle часто займає найбільшу частину часу виконання Spark job
+        • викликається в: repartition, join, distinct, dropDuplicates, sort, groupBy, orderBy, cube, rollup, window
+        • Shuffle Read або Shuffle Write - саме перерозподіл даних є головною вартістю виконання
+
+
     🪙 transformation - описує як отримати новий DataFrame
-    🪙 actions (show/count/collect/write) - стартує spark джобу
-    🪙 narrow transformation
+
+
+    🪙 narrow transformation (концепція)
         • коли в нас є DataFrame і ми робимо select якихось окремих колонок і в результаті в нас є новий DataFrame
           тільки з тими колонками котрі були вказані в select
         • select, map, flatMap, filter, withColumn, union, mapPartitions
@@ -525,13 +607,15 @@ You ROCK!
                         partition 2     ~>      partition 2
                         partition 3     ~>      partition 3
 
-    🪙 wide transformations
+
+    🪙 wide transformations (концепція)
         • коли в нас є декілька DataFrame і ми їх обєднюємо і отримуємо один
         • join, groupBy, groupByKey, sortByKey, orderBy, reduceByKey, aggregateByKey, distinct, repartition
         • один вихідний partition може залежати від багатьох вхідних partitions, для цього Spark виконує shuffle — переміщення даних між executors
                         partition 1 ---|
                                        | ---> Shuffle ---> New Partitions
                         partition 2 ---|
+
 
     🪙 Broadcast Hash Join
         • найголовніша перевага - немає великого shuffle
@@ -600,97 +684,9 @@ You ROCK!
                                  customer_id=3                          HashMap.get(3)
 
 
-    🪙 Stage
-        • група задач (tasks)
-        • виконуватися паралельно без необхідності shuffle
-        • Spark будує виконання
-            • cтворює граф усіх операцій DAG
-            • аналізує, де потрібен shuffle
-            • розбиває DAG на Stages
-            • в Stages створюються Tasks
-            • схематично
-                Job (DAG)
-                 ├── Stage 0
-                 │     ├── Task 1
-                 │     ├── Task 2
-                 │     └── Task 3
-                 │
-                 └── Stage 1
-                       ├── Task 1
-                       ├── Task 2
-                       └── Task 3
-        • новий Stage з’являється лише тоді, коли виникає shuffle
-            • narrow transformations не створює оскільки не має shuffle
-            • wide  transformations створює оскільки є shuffle
-        • приклад
-                      df                               Stage 0
-                        .filter($"age" > 18)               filter
-                        .select("country")                 select          Stage 1
-                        .groupBy("country")                    ↓ Shuffle       groupBy
-                        .count()                                               count                Stage 2
-                        .orderBy(desc("count"))                                    ↓ Shuffle            orderBy
-
-            • stage 0 — читання + filter + select
-            • stage 1 — агрегація
-            • stage 2 — сортування
-
-        • Job    - запускається дією (count(), collect(), save())
-        • Stage  - частина Job між двома shuffle
-        • Task   - виконання Stage для однієї партиції, наприклад 4 partition 4 task на кожну партицію
-        • Розуміння stage допомагає:
-            • знаходити причини повільного виконання (найчастіше через shuffle)
-            • аналізувати виконання в Spark UI, де можна побачити Jobs → Stages → Tasks
-            • оптимізувати запити, зменшуючи кількість wide transformations і shuffle
-
-
-    🪙 виконання (підняти на верх)
-        • під час виконання DataFrame/Dataset або Spark SQL запиту дані проходять через кілька етапів планування
-        • основна ідея
-            • Spark спочатку розуміє що потрібно зробити
-            • а потім вирішує як саме це виконати найефективніше
-        • схема
-            🟡 SQL/DataFrame API    ~>   🟡 Unresolved Logical Plan            ~>         🟡 Physical Plan                                ~>      🟡 Executed Physical Plan           ~>   Result
-                                             будується дерево операцій:                      • вибирає конкретні алгоритми виконання                 • Spark генерує реальні задачі          • df.explain("extended")
-                                                 Project(customer_id)                        • логічно це просто JOIN але фізично:                       * Tasks
-                                                    Filter(amount > 100)                         Broadcast Hash Join                                     * Stages
-                                                        Relation(orders)                         Sort Merge Join                                         * Shuffle
-                                                                                                 Shuffle Hash Join                                       * Exchange
-                                         🟡 Analyzed Logical Plan                            • один логічний план може мати кілька                   • запускає їх на executor’ах
-                                            перевіряє:                                         можливих фізичних планів, Spark оцінює
-                                                • існування таблиць/колонок                    їхню вартість і вибирає найкращий
-                                                • типи даних
-                                                • функції
-                                                • aliases
-
-                                        🟡 Optimized  Logical Plan
-                                            використовуються правила оптимізації:
-                                              • Predicate Pushdown:  фільтр виконується ще під час читання даних
-                                              • Column Pruning:      якщо потрібен лише customer_id інші колонки читатися не будуть
-                                              • Constant Folding:    where amount > (50 + 50)   ~>   where amount > 100
-                                              • Join Reordering:     для декількох join порядок join може змінитися
-
-            -----------------------------------------------------------------------------
-             План                             Призначення
-            -----------------------------------------------------------------------------
-             Unresolved Logical Plan          Представити запит як дерево операцій
-             Analyzed Logical Plan            Перевірити таблиці, колонки, типи
-             Optimized Logical Plan           Застосувати оптимізації Catalyst
-             Physical Plan                    Вибрати конкретні алгоритми виконання
-             Adaptive Physical Plan           Перебудувати план на основі реальних даних
-             Executed Physical Plan           Запустити stages/tasks на кластері
-            ------------------------------------------------------------------------------
-
-
-    🪙 spark read:
-        spark.option("mode")
-            FailFast      - якість даних критична, Exception коли є некоректні рядки
-            Permissive    - не падає при помилках, кладуться в спеціальну колонку (_corrupt_record)
-                          - підходить, коли важливо зчитати максимум даних, навіть якщо частина “крива”
-            DropMalformed - ігнорує (викидає) некоректні рядки, вони просто не потрапляють у DataFrame
-                          - підходить, коли погані дані не потрібні взагалі
+    🪙 actions (show/count/collect/write) - стартує spark джобу
 
     🪙 union and unionAll  - unionAll це просто аліас
-    🪙 shuffling           - is more expensive operation
     🪙 left-semi-join      - беруться з лівох ті, котрі intersect
     🪙 left-anti-join      - diff -> беруться з лівої ті, котрих не має в правій
     🪙 DataFrame.na:
@@ -699,3 +695,4 @@ You ROCK!
                         "IMDB_" -> 0,
                         "ORM_"  -> 2
                         ))   - замінить null в колонках IMDB_ на 0, ORM_ на 2
+
