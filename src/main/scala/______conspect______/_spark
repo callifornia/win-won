@@ -296,6 +296,7 @@ You ROCK!
 
 
 
+    розписати що це таке може трохи більше по цьому ...
     🪙 Job    - запускається дією (count(), collect(), save())
 
 
@@ -348,7 +349,7 @@ You ROCK!
 
 
 
-    🪙 Partition
+    🪙 Partition (entity)
         • найменша одиниця даних яку Spark обробляє незалежно
         • логічний шматок даних
         • є файл розміром 1 ГБ. Spark може розбити його на 10 partition по 100 МБ по ключу
@@ -379,7 +380,8 @@ You ROCK!
                                    Хвиля 4:   Task91 ... Task120
 
 
-    🪙 Read:
+
+    🪙 Read (функція)
         spark.option("mode")
             FailFast      - якість даних критична, Exception коли є некоректні рядки
             Permissive    - не падає при помилках, кладуться в спеціальну колонку (_corrupt_record)
@@ -388,8 +390,8 @@ You ROCK!
                           - підходить, коли погані дані не потрібні взагалі
 
 
-    
-    🪙 Виконання DataFrame, Dataset, Spark SQL
+
+    🪙 Виконання DataFrame, Dataset, Spark SQL (концепція)
         • під час виконання DataFrame/Dataset або Spark SQL запиту дані проходять через кілька етапів планування
         • основна ідея
             • Spark спочатку розуміє що потрібно зробити
@@ -685,7 +687,6 @@ You ROCK!
 
 
     🪙 actions (show/count/collect/write) - стартує spark джобу
-
     🪙 union and unionAll  - unionAll це просто аліас
     🪙 left-semi-join      - беруться з лівох ті, котрі intersect
     🪙 left-anti-join      - diff -> беруться з лівої ті, котрих не має в правій
