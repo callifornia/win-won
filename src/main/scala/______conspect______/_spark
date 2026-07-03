@@ -262,8 +262,8 @@ You ROCK!
         • загальний план виконання программи
             Spark Application  ▷  SparkSession  ▷  SparkContext
                  ▼
-                читається код трансформації (map, filter, join, groupBy ...)
-                виклик action               (count, collect, save, show ...)
+              читається код трансформації (map, filter, join, groupBy ...)
+              виклик action               (count, collect, save, show ...)
                  ▼
             Catalyst (Spark SQL Engine)
               unresolved   logical plan
@@ -348,7 +348,6 @@ You ROCK!
 
               GC                                                                    Full GC
               User Logs                logger.info("Start processing")              INFO Start processing
-
 
 
 
