@@ -196,10 +196,11 @@ You ROCK!
 
         • запис даних
             * client   ~> NameNode:     "хочу записати file.txt"
-            * NameNode ~> client:       "записуй блоки туди і передає DataNode"
-            * client   ~> DataNode:     "записую блоки туди"
+            * NameNode ~> client:       "записуй файл туди і передає DataNode"
+            * client   ~> DataNode:     "записую файл туди"
             * pipeline replication:     "це коли DN3 -> DN2 -> DN1 записали і в зворотньому порядку йде ACK"
             * тільки після "pipeline replication" вважається що дані були записані
+            * HDFS розбиває файл на блоки
 
         • читання даних
             * client ~> NameNode:   "Де знаходиться Block 42?"
@@ -210,6 +211,8 @@ You ROCK!
         • Чому NameNode не передає дані?
             * зроблено для масштабованості
             * якби всі дані проходили через NameNode, він став би вузьким місцем
+
+
 
 
 
