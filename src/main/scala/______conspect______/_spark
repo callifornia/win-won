@@ -1,9 +1,4 @@
-- REST APIs (pagination, rate limiting, token-based authentication)
-- Strong data modelling skills with structured, relational data
-- Solid SQL knowledge Experience operating data pipelines in production environments
-- Який досвід ви шукаєте ?
-
-
+Spark lecture:
 
 Spark Structured API with DataFrames
     + DataFrames Basics
@@ -17,7 +12,6 @@ Spark Structured API with DataFrames
     + DataFrame Joins
     + Joins: Exercises
 
-
 Spark Types and Datasets
     + Working with Spark Types
     + Advanced Spark Types
@@ -25,12 +19,10 @@ Spark Types and Datasets
     + Type-Safe Processing: Datasets
     Datasets, Part 2 + Exercises
 
-
 Spark SQL
     The Spark SQL Shell
     Programmatic Spark SQL
     Spark SQL: Exercises
-
 
 Spark Low-Level
     RDDs
@@ -38,7 +30,6 @@ Spark Low-Level
     Practical Spark
     How Spark Runs on a Cluster
     Deploying Spark Applications on a Cluster
-
 
 A Real Big Data Project
     A Big Data Problem
@@ -160,7 +151,7 @@ You ROCK!
                                                ▼
                                    HDFS (Розбиває файл на блоки)
                                                ▼
-                                  DataNode1 DataNode2 DataNode3
+                                  DataNode1 - DataNode2 - DataNode3
                                                ▼
                                     YARN (Розподіляє ресурси)
                                                ▼
@@ -874,6 +865,21 @@ You ROCK!
         • недоліки: дорогий shuffle означає передачу великих обсягів даних мережею
 
 
+    🪙 joins
+        • які є
+                 тип                      опис
+                ---------------------------------------------------------------------------------------------
+                 іnner                    є в обох таблицях
+                 left             ...     всі з ліва та ті котрі є в правій, якщо в правій не має тоді NULL
+                 right                    те саме тільки з правої
+                 full             ...     все з обох, пропуск заповнюється NULL
+                 cross                    декартовий добуток (кожен з кожним)
+                 left semi        ...     лише з лівої ті котрі є в правій (З ПРАВОЇ НЕ ПОВЕРТАЄ)
+                 left anti                лише з лівої ті котрих не має в правій (З ПРАВОЇ НЕ ПОВЕРТАЄ)
+
+        • Spark фізично виконує JOIN (Broadcast Hash Join, Sort Merge Join, Shuffle Hash Join)
+
+
     🪙 actions (show/count/collect/write) - стартує spark джобу
     🪙 union and unionAll  - unionAll це просто аліас
     🪙 left-semi-join      - беруться з лівох ті, котрі intersect
@@ -884,6 +890,7 @@ You ROCK!
                         "IMDB_" -> 0,
                         "ORM_"  -> 2
                         ))   - замінить null в колонках IMDB_ на 0, ORM_ на 2
+
 
 
 
