@@ -12,6 +12,7 @@ Spark Structured API with DataFrames
     + DataFrame Joins
     + Joins: Exercises
 
+
 Spark Types and Datasets
     + Working with Spark Types
     + Advanced Spark Types
@@ -19,10 +20,12 @@ Spark Types and Datasets
     + Type-Safe Processing: Datasets
     + Datasets, Part 2 + Exercises
 
+
 Spark SQL
     The Spark SQL Shell
     Programmatic Spark SQL
     Spark SQL: Exercises
+
 
 Spark Low-Level
     RDDs
@@ -30,6 +33,7 @@ Spark Low-Level
     Practical Spark
     How Spark Runs on a Cluster
     Deploying Spark Applications on a Cluster
+
 
 A Real Big Data Project
     A Big Data Problem
