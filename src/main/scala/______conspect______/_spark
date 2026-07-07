@@ -17,7 +17,7 @@ Spark Types and Datasets
     + Advanced Spark Types
     + Managing Nulls in Data
     + Type-Safe Processing: Datasets
-    Datasets, Part 2 + Exercises
+    + Datasets, Part 2 + Exercises
 
 Spark SQL
     The Spark SQL Shell
@@ -878,7 +878,6 @@ You ROCK!
                  left anti                лише з лівої ті котрих не має в правій (З ПРАВОЇ НЕ ПОВЕРТАЄ)
 
         • Spark фізично виконує JOIN (Broadcast Hash Join, Sort Merge Join, Shuffle Hash Join)
-
 
 
     🪙 actions (show/count/collect/write) - стартує spark джобу

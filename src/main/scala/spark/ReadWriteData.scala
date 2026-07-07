@@ -36,14 +36,12 @@ object ReadWriteData {
       .json("src/main/resources/essential/cars.json")
   }
 
-  def readJson2()(implicit spark: SparkSession): DataFrame =
+
+  def readJson(path: String)(implicit spark: SparkSession): DataFrame =
     spark
       .read
-      .option("recursiveFileLookup", "true")
       .option("inferSchema", "true")
-      .json("s3://match-services-wrappers-results/CompanyMasterEnrich/ucc/2025-03-11-14-00/")
-      .distinct()
-
+      .json(path)
 
 
   // CSV
