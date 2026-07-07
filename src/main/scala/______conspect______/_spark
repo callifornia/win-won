@@ -880,6 +880,7 @@ You ROCK!
         • Spark фізично виконує JOIN (Broadcast Hash Join, Sort Merge Join, Shuffle Hash Join)
 
 
+
     🪙 actions (show/count/collect/write) - стартує spark джобу
     🪙 union and unionAll  - unionAll це просто аліас
     🪙 left-semi-join      - беруться з лівох ті, котрі intersect
@@ -890,9 +891,6 @@ You ROCK!
                         "IMDB_" -> 0,
                         "ORM_"  -> 2
                         ))   - замінить null в колонках IMDB_ на 0, ORM_ на 2
-
-
-
 
 
 
@@ -967,5 +965,4 @@ You ROCK!
             • не призначений для частих оновлень окремих записів
             • менш зручний для ручного перегляду, ніж текстові формати на кшталт CSV чи JSON
             • створення файлу потребує більше обчислень через кодування та стиснення
-
 
