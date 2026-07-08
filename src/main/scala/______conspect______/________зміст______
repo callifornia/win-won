@@ -1,0 +1,10 @@
+ time        topic                   completed
+               sql
+               spark
+               delta_lake
+               protocol
+               data_structure
+               scala
+               api-rest
+               auth/auz
+               actors
