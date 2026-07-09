@@ -524,6 +524,8 @@
         • B-Tree index - default index
             • CREATE INDEX idx_users_email ON users(email)
             • = < > <= => BETWEEN ORDER BY LIKE 'abc%'
+        • HASH
+            • CREATE INDEX idx_users_email_hash ON users USING HASH(email)
         • Unique Index
             • CREATE UNIQUE INDEX idx_users_email_unique ON users(email)
         • Composite index (для кількох колонок)
@@ -535,8 +537,6 @@
         • GIN (json, array, full text search)
             • CREATE INDEX idx_products_data ON products USING GIN(data)
             • SELECT * FROM products WHERE data @> '{"color":"red"}'
-        • HASH
-            • CREATE INDEX idx_users_email_hash ON users USING HASH(email)
         • GiST (геодані, ranges, full-text, nearest-neighbor)
             • CREATE INDEX idx_locations ON places USING GIST(location)
         • Список індексів
@@ -557,9 +557,8 @@
                 SELECT * FROM active_users          фактично виконується        SELECT id, name FROM users WHERE active = true
        • типи
             • звичайний view
-                • дані НЕ зберігаються
+                • SQL виконується кожного разу, дані НЕ зберігаються
                 • дані оновлюються автоматично
-                • SQL виконується кожного разу
                 • якщо оновити через UPDATE
                   оновиться базова таблиця
 
@@ -568,21 +567,21 @@
                 • дані НЕ оновлюються автоматично, потрібно:   REFRESH MATERIALIZED VIEW sales_stats
                 • snapshot результату
 
-            • рекурсивний view
-                • дерева, графи, категорій, organizational hierarchy
-                • CREATE RECURSIVE VIEW employee_tree AS
-
             • темп view
                 • живе лише в рамках session
                   CREATE TEMP VIEW temp_data AS SELECT ...
+
+            • рекурсивний view
+                • дерева, графи, категорій, organizational hierarchy
+                • CREATE RECURSIVE VIEW employee_tree AS
 
             • можна оновлювати коли не має:
                 • GROUP BY, aggregates, DISTINCT, UNION, складних JOIN
 
             • WITH CHECK OPTION
+                • не дозволяй через VIEW записати дані, які це VIEW потім не покаже
                 • обмеження для VIEW, яке не дозволяє INSERT або UPDATE (через view), що не відповідають умовам view
                 • якщо view показує тільки “дозволені” рядки, то WITH CHECK OPTION гарантує, що через це view ти не зможеш записати “заборонені” дані
-                • не дозволяй через VIEW записати дані, які це VIEW потім не покаже
                 • є таблиця:    CREATE TABLE users (id SERIAL, name TEXT, active BOOLEAN)
                 • є view:       CREATE VIEW active_users AS
                                 SELECT      *
@@ -594,7 +593,7 @@
                                 WHERE   id = 1
 
                 • UPDATE пройде успішно але після цього користувач із id = 1 зникне із view оскільки було оновлення active = false
-                  Щоб цього уникнути потрібно створити view ось так:
+                  Щоб цього уникнути потрібно створити view (WITH CHECK OPTION) ось так:
 
                 • CREATE VIEW active_users AS
                   SELECT *
@@ -620,12 +619,13 @@
 
     🔶 Транзакції
         • група SQL-операцій, які виконуються як єдине ціле
+        • перехід із одного узгодженого стану в інший
         • BEGIN
           ...
           COMMIT
         • навіщо потрібні транзакції
-            • гроші знялись але не зарахувалися
             • перехід із одного узгодженого стану в інший
+            • гроші знялись але не зарахувалися
         • ACID — фундамент транзакцій
             A — Atomicity:      або все або нічого
             C — Consistency:    не повинна порушувати constraints: PK, FK, CHECK, UNIQUE
@@ -678,7 +678,7 @@
 
 
     🔶 Курсор
-        • механізм котрий дозволяє читати результат поступово, рядком за рядком або порціями (батчами)
+        • механізм котрий дозволяє читати результат поступово, рядoк за рядком або порціями (батчами)
         • зроблено замість того щоб не завантажувати весь результат одразу в памʼять
         • стрімити дані частинами, оптимізує використання памяті
         • зроблений для: batch processing, ETL, Stored procedures
@@ -696,7 +696,7 @@
 
 
 
-    🔶 Процедури - це код, який
+    🔶 Процедури
         • головна ідея business logic inside database
         • зберігається в БД
         • виконує набір дій
@@ -720,8 +720,6 @@
                                     x := x + 1;
                                 end;
                                 $$;
-
-
 
     🔶 Трігер
         • механізм, який автоматично запускає код при: INSERT, UPDATE, DELETE, TRUNCATE або інших подіях
