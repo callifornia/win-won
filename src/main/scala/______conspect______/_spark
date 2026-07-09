@@ -503,17 +503,18 @@ You ROCK!
 
     🪙 Stage
         • частина Job між двома shuffle
-        • містить групу задач (tasks)                                                          Job (DAG)
+        • містить групу задач (tasks)                                                Job (DAG)
         • виконуватися паралельно без необхідності shuffle                              ├── Stage 0
         • Spark будує виконання                                                         │     ├── Task 1
             • cтворює граф усіх операцій DAG                                            │     ├── Task 2
             • аналізує, де потрібен shuffle                                             │     └── Task 3
             • розбиває DAG на Stages                                                    │
             • в Stages створюються Tasks                                                └── Stage 1
-            • схематично                                                                      ├── Task 1
+                                                                                              ├── Task 1
         • новий Stage з’являється лише тоді, коли виникає shuffle                             ├── Task 2
             • narrow transformations не створює оскільки не має shuffle                       └── Task 3
-            • wide  transformations створює оскільки є shuffle
+            • wide   transformations створює оскільки є shuffle
+
         • приклад
                       df                                            Stage 0
                         .filter($"age" > 18)                            filter
@@ -556,7 +557,7 @@ You ROCK!
         • можуть оброблятися паралельно
         • чим більше partition тим більше потенційного паралелізму
         • приклад
-            users.csv містить в собі 1 000 000 рядків
+            users.csv   містить в собі 1 000 000 рядків
             spark.read.csv("users.csv")
             Spark розбив файл на 4 partitions
 
@@ -585,9 +586,9 @@ You ROCK!
         spark.option("mode")
             FailFast      - якість даних критична, Exception коли є некоректні рядки
             Permissive    - не падає при помилках, кладуться в спеціальну колонку (_corrupt_record)
-                          - підходить, коли важливо зчитати максимум даних, навіть якщо частина “крива”
+                            підходить, коли важливо зчитати максимум даних, навіть якщо частина “крива”
             DropMalformed - ігнорує (викидає) некоректні рядки, вони просто не потрапляють у DataFrame
-                          - підходить, коли погані дані не потрібні взагалі
+                            підходить, коли погані дані не потрібні взагалі
 
 
 
@@ -597,15 +598,30 @@ You ROCK!
             • Spark спочатку розуміє що потрібно зробити
             • а потім вирішує як саме це виконати найефективніше
         • схема
-            🟡 SQL/DataFrame API    ~>   🟡 Unresolved Logical Plan            ~>         🟡 Physical Plan                                ~>      🟡 Executed Physical Plan           ~>   Result
-                                             будується дерево операцій:                      • вибирає конкретні алгоритми виконання                 • Spark генерує реальні задачі          • df.explain("extended")
-                                                 Project(customer_id)                        • логічно це просто JOIN але фізично:                       * Tasks
-                                                    Filter(amount > 100)                         Broadcast Hash Join                                     * Stages
-                                                        Relation(orders)                         Sort Merge Join                                         * Shuffle
-                                                                                                 Shuffle Hash Join                                       * Exchange
-                                         🟡 Analyzed Logical Plan                            • один логічний план може мати кілька                   • запускає їх на executor’ах
-                                            перевіряє:                                         можливих фізичних планів, Spark оцінює
-                                                • існування таблиць/колонок                    їхню вартість і вибирає найкращий
+            ---------------------------------------------------------------------------------------------
+                План                             Призначення
+            ---------------------------------------------------------------------------------------------
+                Unresolved Logical Plan          представити запит як дерево операцій
+                Analyzed   Logical Plan          перевірити таблиці, колонки, типи
+                Optimized  Logical Plan          застосувати оптимізації Catalyst:
+                                                    Predicate Pushdown, Column Pruning, Constant Folding
+                Physical Plan                    вибрати конкретні алгоритми виконання
+                                                    Broadcast Hash Join, Sort Merge Join, Shuffle Hash Join
+                Adaptive Physical Plan           перебудувати план на основі реальних даних
+                                                    Stages, Tasks, Shuffle
+                Executed Physical Plan           запустити stages/tasks на кластері
+            ---------------------------------------------------------------------------------------------
+
+
+            🟡 SQL/DataFrame API    ~>   🟡 Unresolved Logical Plan            ~>      🟡 Physical Plan                              ~>    🟡 Executed Physical Plan           ~>   Result
+                                             будується дерево операцій:                   • вибирає конкретні алгоритми виконання             • Spark генерує реальні задачі          • df.explain("extended")
+                                                 Project(customer_id)                     • логічно це просто JOIN але фізично:                   * Tasks
+                                                    Filter(amount > 100)                      * Broadcast Hash Join                                 * Stages
+                                                        Relation(orders)                      * Sort Merge Join                                     * Shuffle
+                                                                                              * Shuffle Hash Join                                   * Exchange
+                                         🟡 Analyzed Logical Plan                         • один логічний план може мати кілька               • запускає їх на executor’ах
+                                            перевіряє:                                      можливих фізичних планів, оцінюється
+                                                • існування таблиць/колонок                 їхня вартість і вибирається найкращий
                                                 • типи даних
                                                 • функції
                                                 • aliases
@@ -617,16 +633,20 @@ You ROCK!
                                               • Constant Folding:    where amount > (50 + 50)   ~>   where amount > 100
                                               • Join Reordering:     для декількох join порядок join може змінитися
 
-            -----------------------------------------------------------------------------
-             План                             Призначення
-            -----------------------------------------------------------------------------
-             Unresolved Logical Plan          Представити запит як дерево операцій
-             Analyzed Logical Plan            Перевірити таблиці, колонки, типи
-             Optimized Logical Plan           Застосувати оптимізації Catalyst
-             Physical Plan                    Вибрати конкретні алгоритми виконання
-             Adaptive Physical Plan           Перебудувати план на основі реальних даних
-             Executed Physical Plan           Запустити stages/tasks на кластері
-            ------------------------------------------------------------------------------
+
+            ---------------------------------------------------------------------------------------------
+                План                             Призначення
+            ---------------------------------------------------------------------------------------------
+                Unresolved Logical Plan          представити запит як дерево операцій
+                Analyzed   Logical Plan          перевірити таблиці, колонки, типи
+                Optimized  Logical Plan          застосувати оптимізації Catalyst:
+                                                    Predicate Pushdown, Column Pruning, Constant Folding
+                Physical Plan                    вибрати конкретні алгоритми виконання
+                                                    Broadcast Hash Join, Sort Merge Join, Shuffle Hash Join
+                Adaptive Physical Plan           перебудувати план на основі реальних даних
+                                                    Stages, Tasks, Shuffle
+                Executed Physical Plan           запустити stages/tasks на кластері
+            ---------------------------------------------------------------------------------------------
 
 
     🪙 RDD, Dataset, DataFrame (entity)
