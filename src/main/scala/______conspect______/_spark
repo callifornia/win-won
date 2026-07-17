@@ -1202,9 +1202,11 @@ Spark book:
     RDD
     • RDD базрвий тип для всіх інших абстракцій, DataFrames, Datasets
 
+
                                       RDD
                                     /     \
                              DataFrames   Datasets
+
 
     • існує три важливі характеристики, пов'язані з RDD
         ~ список залежностей
@@ -1255,31 +1257,34 @@ Spark book:
 
 
                  Error               SQL                DataFrames              Dataset
-                ..............................................................................
+                .............................................................................
                  Syntax              Runtime            Compile Time            Compile Time
                  Analysis            Runtime            Runtime                 Compile Time
+
+
     • DataFrames and Datasets are built on top of RDDs
 
 
-          Hive Tables     JSON   Avro    Parquet   ORC         Snowflake   PostgresSQL
-               │            │      │        │       │               │          │
-               │            │      │        │       │             JDBC Connectors
-               │            │      │        │       │                    │
-               └────────────┴──────┴────────┴───┬───┴────────────────────┘
-                                                │
-                                         Underlying Engine
-                                                │
-                                        DataFrames/Datasets
-                                                │
-          ──────────────────────────────────────┴──────────────────────────────────────
-                                         Spark SQL engine
-                                       (Catalyst Optimizer)
-          ─────────────────────────────────────────────────────────────────────────────
-
+                    Hive Tables     JSON   Avro    Parquet   ORC         Snowflake   PostgresSQL
+                         │            │      │        │       │               │          │
+                         │            │      │        │       │             JDBC Connectors
+                         │            │      │        │       │                    │
+                         └────────────┴──────┴────────┴───┬───┴────────────────────┘
+                                                          │
+                                                   Underlying Engine
+                                                          │
+                                                  DataFrames/Datasets
+                                                          │
+                   ┌──────────────────────────────────────┴─────────────────────────────────────┐
+                   │                               Spark SQL engine                             │
+                   │                             (Catalyst Optimizer)                           │
+                   └────────────────────────────────────────────────────────────────────────────┘
+               
 
     • Plan flow
 
                             SQL      Dataframe      Dataset
+                             │           │             │
                              └───────────┼─────────────┘
                                          │
                                 Parsed Logical Plan
@@ -1289,7 +1294,7 @@ Spark book:
                                Optimized Logical Plan
                                          │....................... physical planning
                                     Physical Plan
-                                         │....................... physical planning
+                                         │....................... model creating
                         ┌────────────────┼──────────────────┐
                    cost model 1     cost model 2       cost model 3
                         └────────────────┼──────────────────┘
@@ -1297,6 +1302,26 @@ Spark book:
                                 Selected physical plan
                                          │....................... code generation
                                         RDD
+
+
+        Analysis                - створюється абстрактне синтаксичне дерево для SQL або DataFrame
+
+        Logical optimization    - формує набір можливих планів виконання
+                                  оцінює кожен із цих планів, призначаючи йому відповідну вартість
+                                  ці плани можуть включати оптимізації:
+                                        constant folding            projection pruning
+                                        predicate pushdown          boolean expression simplification
+
+        Physical planning       - генерує оптимальний фізичний план виконання для вибраного логічного плану
+                                  використовуючи фізичні оператори, що підтримуються механізмом виконання Spark
+
+        Code generation         - генерація ефективного байткоду Java який виконуватиметься на кожній машині кластера
+                                  Spark використовує сучасні технології компіляції для генерації коду, що прискорює виконання запитів
+                                  у цьому процесі Spark фактично виконує роль компілятора. Project Tungsten
+                                  whole-stage code generation - це етап фізичної оптимізації запиту, під час якого весь
+                                  запит об’єднується в одну функцію. Такий підхід усуває виклики віртуальних функцій і
+                                  використовує регістри процесора для зберігання проміжних результатів обчислень
+
 
         plann can be shown here via:    df.explain(True)
 
@@ -1326,6 +1351,26 @@ Spark book:
                         *(1) FileScan csv [State#10,Color#11,Count#12] Batched: false, Format: CSV, Location:
             InMemoryFileIndex[file:/Users/jules/gits/LearningSpark2.0/chapter2/py/src/... dataset.csv], PartitionFilters: [], PushedFilters: [],
             ReadSchema: struct<State:string,Color:string,Count:int>
+
+    • exemple
+        val usersDF = readCsv("/users/path")
+        val eventDF = readCsv("/event/path")
+
+        usersDF
+            .join(eventDF, id == id)
+            .filter(userId == 10)
+            .show()
+
+
+        logic plan:
+                                 filter                                            join
+                                  join                          filter userId = 10              read(eventDF)
+                       read(userDF)   read(eventDF)             read(userDF)
+
+
+        physical plan:
+                                                           join
+                                 optimized(read(userDF))           optimized(read(eventDF))
 
 
 

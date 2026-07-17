@@ -2,11 +2,11 @@ package asdasd
 
 import org.apache.hadoop.yarn.webapp.hamlet2.HamletSpec.Scope.col
 import org.apache.spark.sql.SparkSession
-import spark.ReadWriteData._
-import spark.util.InitSession.{spark, _}
+
+import util.Spark._
+import util.InitSession._
 import spark.implicits._
 import org.apache.spark.sql.functions._
-
 
 object Check {
 

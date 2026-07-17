@@ -4,10 +4,12 @@ package ______conspect______.big_data.spark
 import org.apache.spark.sql.{Column, Dataset, Encoders}
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types._
-import spark.util.InitSession._
-import util.Util.Spark._
+
+
+import util.Spark._
+import util.Spark.UdfFunctions._
+import util.InitSession._
 import spark.implicits._
-import util.Util.UdfFunctions
 
 import java.sql.Date
 import java.time.LocalDate
@@ -77,7 +79,7 @@ object Main {
     val titleWithReleaseDate = data
       .select(
         $"Title",
-        UdfFunctions.parseDate($"Release_Date").as("Actual_Release_Date"))
+        parseDate($"Release_Date").as("Actual_Release_Date"))
 
 //    titleWithReleaseDate.show(100, truncate = false)
 
