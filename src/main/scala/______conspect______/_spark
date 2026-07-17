@@ -1282,9 +1282,9 @@ Spark book:
                             SQL      Dataframe      Dataset
                              └───────────┼─────────────┘
                                          │
-                               Unresolved Logical plan
+                                Parsed Logical Plan
                                          │....................... analysis
-                                    Logical Plan
+                                Analyzed Logical Plan
                                          │....................... logical optimization
                                Optimized Logical Plan
                                          │....................... physical planning
@@ -1297,6 +1297,37 @@ Spark book:
                                 Selected physical plan
                                          │....................... code generation
                                         RDD
+
+        plann can be shown here via:    df.explain(True)
+
+            == Parsed Logical Plan ==
+            'Sort ['Total DESC NULLS LAST], true
+                +- Aggregate [State#10, Color#11], [State#10, Color#11, count(Count#12) AS...]
+                    +- Project [State#10, Color#11, Count#12]
+                        +- Relation[State#10,Color#11,Count#12] csv
+
+            == Analyzed Logical Plan ==
+            State: string, Color: string, Total: bigint Sort [Total#24L DESC NULLS LAST], true
+            +- Aggregate [State#10, Color#11], [State#10, Color#11, count(Count#12) AS...]
+                +- Project [State#10, Color#11, Count#12]
+                    +- Relation[State#10,Color#11,Count#12] csv
+
+            == Optimized Logical Plan ==
+            Sort [Total#24L DESC NULLS LAST], true
+            +- Aggregate [State#10, Color#11], [State#10, Color#11, count(Count#12) AS...]
+                +- Relation[State#10,Color#11,Count#12] csv
+
+            == Physical Plan ==
+             (3) Sort [Total#24L DESC NULLS LAST], true, 0
+                +- Exchange rangepartitioning(Total#24L DESC NULLS LAST, 200)
+                   (2) HashAggregate(keys=[State#10, Color#11], functions=[count(Count#12)], output=[State#10, Color#11, Total#24L])
+                        +- Exchange hashpartitioning(State#10, Color#11, 200)
+                        (1) HashAggregate(keys=[State#10, Color#11], functions=[partialcount(Count#12)], output=[State#10, Color#11,count#29L])
+                        *(1) FileScan csv [State#10,Color#11,Count#12] Batched: false, Format: CSV, Location:
+            InMemoryFileIndex[file:/Users/jules/gits/LearningSpark2.0/chapter2/py/src/... dataset.csv], PartitionFilters: [], PushedFilters: [],
+            ReadSchema: struct<State:string,Color:string,Count:int>
+
+
 
 
 
