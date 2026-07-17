@@ -824,9 +824,9 @@ You ROCK!
           тільки з тими колонками котрі були вказані в select
         • select, map, flatMap, filter, withColumn, union, mapPartitions
         • вихідний partition залежить від одного вхідного partition, дані між вузлами не переміщуються (немає shuffle)
-                        partition 1     ~>      partition 1
-                        partition 2     ~>      partition 2
-                        partition 3     ~>      partition 3
+                        partition 1     ~> select   ~>      partition 1
+                        partition 2     ~> filter   ~>      partition 2
+                        partition 3     ~> contains ~>      partition 3
 
 
     🪙 wide transformations (концепція)
@@ -1181,3 +1181,79 @@ You ROCK!
                                     +------+
                                     | delta|
                                     +------+
+
+
+
+
+Spark book:
+
+    Spark’s design philosophy centers around four key characteristics:
+        • Speed
+        • Ease of use
+        • Modularity
+        • Extensibility
+
+    • SparkSession ентрі поінт до всіх Spark operations and data. (per JVM)
+    • Cluster менеджмент ресурсів.
+    • Spark executor     працює на кожному робочому вузлі кластера. Виконавці взаємодіють із driver та відповідають за
+                         виконання завдань на робочих вузлах. 1 Worker = 1 Executor
+
+
+
+    • RDD базрвий тип для всіх інших абстракцій, DataFrames, Datasets
+
+                                      RDD
+                                    /     \
+                             DataFrames   Datasets
+
+    • Spark може читати з:                           HDFS, Cassandra, HBase, MongoDB, Hive, RDBMS
+    • Також можна підключити модулі щоб читати з:    Kafka, Kinesis, Azure, S3
+
+    • Spark SQL (extends RDD API):
+        ~ це модуль працює із structured data
+        ~ читаєш звідки хочеш і отримуєш DataFrame і дальше з ним працюєш
+        ~ можна написати один і той самий код на різних мовах але в результаті буде один і той самий перформенс тому що
+          bytecode буде ідентичним
+
+    • Spark MLlib
+        ~
+
+
+
+
+
+
+
+
+
+
+
+
+    - one of the main features Spark offers for speed is the ability to run computations in memory
+
+          Spark SQL                 Spark Streaming             MLib                    GraphX
+        structured data                real-time            machine learning        graph processing
+
+        ---------------------------------------------------------------------------------------------
+                                            Spark CORE
+        ---------------------------------------------------------------------------------------------
+
+        Standalone Scheduler                    YARN                               MESOS
+
+    Spark core:
+        components for task scheduling, memory management, fault recovery, interacting with storage systems, and more
+
+    Spark Stream (extends RDD API):
+        Spark Streaming is a Spark component that enables processing of live streams of data
+    Spark MLib:
+        Spark comes with a library containing common machine learning (ML) functionality
+    Spark GraphX (extends RDD API):
+        GraphX is a library for manipulating graphs
+
+    Cluster Managers:
+        designed to efficiently scale up from one to many thousands of compute nodes
+    RDDs
+        core concept in Spark
+        by default recomputed each time you run an action on them
+        If you would like to
+        you can ask Spark to persist it using RDD.persist() to reuse an RDD in multiple actions
