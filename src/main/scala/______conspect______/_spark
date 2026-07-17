@@ -1199,12 +1199,109 @@ Spark book:
                          виконання завдань на робочих вузлах. 1 Worker = 1 Executor
 
 
-
+    RDD
     • RDD базрвий тип для всіх інших абстракцій, DataFrames, Datasets
 
                                       RDD
                                     /     \
                              DataFrames   Datasets
+
+    • існує три важливі характеристики, пов'язані з RDD
+        ~ список залежностей
+        ~ partitions
+        ~ compute function
+
+    • потрібен список залежностей
+        ~ вказує Spark, як будується RDD з його вхідними даними
+          за потреби Spark може відтворити RDD із цих залежностей
+          ця характеристика забеспечує стійкість
+
+    • partitions
+        ~ надають Spark можливість розділяти роботу для паралелізації обчислень на розділах між виконавцями
+        ~ під час читання з HDFS, Spark використовуватиме інформацію про локальність для надсилання роботи виконавцям,
+          розташованим поблизу даних. Таким чином, мережею передається менше даних
+    • compute function
+        ~ що створює Iterator[T] для даних, що зберігатимуться в RDD
+
+
+    DataFrames
+        • distributed in-memory tables with named columns and schemas, where each column has a specific data type
+        • immutable і Spark зберігає всі перетворення
+
+    • Ієрархія типів в Spark:
+                                                DataType (base type)
+                            ├─ ByteType                               ├─ BinaryType
+                            ├─ ShortType                              ├─ TimestampType
+                            ├─ IntegerType                            ├─ DateType
+                            ├─ LongType          ... complex ...      ├─ ArrayType
+                            ├─ FloatType                              ├─ MapType
+                            ├─ DoubleType                             ├─ StructType
+                            ├─ StringType                             └─ StructField
+                            └─ BooleanType
+
+    • DataFrameWriter - записує DataFrame ~> Source
+    • DataFrameReader - читає   Source    ~> DataFrame
+
+    • Що дев повинен себе запитувати:
+        ~ чи у всіх них correct types, чи можливо щось потрібно конвертувати ?
+        ~ чи мають null values ?
+
+    • Projection - це спосіб повернути лише рядки, що відповідають певній реляційній умові, за допомогою фільтрів
+
+    • Dataset[Row] - typed data
+    • Dataset[T]   - strongly typed data (Java and Scala)
+    • in Scala:     DataFrame is an alias for Dataset[Row]
+    • Structured API in Spark
+
+
+                 Error               SQL                DataFrames              Dataset
+                ..............................................................................
+                 Syntax              Runtime            Compile Time            Compile Time
+                 Analysis            Runtime            Runtime                 Compile Time
+    • DataFrames and Datasets are built on top of RDDs
+
+
+          Hive Tables     JSON   Avro    Parquet   ORC         Snowflake   PostgresSQL
+               │            │      │        │       │               │          │
+               │            │      │        │       │             JDBC Connectors
+               │            │      │        │       │                    │
+               └────────────┴──────┴────────┴───┬───┴────────────────────┘
+                                                │
+                                         Underlying Engine
+                                                │
+                                        DataFrames/Datasets
+                                                │
+          ──────────────────────────────────────┴──────────────────────────────────────
+                                         Spark SQL engine
+                                       (Catalyst Optimizer)
+          ─────────────────────────────────────────────────────────────────────────────
+
+
+    • Plan flow
+
+                            SQL      Dataframe      Dataset
+                             └───────────┼─────────────┘
+                                         │
+                               Unresolved Logical plan
+                                         │....................... analysis
+                                    Logical Plan
+                                         │....................... logical optimization
+                               Optimized Logical Plan
+                                         │....................... physical planning
+                                    Physical Plan
+                                         │....................... physical planning
+                        ┌────────────────┼──────────────────┐
+                   cost model 1     cost model 2       cost model 3
+                        └────────────────┼──────────────────┘
+                                         │
+                                Selected physical plan
+                                         │....................... code generation
+                                        RDD
+
+
+
+
+
 
     • Spark може читати з:                           HDFS, Cassandra, HBase, MongoDB, Hive, RDBMS
     • Також можна підключити модулі щоб читати з:    Kafka, Kinesis, Azure, S3
@@ -1215,8 +1312,12 @@ Spark book:
         ~ можна написати один і той самий код на різних мовах але в результаті буде один і той самий перформенс тому що
           bytecode буде ідентичним
 
-    • Spark MLlib
-        ~
+    • The Spark UI
+        ~ список scheduler stages and tasks
+        ~ RDD sizes і використання памяті
+        ~ інформація про енв.
+        ~ інфо про executors
+        ~ All Spark SQL queries
 
 
 
