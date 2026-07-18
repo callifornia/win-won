@@ -47,7 +47,8 @@ object Spark {
   def readCsv(path: String)(implicit spark: SparkSession): DataFrame =
     spark
       .read
-      .option("inferSchema", "true")
+      .option("inferSchema", true)
+      .option("header", true)
       .csv(path)
 
 

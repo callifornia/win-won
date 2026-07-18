@@ -6,17 +6,56 @@ import util.Spark._
 import util.Spark.UdfFunctions._
 import util.InitSession._
 import spark.implicits._
+import org.apache.spark.sql.functions._
+
 
 object LearnSparkBook {
 
   def main(args: Array[String]): Unit = {
-    air()
+//    air()
+    readImg()
   }
 
 
+  def readImg(): Unit = {
+    val checkFoo: String => String = _.toUpperCase
+//    val df = readCsv("/Users/hryhorii/Documents/projects/win-won/src/main/resources/sparkk/learning-spark/departuredelays.csv")
+//    df.printSchema()
+//    df.show()
+    spark.udf.register("foo", checkFoo)
+    println(spark.catalog.functionExists("fo123o"))
+
+  }
+
   def air(): Unit = {
-    val df = readCsv("src/main/resources/spark/learning-spark/departuredelays.csv")
-    df.show()
+    val df = readCsv("/Users/hryhorii/Documents/projects/win-won/src/main/resources/sparkk/learning-spark/departuredelays.csv")
+//    spark.catalog.dropTempView("tmp_foo_one")
+//    spark.sql("DROP TABLE IF EXISTS tmp_foo_one")
+//    df.write.saveAsTable("tmp_foo_one")
+
+
+    val result = df.where(
+      $"origin" === "SFO" and
+        $"destination" === "ORD" and
+        $"delay" > 120)
+
+    val withDelays =
+      df.withColumn("Flight_Delays",
+        when($"delay" > 360, "Very Long delays")
+          .when($"delay" > 120 and $"delay" < 360, "Long delays")
+          .when($"delay" > 60 and $"delay" < 120, "Short delays")
+          .when($"delay" === 0, "No delays")
+          .otherwise("Early"))
+
+//    spark.catalog.listDatabases()
+
+    spark.catalog.listDatabases().show(truncate = false)
+//    spark.catalog.listColumns("tmp_foo_one").columns.toSeq.mkString("\n").foreach(println)
+
+//    withDelays
+//      .dropDuplicates("Flight_Delays")
+//      .show()
+
   }
 
 

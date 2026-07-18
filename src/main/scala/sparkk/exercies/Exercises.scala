@@ -15,10 +15,8 @@ import java.util.UUID
 
 object Exercises {
 
-
   def main(args: Array[String]): Unit = {
     checkOneTwo()
-
   }
 
   val randomUUID: UserDefinedFunction = udf((name: String) => UUID.randomUUID().toString)

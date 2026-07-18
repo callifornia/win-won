@@ -1183,8 +1183,6 @@ You ROCK!
                                     +------+
 
 
-
-
 Spark book:
 
     Spark’s design philosophy centers around four key characteristics:
@@ -1193,8 +1191,11 @@ Spark book:
         • Modularity
         • Extensibility
 
-    • SparkSession ентрі поінт до всіх Spark operations and data. (per JVM)
-    • Cluster менеджмент ресурсів.
+    • SparkSession  - ентрі поінт до всіх Spark operations and data. (per JVM)
+                    - можна мати декілька в рамках одного аплікейшн контекст
+                    - це зручно мати, коли є декілька різних metastore(Data Source) в рамках одного Spark Application
+
+    • Cluster менеджмент ресурсів
     • Spark executor     працює на кожному робочому вузлі кластера. Виконавці взаємодіють із driver та відповідають за
                          виконання завдань на робочих вузлах. 1 Worker = 1 Executor
 
@@ -1304,6 +1305,7 @@ Spark book:
                                         RDD
 
 
+
         Analysis                - створюється абстрактне синтаксичне дерево для SQL або DataFrame
 
         Logical optimization    - формує набір можливих планів виконання
@@ -1364,19 +1366,13 @@ Spark book:
 
         logic plan:
                                  filter                                            join
-                                  join                          filter userId = 10              read(eventDF)
-                       read(userDF)   read(eventDF)             read(userDF)
+                                  join                  ~>        filter userId = 10              read(eventDF)
+                       read(userDF)   read(eventDF)               read(userDF)
 
 
         physical plan:
                                                            join
                                  optimized(read(userDF))           optimized(read(eventDF))
-
-
-
-
-
-
 
 
     • Spark може читати з:                           HDFS, Cassandra, HBase, MongoDB, Hive, RDBMS
@@ -1391,9 +1387,97 @@ Spark book:
     • The Spark UI
         ~ список scheduler stages and tasks
         ~ RDD sizes і використання памяті
-        ~ інформація про енв.
+        ~ інформація про енв
         ~ інфо про executors
         ~ All Spark SQL queries
+
+    • Tables
+        ~ managed     - DROP TABLE will delete    meta data & data
+        ~ unmanaged   - DROP TABLE will delete    meta data
+
+    • Views
+                    df.createOrReplaceTempView("view_name")
+                    df.dropTempView("view_name")
+        ~ can be accessed in scope of one SparkSession OR all Spark application
+        ~ they disappear after your Spark application terminates
+        ~ you must use the prefix:                                                     global_temp.<view_name>
+        ~ Spark creates global temporary views in a global temporary database called:  global_temp
+
+    • Data skew - коли дані розподілені між partitions нерівномірно
+
+        • наприклад, у тебе є 10 executors
+            очікуєш таке навантаження:                      виникло ось таке:
+                Partition 1  -> 100 MB                          Partition 1  -> 20 MB
+                Partition 2  -> 98 MB                           Partition 2  -> 15 MB
+                Partition 3  -> 103 MB                          Partition 3  -> 18 MB
+                Partition 4  -> 95 MB                           Partition 4  -> 21 MB
+                Partition 5  -> 98 MB                           Partition 5  -> 7 GB   <-- проблема
+                ...                                             ...
+                Partition 10 -> 101 MB                          Partition 10 -> 101 MB
+
+            9-ть ексекюторів завершить роботу за секунди а 5-й буде працювати ще хвилини, весь Spark Job чекатиме саме його
+
+                   очікується час виконання такий              а стає ось таким
+                               Executor 1                              Executor 1
+                               ██████████ 2 sec                        ██████████ 2 sec
+
+                               Executor 2                              Executor 2
+                               ██████████ 2 sec                        ██████████ 2 sec
+
+                               Executor 3                              Executor 3
+                               ██████████ 2 sec                        ██████████ 2 sec
+
+                               Executor 4                              Executor 4
+                               ██████████ 2 sec                        ██████████████████████████████████ 90 sec
+
+        • найчастіше skew виникає під час JOIN, у користувача user_id = 10 міліонів записів в таблиці orders
+
+                         user_id (таблиця users)           user_id (таблиця orders)
+                         -----------------------           ------------------------
+                            1                                 1
+                            2                                 1
+                            3                                 1
+                            4                                 1
+                            5                                 1
+                           ...                               ...
+
+            users.join(orders, "user_id"), після цього усі записи для користувача user_id=1 потрапляють в один
+            partition і він стає гіганським
+
+        • як знайти skew? Найпростіше — через Spark UI
+                               Stage 7                             Input Size
+
+                               Task 1                              Task 1
+                               2 sec                               120 MB
+
+                               Task 2                              Task 2
+                               3 sec                               115 MB
+
+                               Task 3                              Task 3
+                               2 sec                               118 MB
+
+                               Task 4                              Task 4
+                               1 min 45 sec                        8.4 GB
+
+        • як боротися зі skew?
+            ~ Broadcast Join (найкраще рішення)
+            ~ Repartition
+            ~ Adaptive Query Execution:                spark.conf.set("spark.sql.adaptive.enabled", "true")
+            ~ Filter раніше:
+                                погано:    JOIN                     додбре:    WHERE country='UA'
+                                            ↓                                         ↓
+                                          WHERE country='UA'                         JOIN
+
+
+
+
+
+
+
+
+
+
+
 
 
 
