@@ -44,6 +44,15 @@ object Spark {
   }
 
 
+  def readTxt(path: String)(implicit spark: SparkSession): DataFrame =
+    spark
+      .read
+      .option("header", "true")
+      .option("inferschema","true")
+      .option("delimiter","\t")
+      .csv(path)
+
+
   def readCsv(path: String)(implicit spark: SparkSession): DataFrame =
     spark
       .read

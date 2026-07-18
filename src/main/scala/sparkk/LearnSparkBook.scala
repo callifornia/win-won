@@ -12,20 +12,22 @@ import org.apache.spark.sql.functions._
 object LearnSparkBook {
 
   def main(args: Array[String]): Unit = {
-//    air()
-    readImg()
+    someExercise()
   }
 
 
-  def readImg(): Unit = {
-    val checkFoo: String => String = _.toUpperCase
-//    val df = readCsv("/Users/hryhorii/Documents/projects/win-won/src/main/resources/sparkk/learning-spark/departuredelays.csv")
-//    df.printSchema()
-//    df.show()
-    spark.udf.register("foo", checkFoo)
-    println(spark.catalog.functionExists("fo123o"))
+  def someExercise(): Unit = {
+    val departue = readCsv("/Users/hryhorii/Documents/projects/win-won/src/main/resources/sparkk/learning-spark/departuredelays.csv")
+    val airport  = readTxt("/Users/hryhorii/Documents/projects/win-won/src/main/resources/sparkk/learning-spark/airport-codes-na.txt")
 
+    departue.printSchema()
+    airport.printSchema()
+
+    departue.show(truncate = false)
+    airport.show(truncate = false)
   }
+
+
 
   def air(): Unit = {
     val df = readCsv("/Users/hryhorii/Documents/projects/win-won/src/main/resources/sparkk/learning-spark/departuredelays.csv")

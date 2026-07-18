@@ -702,7 +702,7 @@ You ROCK!
 
             • Runtime/Compilation
                                  DataFrame                     Dataset
-                                --------------------------------------------------
+                                -----------------------------------------------
                                  df.select("agge")             ds.map(_.agge)
                                  впаде в Runtime               не скомпілиться
 
@@ -984,6 +984,8 @@ You ROCK!
                                                                  Kyiv
 
     • структура файлу
+
+
                              +----------------------+
                              | Magic Number         |
                              +----------------------+
@@ -1005,6 +1007,7 @@ You ROCK!
                              +----------------------+
                              | Magic Number         |
                              +----------------------+
+
 
     • для кожної колонки Parquet часто зберігає: min, max, null count, distinct count (іноді)
     • predicate pushdown - це коли читаються тільки потрібні дані
@@ -1121,6 +1124,7 @@ You ROCK!
         ~ DeltaTable.convertToDelta(spark, "path/deltaLake...")
     • історія:
         ~ DeltaTable.forPath(spark, "path/...").history().select("version", "timestamp", "operation").show()
+
                                       +-------+-----------------------+---------+
                                       |version|timestamp              |operation|
                                       +-------+-----------------------+---------+
@@ -1128,6 +1132,7 @@ You ROCK!
                                       |1      |2023-01-31 06:26:56.895|WRITE    |
                                       |0      |2023-01-31 06:26:35.825|WRITE    |
                                       +-------+-----------------------+---------+
+
     • дозволяє створювати дельта-таблиці зі згенерованими стовпцями, які автоматично обчислюються на основі значень інших стовпців і зберігаються в сховищі
     • встановити цільовий розмір файлу:     spark.databricks.delta.optimize.maxFileSize
     • оновлення даних команда merge (insert + update in one request):
@@ -1176,6 +1181,7 @@ You ROCK!
             spark.read.format("parquet").option("mergeSchema", "true").load("path/...").show()
         • spark.sql(""" CREATE TABLE table2 (country STRING, continent STRING) USING delta """)
         • spark.sql("DESCRIBE DETAIL table2").select("format").show()
+
                                     +------+
                                     |format|
                                     +------+
@@ -1205,8 +1211,8 @@ Spark book:
 
 
                                       RDD
-                                    /     \
-                             DataFrames   Datasets
+                                    /      \
+                             Datasets     DataFrames
 
 
     • існує три важливі характеристики, пов'язані з RDD
@@ -1281,6 +1287,7 @@ Spark book:
                    │                             (Catalyst Optimizer)                           │
                    └────────────────────────────────────────────────────────────────────────────┘
                
+
 
     • Plan flow
 
@@ -1406,7 +1413,8 @@ Spark book:
     • Data skew - коли дані розподілені між partitions нерівномірно
 
         • наприклад, у тебе є 10 executors
-            очікуєш таке навантаження:                      виникло ось таке:
+            ~ очікуєш таке навантаження:                      виникло ось таке:
+
                 Partition 1  -> 100 MB                          Partition 1  -> 20 MB
                 Partition 2  -> 98 MB                           Partition 2  -> 15 MB
                 Partition 3  -> 103 MB                          Partition 3  -> 18 MB
@@ -1415,7 +1423,7 @@ Spark book:
                 ...                                             ...
                 Partition 10 -> 101 MB                          Partition 10 -> 101 MB
 
-            9-ть ексекюторів завершить роботу за секунди а 5-й буде працювати ще хвилини, весь Spark Job чекатиме саме його
+            ~ 9-ть ексекюторів завершить роботу за секунди а 5-й буде працювати ще хвилини, весь Spark Job чекатиме саме його
 
                    очікується час виконання такий              а стає ось таким
                                Executor 1                              Executor 1
@@ -1464,15 +1472,17 @@ Spark book:
             ~ Repartition
             ~ Adaptive Query Execution:                spark.conf.set("spark.sql.adaptive.enabled", "true")
             ~ Filter раніше:
-                                погано:    JOIN                     додбре:    WHERE country='UA'
+                                погано:    JOIN                     добре:    WHERE country='UA'
                                             ↓                                         ↓
                                           WHERE country='UA'                         JOIN
 
 
-
-
-
-
+    • Functions
+                    Aggregate functions            Sorting functions
+                    Collection functions           String functions
+                    Datetime functions             Non-aggregate functions
+                    UDF functions                  Math functions
+                    Window functions               Miscellaneous functions
 
 
 
