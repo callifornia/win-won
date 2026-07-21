@@ -56,6 +56,19 @@ object SparkExercises {
         .withColumn("extra",        array_remove($"split_values", ""))
 
 
+      dept
+        .withColumn("split_values", split($"VALUES", quoteRegex($"Delimiter")))
+        .withColumn("extra",        array_remove($"split_values", ""))
+
+
+      dept
+        .withColumn("split_values", split($"VALUES", quoteRegex($"Delimiter")))
+        .withColumn("extra",        array_remove($"split_values", ""))
+
+      dept
+        .withColumn("split_values", split($"VALUES", quoteRegex($"Delimiter")))
+        .withColumn("extra",        array_remove($"split_values", ""))
+
       // other ...
       dept
         .withColumn("split_values", array_remove(split($"VALUES", concat(lit("\\").cast(StringType), $"Delimiter")), ""))
