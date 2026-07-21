@@ -17,14 +17,22 @@ object LearnSparkBook {
 
 
   def someExercise(): Unit = {
-    val departue = readCsv("/Users/hryhorii/Documents/projects/win-won/src/main/resources/sparkk/learning-spark/departuredelays.csv")
-    val airport  = readTxt("/Users/hryhorii/Documents/projects/win-won/src/main/resources/sparkk/learning-spark/airport-codes-na.txt")
+//    val departue = readCsv("/Users/hryhorii/Documents/projects/win-won/src/main/resources/sparkk/learning-spark/departuredelays.csv")
+//    val airport  = readTxt("/Users/hryhorii/Documents/projects/win-won/src/main/resources/sparkk/learning-spark/airport-codes-na.txt")
 
-    departue.printSchema()
-    airport.printSchema()
+    val conf = spark.conf.getAll
+    val longestKey = conf.keySet.map(_.length).max
 
-    departue.show(truncate = false)
-    airport.show(truncate = false)
+    val adoptKeyLeng: String => String =
+      key => key + (1 to (longestKey - key.length)).map(_ => " ").mkString
+
+
+    conf.foreach{case (key, value) => println(adoptKeyLeng(key) + " " + value)}
+
+//    departue.printSchema()
+//    airport.printSchema()
+//    departue.show(truncate = false)
+//    airport.show(truncate = false)
   }
 
 

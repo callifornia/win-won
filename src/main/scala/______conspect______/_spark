@@ -1291,25 +1291,25 @@ Spark book:
 
     • Plan flow
 
-                            SQL      Dataframe      Dataset
-                             │           │             │
-                             └───────────┼─────────────┘
-                                         │
-                                Parsed Logical Plan
-                                         │....................... analysis
-                                Analyzed Logical Plan
-                                         │....................... logical optimization
-                               Optimized Logical Plan
-                                         │....................... physical planning
-                                    Physical Plan
-                                         │....................... model creating
-                        ┌────────────────┼──────────────────┐
-                   cost model 1     cost model 2       cost model 3
-                        └────────────────┼──────────────────┘
-                                         │
-                                Selected physical plan
-                                         │....................... code generation
-                                        RDD
+                                          SQL      Dataframe      Dataset
+                                           │           │             │
+                                           └───────────┼─────────────┘
+                                                       │
+                                              Parsed Logical Plan
+                                                       │....................... analysis
+                                              Analyzed Logical Plan
+                                                       │....................... logical optimization
+                                             Optimized Logical Plan
+                                                       │....................... physical planning
+                                                  Physical Plan
+                                                       │....................... model creating
+                                      ┌────────────────┼──────────────────┐
+                                 cost model 1     cost model 2       cost model 3
+                                      └────────────────┼──────────────────┘
+                                                       │
+                                              Selected physical plan
+                                                       │....................... code generation
+                                                      RDD
 
 
 
@@ -1453,19 +1453,19 @@ Spark book:
             partition і він стає гіганським
 
         • як знайти skew? Найпростіше — через Spark UI
-                               Stage 7                             Input Size
+                      Stage 7                                              Input Size
 
-                               Task 1                              Task 1
-                               2 sec                               120 MB
+                      Task 1                                               Task 1
+                      ██████████  2 sec                                    ██████████ 120 MB
 
-                               Task 2                              Task 2
-                               3 sec                               115 MB
+                      Task 2                                               Task 2
+                      ██████████  3 sec                                    ██████████ 115 MB
 
-                               Task 3                              Task 3
-                               2 sec                               118 MB
+                      Task 3                                               Task 3
+                      ██████████  2 sec                                    ██████████ 118 MB
 
-                               Task 4                              Task 4
-                               1 min 45 sec                        8.4 GB
+                      Task 4                                               Task 4
+                      █████████████████████████████ 1 min 45 sec           █████████████████████████████ 8.4 GB
 
         • як боротися зі skew?
             ~ Broadcast Join (найкраще рішення)
@@ -1476,15 +1476,67 @@ Spark book:
                                             ↓                                         ↓
                                           WHERE country='UA'                         JOIN
 
-
     • Functions
-                    Aggregate functions            Sorting functions
-                    Collection functions           String functions
-                    Datetime functions             Non-aggregate functions
-                    UDF functions                  Math functions
-                    Window functions               Miscellaneous functions
+                    aggregate functions            sorting functions
+                    collection functions           string functions
+                    datetime functions             non-aggregate functions
+                    UDF functions                  math functions
+                    window functions               miscellaneous functions
 
 
+    • Spark
+        Spark 1.0
+            ~ використовував Java-об’єкти на основі RDD для зберігання даних у пам’яті, а також для їх серіалізації та десеріалізації
+            ~ такий підхід був ресурсомістким і працював повільно
+            ~ пам’ять виділялася в Java Heap
+            ~ продуктивність значною мірою залежала від механізму GC
+
+        У Spark 1.x було представлено Project Tungsten
+            ~ encoders механізм для серіалізації та десеріалізації даних між JVM і внутрішнім форматом Tungsten Spark
+            ~ новий внутрішній формат зберігання даних на основі рядків
+            ~ розміщення Datasets і DataFrames у позакупній пам’яті (off-heap memory)
+            ~ використовування зміщень (offsets) і вказівників (pointers)
+            ~ розміщення даних у off-heap пам’яті дозволяє Spark значно менше залежати від роботи збирача сміття GC
+
+        у Spark 2.x було представлено друге покоління Tungsten
+            ~ включає генерацію коду для всього етапу виконання
+            ~ колоночне представлення даних (векторизоване ) у пам’яті
+            ~ побудована на ідеях і методах сучасних компіляторів
+            ~ використовує переваги сучасних процесорів і кеш-пам’яті для швидкого паралельного доступу до даних
+
+    • простими словами:
+        Encoders serialize and deserialize Dataset objects from Spark’s internal format to JVM objects
+
+    off-heap memory ? What is it ?
+
+    • Costs of Using Datasets:
+        ~ однією зі стратегій зменшення надмірної серіалізації та десеріалізації є використання DSL-виразів у запитах
+            ~ уникнення надмірного використання лямбда-функцій як анонімних аргументів для функцій вищого порядку
+            ~ оскільки лямбда-функції є анонімними та непрозорими для оптимізатора Catalyst
+            ~ під час їх використання він не може ефективно визначити, що саме ви робите, і відповідно не здатний
+              оптимізувати ваші запити (Оптимізатор Catalyst)
+        ~ другою стратегією є те щоб обєднювати запити разом
+
+        приклад
+            відсутня serialization/deserialization
+                personDS
+                    .filter(year($"birthDate") > earliestYear)
+                    .filter($"salary" > 80000)
+                    .filter($"lastName".startsWith("J"))
+                    .filter($"firstName".startsWith("D"))
+                    .count()
+
+            витрачається час на serialization/deserialization
+                personDF
+                                                                                    ... serialization
+                    .filter(x => x.birthDate.split("-")(0).toInt > earliestYear)    ...
+                                                                                    ... deserialization
+                    .filter($"salary" > 80000)
+                                                                                    ... serialization
+                    .filter(x => x.lastName.startsWith("J"))                        ...
+                                                                                    ... deserialization
+                    .filter($"firstName".startsWith("D"))
+                    .count()
 
 
 
