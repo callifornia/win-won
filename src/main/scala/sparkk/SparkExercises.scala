@@ -9,7 +9,6 @@ import spark.implicits._
 import org.apache.spark.sql.functions._
 
 
-
 object SparkExercises {
 
   def main(args: Array[String]): Unit = {
@@ -28,7 +27,7 @@ object SparkExercises {
         (2, "Others")).toDF("id", "value")
 
       input.show()
-      input.groupBy($"id").
+      input.groupBy($"id")
     }
 
 

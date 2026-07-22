@@ -923,7 +923,6 @@ You ROCK!
             * Shuffle Hash Join
             * Sort Merge Join
 
-
     🪙 actions (show/count/collect/write) - стартує spark джобу
     🪙 union and unionAll  - unionAll це просто аліас
     🪙 left-semi-join      - беруться з лівох ті, котрі intersect
@@ -934,6 +933,94 @@ You ROCK!
                         "IMDB_" -> 0,
                         "ORM_"  -> 2
                         ))   - замінить null в колонках IMDB_ на 0, ORM_ на 2
+
+    🪙 Window function (є досить дорогою операцією)
+        ├── Partition   - групування, window
+        │
+        │           +-----+------+
+        │           |dept |salary|
+        │           +-----+------+                                         IT            HR
+        │           |IT   |5000  |       Window.partitionBy("dept")        5000    та    3000
+        │           |IT   |6000  |                                         6000          3500
+        │           |HR   |3000  |
+        │           |HR   |3500  |
+        │           +-----+------+
+        │
+        │
+        ├── Order   - сортування(важливий для всіх функцій)
+        │
+        │           IT                                                 IT
+        │           5000                Window.orderBy("salary")       5000
+        │           7000                                               6000
+        │           6000                                               7000
+        │
+        │
+        └── Frame   - які саме рядки брати для поточного рядка
+                    від початку         - Window.unboundedPreceding
+                    від/до поточної     - Window.currentRow
+                    до  кінцевої        - Window.unboundedFollowing
+
+                    по кількості рядків              - rowsBetween(Window.unboundedPreceding, Window.currentRow)
+                    по значенню в колонці сортування - rangeBetween(Window.unboundedPreceding, Window.currentRow)
+
+                    rowsBetween(Window.unboundedPreceding, Window.currentRow )
+                    rangeBetween(-1000, 1000)
+            
+        загальний план виконання такий:
+                    - читає дані                Scan
+                    - partitionBy               Shuffle
+                    - orderBy                   SortExec
+                    - виконує функцію           WindowExec
+                    - повертає результат
+
+        ситаксис:
+            • функція   ~ опис по якій колонці групуємо/сортуємо, обмеження фрейма
+            • виклик конкретної функції
+            • приклад:
+                val windowFunction =
+                  Window
+                    .partitionBy("department")                                         ... групуємо
+                    .orderBy("department", "salary")                                   ... сортуємо
+                    .rowsBetween(Window.unboundedPreceding, Window.currentRow)         ... фрейм
+
+                df.withColumn("row_number",   row_number().over(windowFunction))
+
+        загальні windows функції бувають:
+            • рангові     - по рядках
+            • аналітичні  - по значеннях в колонках
+            • агрегатні   - калькуляція в рамках маленької групи
+
+        приклади функцій:
+
+                           val windowFunction =
+                                Window
+                                    .partitionBy("department")                                    ... групуємо
+                                    .orderBy("department", "salary")                              ... сортуємо
+                                    .rowsBetween(Window.unboundedPreceding, Window.currentRow)
+
+
+                            rankFunctionsDF
+                                .withColumn("row_number",   row_number().over(windowFunction))
+                                .withColumn("rank",         rank().over(windowFunction))
+                                .withColumn("denseRank",    dense_rank().over(windowFunction))
+                                .withColumn("percent_rank", percent_rank().over(windowFunction))
+                                .withColumn("ntile(2)",     ntile(2).over(windowFunction))
+
+                            analyticFunctionsDF
+                                .withColumn("lag",         lag($"hire_date", 1, lit("2000-01-01").cast(DateType)).over(windowFunction))
+                                .withColumn("lead",        lead($"hire_date", 1, lit("2000-01-01").cast(DateType)).over(windowFunction))
+                                .withColumn("first_value", first_value($"hire_date").over(windowFunction))
+                                .withColumn("last_value",  last_value($"hire_date").over(windowFunction))
+                                .withColumn("cume_dist",   cume_dist().over(windowFunction))
+
+                            aggregateFunctionsDF
+                                .withColumn("sum",    sum("salary").over(windowFunction))
+                                .withColumn("avg",    avg("salary").over(windowFunction))
+                                .withColumn("min",    min("salary").over(windowFunction))
+                                .withColumn("max",    max("salary").over(windowFunction))
+                                .withColumn("count",  count("salary").over(windowFunction))
+                                .withColumn("stddev", stddev("salary").over(windowFunction))
+
 
 
 
