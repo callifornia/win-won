@@ -80,7 +80,7 @@ You ROCK!
 
     • Чому Spark майже витіснив MapReduce?
                    MapReduce                                        Spark
-                   ----------------------------------------------------------------------------
+                   ─────────────────────────────────────────────────────────────────────────────
                     пише проміжні результати на диск                 працює переважно в RAM
                     повільніший                                      швидкий
                     batch                                            batch, stream
@@ -324,7 +324,7 @@ You ROCK!
 
         • журнали котрі допомагають аналізувати що робиться
 
-            -----------------------------------------------------------------------------------------------------------------------
+            ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
               • SparkContext — запуск і завершення застосунку
               • SchedulerBackend або відповідний backend (Standalone, YARN, Kubernetes) — взаємодія з Cluster Manager
               • HeartbeatReceiver — отримання heartbeat від Executor-ів
@@ -336,7 +336,7 @@ You ROCK!
 
         • логи
 
-            --------------------------------------------------------------------------------------------------------------------------------
+            ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
               Scheduler logs            Driver повідомляє про створення Job         INFO DAGScheduler:          Got job 3
                                         Створення Stage                             INFO DAGScheduler:          Submitting Stage 5
                                         Запуск TaskSet                              INFO TaskSchedulerImpl:     Adding task set 5.0
@@ -598,9 +598,9 @@ You ROCK!
             • Spark спочатку розуміє що потрібно зробити
             • а потім вирішує як саме це виконати найефективніше
         • схема
-            ---------------------------------------------------------------------------------------------
+            ──────────────────────────────────────────────────────────────────────────────────────────────────────
                 План                             Призначення
-            ---------------------------------------------------------------------------------------------
+            ──────────────────────────────────────────────────────────────────────────────────────────────────────
                 Unresolved Logical Plan          представити запит як дерево операцій
                 Analyzed   Logical Plan          перевірити таблиці, колонки, типи
                 Optimized  Logical Plan          застосувати оптимізації Catalyst:
@@ -610,7 +610,7 @@ You ROCK!
                 Adaptive Physical Plan           перебудувати план на основі реальних даних
                                                     Stages, Tasks, Shuffle
                 Executed Physical Plan           запустити stages/tasks на кластері
-            ---------------------------------------------------------------------------------------------
+
 
 
             🟡 SQL/DataFrame API    ~>   🟡 Unresolved Logical Plan            ~>      🟡 Physical Plan                              ~>    🟡 Executed Physical Plan           ~>   Result
@@ -635,9 +635,9 @@ You ROCK!
 
                                         🟡 Catalist Optimizer
 
-            ---------------------------------------------------------------------------------------------
+            ─────────────────────────────────────────────────────────────────────────────────────────────────────
                 План                             Призначення
-            ---------------------------------------------------------------------------------------------
+            ─────────────────────────────────────────────────────────────────────────────────────────────────────
                 Unresolved Logical Plan          представити запит як дерево операцій
                 Analyzed   Logical Plan          перевірити таблиці, колонки, типи
                 Optimized  Logical Plan          застосувати оптимізації Catalyst:
@@ -647,16 +647,16 @@ You ROCK!
                 Adaptive Physical Plan           перебудувати план на основі реальних даних
                                                     Stages, Tasks, Shuffle
                 Executed Physical Plan           запустити stages/tasks на кластері
-            ---------------------------------------------------------------------------------------------
+
 
 
     🪙 RDD   Dataset   DataFrame (entity)
         • основні абстракції для роботи з даними
         • відрізняються рівнем абстракції, продуктивністю та типобезпекою
 
-        ------------------------------------------------------------------------------------------------------------
+        ──────────────────────────────────────────────────────────────────────────────────────────────────────────────
                                              RDD                    Dataset                DataFrame
-        ------------------------------------------------------------------------------------------------------------
+        ──────────────────────────────────────────────────────────────────────────────────────────────────────────────
          Рівень абстракції                 Низький                 Середній                 Високий
          Типобезпека                         Так                      Так                      -
          Оптимізація Catalyst                 -                       Так                     Так
@@ -701,16 +701,19 @@ You ROCK!
                                             ds.filter(_.age > 25)
 
             • Runtime/Compilation
+
+                                ───────────────────────────────────────────────
                                  DataFrame                     Dataset
-                                -----------------------------------------------
+                                ───────────────────────────────────────────────
                                  df.select("agge")             ds.map(_.agge)
                                  впаде в Runtime               не скомпілиться
 
 
+
             • побудова плана та оптимізаці
-                    --------------------------------------------------------------------------------------------
+                    ────────────────────────────────────────────────────────────────────────────────────────────
                          RDD               DataFrame                    Опис (Spark може...)
-                    --------------------------------------------------------------------------------------------
+                    ────────────────────────────────────────────────────────────────────────────────────────────
                          RDD               SQL
                           ↓                 ↓
                          map               Logical Plan                 • переставити filter ближче до джерела
@@ -723,9 +726,9 @@ You ROCK!
 
         •  використання
 
-         --------------------------------------------------------------------------------------------------------------
+         ──────────────────────────────────────────────────────────────────────────────────────────────────────────────
           RDD                                   DataFrame                                 DataSet
-         --------------------------------------------------------------------------------------------------------------
+         ──────────────────────────────────────────────────────────────────────────────────────────────────────────────
            • потрібні низькорівневі операції     • працюєте з таблицями                    • хочете типобезпеку
            • використовується значно рідше       • використовуєте SQL
                                                  • потрібна максимальна продуктивність
@@ -766,6 +769,7 @@ You ROCK!
                 │   ├── part-000.parquet
                 ├── country=US/
                 │   ├── part-001.parquet
+                ...
         • коли прочитаєш:           spark.read.parquet("/data/output").filter("country = 'UA'")
           Spark прочитає тільки:    "output/country=UA/"
 
@@ -786,14 +790,15 @@ You ROCK!
         • одна з найдорожчих операцій у Spark
         • cаме тому правильний partitioning дуже важливий
         • приклад
-              таблиця:                 user_id |   order_id
+                                       user_id |   order_id
                                       ---------|------------
                                          1     |     A
                                          2     |     B
                                          1     |     C
                                          2     |     D
 
-              виконуємо:              df.groupBy("user_id").count()
+                                    df.groupBy("user_id").count()                    ... виконуємо
+
               для підрахунку Spark повинен зібрати всі записи одного user_id в одному partition
 
                              до shuffle:                        після shuffle:
@@ -824,18 +829,22 @@ You ROCK!
           тільки з тими колонками котрі були вказані в select
         • select, map, flatMap, filter, withColumn, union, mapPartitions
         • вихідний partition залежить від одного вхідного partition, дані між вузлами не переміщуються (немає shuffle)
+
                         partition 1     ~> select   ~>      partition 1
                         partition 2     ~> filter   ~>      partition 2
                         partition 3     ~> contains ~>      partition 3
+
 
 
     🪙 wide transformations (концепція)
         • коли в нас є декілька DataFrame і ми їх об'єднюємо і отримуємо один
         • join, groupBy, groupByKey, sortByKey, orderBy, reduceByKey, aggregateByKey, distinct, repartition
         • один вихідний partition може залежати від багатьох вхідних partitions, для цього Spark виконує shuffle — переміщення даних між executors
+
                         partition 1 ---|
                                        | ---> Shuffle ---> New Partitions
                         partition 2 ---|
+
 
 
     🪙 Broadcast Hash Join
@@ -906,10 +915,9 @@ You ROCK!
 
 
     🪙 joins
-        • достпуні:
 
              тип                      опис
-            ---------------------------------------------------------------------------------------------------------------
+            ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────
              іnner                    є в обох таблицях
              left             ...     всі з ліва та ті котрі є в правій, якщо в правій не має тоді NULL
              right                    те саме тільки з правої
@@ -917,6 +925,7 @@ You ROCK!
              cross                    декартовий добуток (кожен з кожним)
              left semi        ...     (intersect БЕЗ ПРАВОЇ) лише з лівої ті котрі є в правій (З ПРАВОЇ НЕ ПОВЕРТАЄ)
              left anti                (diff      БЕЗ ПРАВОЇ) лише з лівої ті котрих не має в правій (З ПРАВОЇ НЕ ПОВЕРТАЄ)
+
 
         • Spark фізично виконує JOIN:
             * Broadcast Hash Join
@@ -992,34 +1001,101 @@ You ROCK!
 
         приклади функцій:
 
-                           val windowFunction =
-                                Window
-                                    .partitionBy("department")                                    ... групуємо
-                                    .orderBy("department", "salary")                              ... сортуємо
-                                    .rowsBetween(Window.unboundedPreceding, Window.currentRow)
+               val windowFunction =
+                    Window
+                        .partitionBy("department")                                    ... групуємо ...
+                        .orderBy("department", "salary")                              ... сортуємо ...
+                        .rowsBetween(Window.unboundedPreceding, Window.currentRow)    ... фрейм ...
 
 
-                            rankFunctionsDF
-                                .withColumn("row_number",   row_number().over(windowFunction))
-                                .withColumn("rank",         rank().over(windowFunction))
-                                .withColumn("denseRank",    dense_rank().over(windowFunction))
-                                .withColumn("percent_rank", percent_rank().over(windowFunction))
-                                .withColumn("ntile(2)",     ntile(2).over(windowFunction))
 
-                            analyticFunctionsDF
-                                .withColumn("lag",         lag($"hire_date", 1, lit("2000-01-01").cast(DateType)).over(windowFunction))
-                                .withColumn("lead",        lead($"hire_date", 1, lit("2000-01-01").cast(DateType)).over(windowFunction))
-                                .withColumn("first_value", first_value($"hire_date").over(windowFunction))
-                                .withColumn("last_value",  last_value($"hire_date").over(windowFunction))
-                                .withColumn("cume_dist",   cume_dist().over(windowFunction))
+               rankFunctionsDF (по рядках)
+                   .withColumn("row_number",   row_number().over(windowFunction))
+                   .withColumn("rank",         rank().over(windowFunction))
+                   .withColumn("denseRank",    dense_rank().over(windowFunction))
+                   .withColumn("percent_rank", percent_rank().over(windowFunction))
+                   .withColumn("ntile(2)",     ntile(2).over(windowFunction))
 
-                            aggregateFunctionsDF
-                                .withColumn("sum",    sum("salary").over(windowFunction))
-                                .withColumn("avg",    avg("salary").over(windowFunction))
-                                .withColumn("min",    min("salary").over(windowFunction))
-                                .withColumn("max",    max("salary").over(windowFunction))
-                                .withColumn("count",  count("salary").over(windowFunction))
-                                .withColumn("stddev", stddev("salary").over(windowFunction))
+               +-------+-----------+------+----------+------+----------+----+---------+------------------+--------+
+               |name   |department |salary|hire_date |gender|row_number|rank|denseRank|percent_rank      |ntile(2)|
+               +-------+-----------+------+----------+------+----------+----+---------+------------------+--------+
+               |Ethan  |Engineering|78000 |2022-02-14|M     |1         |1   |1        |0.0               |1       |
+               |Bob    |Engineering|85000 |2020-06-01|M     |2         |2   |2        |0.25              |1       |
+               |Diana  |Engineering|85000 |2021-09-23|F     |3         |2   |2        |0.25              |1       |
+               |Alice  |Engineering|90000 |2019-03-15|M     |4         |4   |3        |0.75              |2       |
+               |Charlie|Engineering|95000 |2018-01-10|M     |5         |5   |4        |1.0               |2       |
+               |Julia  |HR         |65000 |2016-05-20|F     |1         |1   |1        |0.0               |1       |
+               |Kevin  |HR         |67000 |2018-08-08|M     |2         |2   |2        |0.5               |1       |
+               |Laura  |HR         |67000 |2021-12-01|F     |3         |2   |2        |0.5               |2       |
+               |Mike   |Marketing  |71000 |2015-10-10|M     |1         |1   |1        |0.0               |1       |
+               |Nina   |Marketing  |80000 |2020-03-03|F     |2         |2   |2        |1.0               |2       |
+               |Ian    |Sales      |58000 |2022-01-01|M     |1         |1   |1        |0.0               |1       |
+               |Fiona  |Sales      |60000 |2017-11-05|F     |2         |2   |2        |0.3333333333333333|1       |
+               |George |Sales      |72000 |2019-04-30|M     |3         |3   |3        |0.6666666666666666|2       |
+               |Hannah |Sales      |72000 |2020-07-19|F     |4         |3   |3        |0.6666666666666666|2       |
+               +-------+-----------+------+----------+------+----------+----+---------+------------------+--------+
+
+
+
+
+               analyticFunctionsDF (по значенню в колонці)
+                   .withColumn("lag",         lag($"hire_date", 1, lit("2000-01-01").cast(DateType)).over(windowFunction))
+                   .withColumn("lead",        lead($"hire_date", 1, lit("2000-01-01").cast(DateType)).over(windowFunction))
+                   .withColumn("first_value", first_value($"hire_date").over(windowFunction))
+                   .withColumn("last_value",  last_value($"hire_date").over(windowFunction))
+                   .withColumn("cume_dist",   cume_dist().over(windowFunction))
+
+               +-------+-----------+------+----------+------+----------+----------+-----------+----------+------------------+
+               |name   |department |salary|hire_date |gender|lag       |lead      |first_value|last_value|cume_dist         |
+               +-------+-----------+------+----------+------+----------+----------+-----------+----------+------------------+
+               |Ethan  |Engineering|78000 |2022-02-14|M     |2000-01-01|2020-06-01|2022-02-14 |2022-02-14|0.2               |
+               |Bob    |Engineering|85000 |2020-06-01|M     |2022-02-14|2021-09-23|2022-02-14 |2021-09-23|0.6               |
+               |Diana  |Engineering|85000 |2021-09-23|F     |2020-06-01|2019-03-15|2022-02-14 |2021-09-23|0.6               |
+               |Alice  |Engineering|90000 |2019-03-15|M     |2021-09-23|2018-01-10|2022-02-14 |2019-03-15|0.8               |
+               |Charlie|Engineering|95000 |2018-01-10|M     |2019-03-15|2000-01-01|2022-02-14 |2018-01-10|1.0               |
+               |Julia  |HR         |65000 |2016-05-20|F     |2000-01-01|2018-08-08|2016-05-20 |2016-05-20|0.3333333333333333|
+               |Kevin  |HR         |67000 |2018-08-08|M     |2016-05-20|2021-12-01|2016-05-20 |2021-12-01|1.0               |
+               |Laura  |HR         |67000 |2021-12-01|F     |2018-08-08|2000-01-01|2016-05-20 |2021-12-01|1.0               |
+               |Mike   |Marketing  |71000 |2015-10-10|M     |2000-01-01|2020-03-03|2015-10-10 |2015-10-10|0.5               |
+               |Nina   |Marketing  |80000 |2020-03-03|F     |2015-10-10|2000-01-01|2015-10-10 |2020-03-03|1.0               |
+               |Ian    |Sales      |58000 |2022-01-01|M     |2000-01-01|2017-11-05|2022-01-01 |2022-01-01|0.25              |
+               |Fiona  |Sales      |60000 |2017-11-05|F     |2022-01-01|2019-04-30|2022-01-01 |2017-11-05|0.5               |
+               |George |Sales      |72000 |2019-04-30|M     |2017-11-05|2020-07-19|2022-01-01 |2020-07-19|1.0               |
+               |Hannah |Sales      |72000 |2020-07-19|F     |2019-04-30|2000-01-01|2022-01-01 |2020-07-19|1.0               |
+               +-------+-----------+------+----------+------+----------+----------+-----------+----------+------------------+
+
+
+
+
+               aggregateFunctionsDF (агрегатні функції)
+                   .withColumn("sum",    sum("salary").over(windowFunction))
+                   .withColumn("avg",    avg("salary").over(windowFunction))
+                   .withColumn("min",    min("salary").over(windowFunction))
+                   .withColumn("max",    max("salary").over(windowFunction))
+                   .withColumn("count",  count("salary").over(windowFunction))
+                   .withColumn("stddev", stddev("salary").over(windowFunction))
+
+               +-------+-----------+------+----------+------+------+------------------+-----+-----+-----+------------------+
+               |name   |department |salary|hire_date |gender|sum   |avg               |min  |max  |count|stddev            |
+               +-------+-----------+------+----------+------+------+------------------+-----+-----+-----+------------------+
+               |Ethan  |Engineering|78000 |2022-02-14|M     |78000 |78000.0           |78000|78000|1    |NULL              |
+               |Bob    |Engineering|85000 |2020-06-01|M     |163000|81500.0           |78000|85000|2    |4949.747468305833 |
+               |Diana  |Engineering|85000 |2021-09-23|F     |248000|82666.66666666667 |78000|85000|3    |4041.4518843273804|
+               |Alice  |Engineering|90000 |2019-03-15|M     |338000|84500.0           |78000|90000|4    |4932.882862316245 |
+               |Charlie|Engineering|95000 |2018-01-10|M     |433000|86600.0           |78000|95000|5    |6348.22809924155  |
+               |Julia  |HR         |65000 |2016-05-20|F     |65000 |65000.0           |65000|65000|1    |NULL              |
+               |Kevin  |HR         |67000 |2018-08-08|M     |132000|66000.0           |65000|67000|2    |1414.213562373095 |
+               |Laura  |HR         |67000 |2021-12-01|F     |199000|66333.33333333333 |65000|67000|3    |1154.7005383792516|
+               |Mike   |Marketing  |71000 |2015-10-10|M     |71000 |71000.0           |71000|71000|1    |NULL              |
+               |Nina   |Marketing  |80000 |2020-03-03|F     |151000|75500.0           |71000|80000|2    |6363.961030678927 |
+               |Ian    |Sales      |58000 |2022-01-01|M     |58000 |58000.0           |58000|58000|1    |NULL              |
+               |Fiona  |Sales      |60000 |2017-11-05|F     |118000|59000.0           |58000|60000|2    |1414.213562373095 |
+               |George |Sales      |72000 |2019-04-30|M     |190000|63333.333333333336|58000|72000|3    |7571.877794400365 |
+               |Hannah |Sales      |72000 |2020-07-19|F     |262000|65500.0           |58000|72000|4    |7549.83443527075  |
+               +-------+-----------+------+----------+------+------+------------------+-----+-----+-----+------------------+
+
+
+
 
 
 

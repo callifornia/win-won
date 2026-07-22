@@ -81,9 +81,9 @@ object LearnSparkBook {
 
 
     df.show()
-    rankingFunctionDF.show(truncate = false)
+//    rankingFunctionDF.show(truncate = false)
 //    analyticsFunctionDF.show(truncate = false)
-//    aggregateFunctionsDF.show(truncate = false)
+    aggregateFunctionsDF.show(truncate = false)
 //    aggregateFunctionsDF.explain("formatted")
   }
 
