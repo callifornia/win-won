@@ -975,33 +975,33 @@ You ROCK!
                     rowsBetween(Window.unboundedPreceding, Window.currentRow )
                     rangeBetween(-1000, 1000)
             
-        загальний план виконання такий:
+        • загальний план виконання такий:
                     - читає дані                Scan
                     - partitionBy               Shuffle
                     - orderBy                   SortExec
                     - виконує функцію           WindowExec
                     - повертає результат
 
-        ситаксис:
-            • функція   ~ опис по якій колонці групуємо/сортуємо, обмеження фрейма
-            • виклик конкретної функції
-            • приклад:
+        • ситаксис:
+            * функція   ~ опис по якій колонці групуємо/сортуємо, обмеження фрейма
+            * виклик конкретної функції
+            * приклад:
                 val windowFunction =
                   Window
-                    .partitionBy("department")                                         ... групуємо
-                    .orderBy("department", "salary")                                   ... сортуємо
-                    .rowsBetween(Window.unboundedPreceding, Window.currentRow)         ... фрейм
+                    .partitionBy("department")                                         ... групуємо ...
+                    .orderBy("department", "salary")                                   ... сортуємо ...
+                    .rowsBetween(Window.unboundedPreceding, Window.currentRow)         ... фрейм ...
 
-                df.withColumn("row_number",   row_number().over(windowFunction))
+                df.withColumn("row_number",   row_number().over(windowFunction))       ... використання ...
 
-        загальні windows функції бувають:
-            • рангові     - по рядках
-            • аналітичні  - по значеннях в колонках
-            • агрегатні   - калькуляція в рамках маленької групи
+        • загальні windows функції бувають:
+            * рангові     - по рядках
+            * аналітичні  - по значеннях в колонках
+            * агрегатні   - калькуляція в рамках маленької групи
 
-        приклади функцій:
+        • приклади функцій:
 
-               val windowFunction =
+               * val windowFunction =
                     Window
                         .partitionBy("department")                                    ... групуємо ...
                         .orderBy("department", "salary")                              ... сортуємо ...
@@ -1009,7 +1009,7 @@ You ROCK!
 
 
 
-               rankFunctionsDF (по рядках)
+               * rankFunctionsDF (по рядках)
                    .withColumn("row_number",   row_number().over(windowFunction))
                    .withColumn("rank",         rank().over(windowFunction))
                    .withColumn("denseRank",    dense_rank().over(windowFunction))
@@ -1038,7 +1038,7 @@ You ROCK!
 
 
 
-               analyticFunctionsDF (по значенню в колонці)
+               * analyticFunctionsDF (по значенню в колонці)
                    .withColumn("lag",         lag($"hire_date", 1, lit("2000-01-01").cast(DateType)).over(windowFunction))
                    .withColumn("lead",        lead($"hire_date", 1, lit("2000-01-01").cast(DateType)).over(windowFunction))
                    .withColumn("first_value", first_value($"hire_date").over(windowFunction))
@@ -1067,7 +1067,7 @@ You ROCK!
 
 
 
-               aggregateFunctionsDF (агрегатні функції)
+               * aggregateFunctionsDF (агрегатні функції)
                    .withColumn("sum",    sum("salary").over(windowFunction))
                    .withColumn("avg",    avg("salary").over(windowFunction))
                    .withColumn("min",    min("salary").over(windowFunction))

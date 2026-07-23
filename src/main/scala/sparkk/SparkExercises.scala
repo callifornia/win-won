@@ -1,5 +1,6 @@
 package sparkk
 
+import org.apache.spark.sql.expressions.Window
 import org.apache.spark.sql.types.StringType
 import util.InitSession._
 
@@ -12,22 +13,70 @@ import org.apache.spark.sql.functions._
 object SparkExercises {
 
   def main(args: Array[String]): Unit = {
-    SparkWorkshop.exercises_2()
+    SparkWorkshop.exercise_4()
   }
 
 
   object SparkWorkshop {
 
+    // limiting collect_set Standard Function
+    def exercise_4(): Unit = {
+      val df = spark.range(50).withColumn("key", $"id" % 5)
+
+      df.show(100)
+      df
+        .groupBy("key")
+        .agg(collect_list("id").as("all"))
+        .sort($"key")
+        .show(truncate = false)
+    }
+
+    // adding count to the source DataFrame
+    def exercise_3(): Unit = {
+      val df = Seq(
+        ("05:49:56.604899", "10.0.0.2.54880", "10.0.0.3.5001",  2),
+        ("05:49:56.604900", "10.0.0.2.54880", "10.0.0.3.5001",  2),
+        ("05:49:56.604899", "10.0.0.2.54880", "10.0.0.3.5001",  2),
+        ("05:49:56.604900", "10.0.0.2.54880", "10.0.0.3.5001",  2),
+        ("05:49:56.604899", "10.0.0.2.54880", "10.0.0.3.5001",  2),
+        ("05:49:56.604900", "10.0.0.2.54880", "10.0.0.3.5001",  2),
+        ("05:49:56.604899", "10.0.0.2.54880", "10.0.0.3.5001",  2),
+        ("05:49:56.604900", "10.0.0.2.54880", "10.0.0.3.5001",  2),
+        ("05:49:56.604899", "10.0.0.2.54880", "10.0.0.3.5001",  2),
+        ("05:49:56.604900", "10.0.0.2.54880", "10.0.0.3.5001",  2),
+        ("05:49:56.604899", "10.0.0.2.54880", "10.0.0.3.5001",  2),
+        ("05:49:56.604900", "10.0.0.2.54880", "10.0.0.3.5001",  2),
+        ("05:49:56.604899", "10.0.0.2.54880", "10.0.0.3.5001",  2),
+        ("05:49:56.604908", "10.0.0.3.5001",  "10.0.0.2.54880", 2),
+        ("05:49:56.604908", "10.0.0.3.5001",  "10.0.0.2.54880", 2),
+        ("05:49:56.604908", "10.0.0.3.5001",  "10.0.0.2.54880", 2),
+        ("05:49:56.604908", "10.0.0.3.5001",  "10.0.0.2.54880", 2),
+        ("05:49:56.604908", "10.0.0.3.5001",  "10.0.0.2.54880", 2),
+        ("05:49:56.604908", "10.0.0.3.5001",  "10.0.0.2.54880", 2),
+        ("05:49:56.604908", "10.0.0.3.5001",  "10.0.0.2.54880", 2)).toDF("column0", "column1", "column2", "label")
+
+      val windowFunction = Window.partitionBy("column1")
+
+      df
+        .withColumn("count", count("column1").over(windowFunction))
+        .show()
+    }
+
+
     // selecting the most important rows per assigned priority ...
     def exercises_2(): Unit = {
-      val input = Seq(
+      val df = Seq(
         (1, "MV1"),
         (1, "MV2"),
         (2, "VPV"),
         (2, "Others")).toDF("id", "value")
 
-      input.show()
-      input.groupBy($"id")
+      val windowFunction = Window.partitionBy("id").orderBy("value").rowsBetween(Window.unboundedPreceding, Window.currentRow)
+
+      df
+        .withColumn("row_number", row_number().over(windowFunction))
+        .filter($"row_number" === 1)
+        .show()
     }
 
 
