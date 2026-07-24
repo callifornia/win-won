@@ -13,15 +13,38 @@ import org.apache.spark.sql.functions._
 
 object SparkExercises {
   case class MovieRatings(movieName: String, rating: Double)
-
   case class MovieCritics(name: String, movieRatings: Seq[MovieRatings])
 
   def main(args: Array[String]): Unit = {
-    SparkWorkshop.exercise_5_1()
+    SparkWorkshop.exercise_6_1()
   }
 
 
   object SparkWorkshop {
+
+
+    // Merging two rows
+    def exercise_6_1(): Unit = {
+      val df = Seq(
+        ("100","John", Some(35),None),
+        ("100","John", None,Some("Georgia")),
+        ("101","Mike", Some(25),None),
+        ("101","Mike", None,Some("New York")),
+        ("103","Mary", Some(22),None),
+        ("103","Mary", None,Some("Texas")),
+        ("104","Smith", Some(25),None),
+        ("105","Jake", None,Some("Florida"))).toDF("id", "name", "age", "city")
+
+      df.show(truncate = false)
+
+
+
+
+    }
+
+
+
+
 
     // structs for column names and values
     /* with explode and group by and pivot */
@@ -102,7 +125,6 @@ object SparkExercises {
         case (movieName, ratingColumnName) => col(ratingColumnName) as movieName
       }
 
-
       val baseColumns = "name" :: "movieRatings" :: Nil map col
       val result = all.select((baseColumns ++ movieWithRatingColumns): _*)
       result.show(truncate = false)
@@ -164,7 +186,7 @@ object SparkExercises {
         .show(truncate = false)
     }
 
-    
+
     // adding count to the source DataFrame
     def exercise_3(): Unit = {
       val df = Seq(
