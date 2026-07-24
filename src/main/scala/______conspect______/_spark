@@ -1094,6 +1094,19 @@ You ROCK!
                |Hannah |Sales      |72000 |2020-07-19|F     |262000|65500.0           |58000|72000|4    |7549.83443527075  |
                +-------+-----------+------+----------+------+------+------------------+-----+-----+-----+------------------+
 
+    🪙 coalescing duplicate records           це коли є стрічки з одним і тим самим id але різні поля заповнені
+       record consolidation
+       survivorship                             +---+-----+----+--------+
+                                                |id |name |age |city    |
+                                                +---+-----+----+--------+
+                                                |100|John |35  |NULL    |
+                                                |100|John |NULL|Georgia |
+                                                |101|Mike |25  |NULL    |
+                                                |101|Mike |NULL|New York|
+                                                |103|Mary |22  |NULL    |
+                                                |103|Mary |NULL|Texas   |
+                                                |104|Smith|25  |NULL    |
+                                                |105|Jake |NULL|Florida |
 
 
 

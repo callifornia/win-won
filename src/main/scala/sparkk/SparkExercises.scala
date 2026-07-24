@@ -14,9 +14,10 @@ import org.apache.spark.sql.functions._
 object SparkExercises {
   case class MovieRatings(movieName: String, rating: Double)
   case class MovieCritics(name: String, movieRatings: Seq[MovieRatings])
+  case class Person(id: Long, name: String, age: Option[Long], city: Option[String])
 
   def main(args: Array[String]): Unit = {
-    SparkWorkshop.exercise_6_1()
+    SparkWorkshop.exercise_6_2()
   }
 
 
@@ -24,22 +25,76 @@ object SparkExercises {
 
 
     // Merging two rows
-    def exercise_6_1(): Unit = {
+
+    def exercise_6_3(): Unit = {
       val df = Seq(
-        ("100","John", Some(35),None),
-        ("100","John", None,Some("Georgia")),
-        ("101","Mike", Some(25),None),
-        ("101","Mike", None,Some("New York")),
-        ("103","Mary", Some(22),None),
-        ("103","Mary", None,Some("Texas")),
-        ("104","Smith", Some(25),None),
-        ("105","Jake", None,Some("Florida"))).toDF("id", "name", "age", "city")
-
-      df.show(truncate = false)
+        ("100","John",  Some(35), None),
+        ("100","John",  None,     Some("Georgia")),
+        ("101","Mike",  Some(25), None),
+        ("101","Mike",  None,     Some("New York")),
+        ("103","Mary",  Some(22), None),
+        ("103","Mary",  None,     Some("Texas")),
+        ("104","Smith", Some(25), None),
+        ("105","Jake",  None,     Some("Florida"))).toDF("id", "name", "age", "city").as[Person]
 
 
+      df.groupByKey {
+        case Person(id, name, _, _) => (id, name)
+      }.reduceGroups {
+        case (personA, personB) =>
+          Person(
+            id = personA.id,
+            name = personA.name,
+            age = personA.age orElse personB.age,
+            city = personA.city orElse personB.city)
+      }.map(_._2).show(truncate = false)
+    }
 
 
+    def exercise_6_2(): Unit = {
+      val df = Seq(
+        ("100","John",  Some(35), None),
+        ("100","John",  None,     Some("Georgia")),
+        ("101","Mike",  Some(25), None),
+        ("101","Mike",  None,     Some("New York")),
+        ("103","Mary",  Some(22), None),
+        ("103","Mary",  None,     Some("Texas")),
+        ("104","Smith", Some(25), None),
+        ("105","Jake",  None,     Some("Florida"))).toDF("id", "name", "age", "city")
+
+      val windowFunction = Window.partitionBy("id", "name")
+      df
+        .withColumn("age", first("age",   ignoreNulls = true).over(windowFunction))   // can be used function "last"
+        .withColumn("city", first("city", ignoreNulls = true).over(windowFunction))   // can be used function "last"
+        .distinct()
+        .show(truncate = false)
+    }
+
+
+    def exercise_6_1(): Unit = {
+      /*
+        + very fast
+        + catalyst optimizer
+        + Easy to read
+
+        - коли декілька null він візьме будь який після шафл
+      * */
+      val df = Seq(
+        ("100","John",  Some(35), None),
+        ("100","John",  None,     Some("Georgia")),
+        ("101","Mike",  Some(25), None),
+        ("101","Mike",  None,     Some("New York")),
+        ("103","Mary",  Some(22), None),
+        ("103","Mary",  None,     Some("Texas")),
+        ("104","Smith", Some(25), None),
+        ("105","Jake",  None,     Some("Florida"))).toDF("id", "name", "age", "city")
+
+      df
+        .groupBy("id", "name")
+        .agg(
+          first("age",  ignoreNulls = true) as "age",
+          first("city", ignoreNulls = true) as "city")
+        .show(truncate = false)
     }
 
 
